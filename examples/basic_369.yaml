@@ -1,0 +1,12 @@
+name: basic_369
+operation: basic_369
+states:
+  - name: sigma_3
+    glyph: "3"
+    vector: [[3.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
+  - name: sigma_6
+    glyph: "6"
+    vector: [[0.0, 0.0], [-3.0, 5.196152423], [0.0, 0.0]]
+  - name: sigma_9
+    glyph: "9"
+    vector: [[0.0, 0.0], [0.0, 0.0], [-4.5, -7.794228634]]
