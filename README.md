@@ -1,6 +1,13 @@
 # Langarian Math
 
-**Version:** Python reference implementation v0.1.2 for **Langarian Math v0.2 FKC** plus the **v0.2.1 Epistemic Receipt Patch**, **Public Proof Gate**, and **Kimi v1 Harvest Review**.
+[![tests](https://github.com/MichaelWave369/langarian-math/actions/workflows/tests.yml/badge.svg)](https://github.com/MichaelWave369/langarian-math/actions/workflows/tests.yml)
+[![pages](https://github.com/MichaelWave369/langarian-math/actions/workflows/pages.yml/badge.svg)](https://github.com/MichaelWave369/langarian-math/actions/workflows/pages.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+
+**Version:** Python reference implementation v0.1.3 for **Langarian Math v0.2 FKC** plus the **v0.2.1 Epistemic Receipt Patch**, **Public Proof Gate**, and **Public Polish Patch**.
+
+**Live site:** https://michaelwave369.github.io/langarian-math/
 
 This repo is intentionally finite-dimensional, executable, and test-first. It does not claim to be physics, psychology, therapy, or a completed mathematical theory. It is a small formal kernel candidate for resonance-style symbolic state transformations with receipts.
 
@@ -17,6 +24,7 @@ This repo is intentionally finite-dimensional, executable, and test-first. It do
 - Bridge receipts between states
 - Epistemic tags for every claim/result
 - Proof Gate for formal claim eligibility
+- Receipt validation and explanation CLI commands
 - Invariant checks and PASS/WARN/FAIL statuses
 - Finite space helper harvested safely from Kimi v1
 - Norm-preserving unitary flow demo kept as a research-lane demo
@@ -48,6 +56,15 @@ or without installing console scripts:
 python -m langarian.cli run examples/basic_369.yaml --receipts-dir receipts
 ```
 
+## Validate and explain receipts
+
+```bash
+langarian validate receipts/basic_369_bridge.json
+langarian explain receipts/basic_369_bridge.json
+```
+
+These commands validate public receipt shape and print a human-readable summary. They do not recompute or overclaim the underlying operation.
+
 ## Web app
 
 A small Vite + React public landing page lives in `web/`.
@@ -69,6 +86,7 @@ A poetic or interpretive statement may ride along with a computation, but it can
 
 - `docs/PROOF_GATE.md`
 - `docs/RECEIPT_SCHEMA.md`
+- `docs/CLI.md`
 - `docs/ROADMAP.md`
 - `docs/Kimi_v1_Harvest_Review.md`
 
@@ -88,7 +106,7 @@ src/langarian/
   glyphs.py      tiny glyph dictionary stub with nearest-score helper
   spaces.py      finite C^n utility helper, no infinite Hilbert claim
   dynamics.py    norm-preserving rotation demo, no symplectic theorem claim
-  cli.py         small runner for examples
+  cli.py         example runner + receipt validator/explainer
 ```
 
 ## Kimi v1 Harvest
