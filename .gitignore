@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+.env
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Local generated receipts
+receipts/*.json
+!receipts/.gitkeep
