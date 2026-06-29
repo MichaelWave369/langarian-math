@@ -1,0 +1,9 @@
+name: phase_shift_cost
+operation: attenuated_phase_shift
+state:
+  name: creative_seed
+  glyph: creative
+  vector: [[0.8, 0.0], [0.2, 0.0]]
+angle_degrees: 90
+attenuation: 0.85
+cost_label: declared attenuation cost
