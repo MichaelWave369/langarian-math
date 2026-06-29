@@ -1,16 +1,32 @@
-"""Small CLI for Langarian example runs."""
+"""Small CLI for Langarian example runs and receipt inspection."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import json
 import math
 import sys
+from typing import Any
 
 import yaml
 
 from .operators import attenuated_phase_shift, bridge, harmonic_sum, phi_scale
 from .state import ResonantState
+
+REQUIRED_RECEIPT_FIELDS = {
+    "receipt_id",
+    "kernel_version",
+    "metric_version",
+    "operator",
+    "input_hashes",
+    "output_hash",
+    "invariant_results",
+    "status",
+    "epistemic_tag",
+}
+VALID_STATUSES = {"PASS", "WARN", "FAIL"}
+VALID_TAGS = {"FORMAL", "COMPUTED", "MODEL", "INTERPRETIVE", "METAPHOR", "OBSERVED", "FAILED"}
 
 
 def _state_from_config(config: dict) -> ResonantState:
@@ -27,6 +43,103 @@ def _write_receipt(receipts_dir: Path, name: str, json_text: str) -> Path:
     path = receipts_dir / name
     path.write_text(json_text + "\n", encoding="utf-8")
     return path
+
+
+def _load_receipt(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON receipt: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ValueError("Receipt must be a JSON object.")
+    return data
+
+
+def validate_receipt_data(data: dict[str, Any]) -> tuple[bool, list[str]]:
+    """Validate the public receipt shape.
+
+    This is schema validation, not recomputation of the underlying operation.
+    It checks that the receipt is shaped like a Langarian receipt and that its
+    collapsed status/tag values are known.
+    """
+
+    errors: list[str] = []
+    missing = sorted(REQUIRED_RECEIPT_FIELDS - set(data))
+    if missing:
+        errors.append(f"missing required field(s): {', '.join(missing)}")
+
+    if "receipt_id" in data and not str(data["receipt_id"]).startswith("sha256:"):
+        errors.append("receipt_id must start with sha256:")
+
+    if data.get("status") not in VALID_STATUSES:
+        errors.append(f"status must be one of {sorted(VALID_STATUSES)}")
+
+    if data.get("epistemic_tag") not in VALID_TAGS:
+        errors.append(f"epistemic_tag must be one of {sorted(VALID_TAGS)}")
+
+    input_hashes = data.get("input_hashes")
+    if "input_hashes" in data and not isinstance(input_hashes, list):
+        errors.append("input_hashes must be a list")
+
+    invariants = data.get("invariant_results")
+    if "invariant_results" in data:
+        if not isinstance(invariants, list):
+            errors.append("invariant_results must be a list")
+        else:
+            for index, invariant in enumerate(invariants):
+                if not isinstance(invariant, dict):
+                    errors.append(f"invariant_results[{index}] must be an object")
+                    continue
+                if invariant.get("status") not in VALID_STATUSES:
+                    errors.append(f"invariant_results[{index}].status must be PASS, WARN, or FAIL")
+                if not invariant.get("name"):
+                    errors.append(f"invariant_results[{index}].name is required")
+
+    return (not errors, errors)
+
+
+def validate_receipt_file(path: Path) -> int:
+    data = _load_receipt(path)
+    ok, errors = validate_receipt_data(data)
+    if ok:
+        print(f"PASS receipt schema: {path}")
+        print(f"operator: {data.get('operator')}")
+        print(f"status: {data.get('status')}")
+        return 0
+    print(f"FAIL receipt schema: {path}", file=sys.stderr)
+    for error in errors:
+        print(f"- {error}", file=sys.stderr)
+    return 1
+
+
+def explain_receipt_file(path: Path) -> int:
+    data = _load_receipt(path)
+    ok, errors = validate_receipt_data(data)
+    if not ok:
+        print(f"Cannot explain invalid receipt: {path}", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+
+    invariants = data.get("invariant_results", [])
+    passed = sum(1 for item in invariants if item.get("status") == "PASS")
+    warned = sum(1 for item in invariants if item.get("status") == "WARN")
+    failed = sum(1 for item in invariants if item.get("status") == "FAIL")
+
+    print("Langarian Receipt Explanation")
+    print("-----------------------------")
+    print(f"receipt: {data.get('receipt_id')}")
+    print(f"operator: {data.get('operator')}")
+    print(f"status: {data.get('status')}")
+    print(f"epistemic tag: {data.get('epistemic_tag')}")
+    print(f"metric: {data.get('metric_version')}")
+    print(f"inputs: {len(data.get('input_hashes', []))}")
+    print(f"output: {data.get('output_hash')}")
+    print(f"coherence before: {data.get('coherence_before')}")
+    print(f"coherence after: {data.get('coherence_after')}")
+    print(f"invariants: {passed} PASS, {warned} WARN, {failed} FAIL")
+    print("rule: interpretive claims may appear in receipts, but cannot certify proof")
+    return 0
 
 
 def run_example(path: Path, receipts_dir: Path) -> int:
@@ -71,12 +184,24 @@ def run_example(path: Path, receipts_dir: Path) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="langarian")
     sub = parser.add_subparsers(dest="command", required=True)
-    run = sub.add_parser("run")
+
+    run = sub.add_parser("run", help="Run a YAML example and emit receipts.")
     run.add_argument("example", type=Path)
     run.add_argument("--receipts-dir", type=Path, default=Path("receipts"))
+
+    validate = sub.add_parser("validate", help="Validate a receipt JSON file.")
+    validate.add_argument("receipt", type=Path)
+
+    explain = sub.add_parser("explain", help="Explain a receipt JSON file in plain language.")
+    explain.add_argument("receipt", type=Path)
+
     args = parser.parse_args(argv)
     if args.command == "run":
         return run_example(args.example, args.receipts_dir)
+    if args.command == "validate":
+        return validate_receipt_file(args.receipt)
+    if args.command == "explain":
+        return explain_receipt_file(args.receipt)
     return 2
 
 
