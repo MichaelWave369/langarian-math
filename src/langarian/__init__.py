@@ -6,6 +6,7 @@ from .operators import harmonic_sum, phase_shift, attenuated_phase_shift, phi_sc
 from .epistemic import EpistemicTag, ResultStatus
 from .spaces import FiniteComplexSpace
 from .dynamics import UnitaryFlowDemo
+from .proof_gate import ProofGateError, ProofGateReport, evaluate_claims, require_proof_eligible, promote_model_assumption
 
 __all__ = [
     "ResonantState",
@@ -22,4 +23,9 @@ __all__ = [
     "ResultStatus",
     "FiniteComplexSpace",
     "UnitaryFlowDemo",
+    "ProofGateError",
+    "ProofGateReport",
+    "evaluate_claims",
+    "require_proof_eligible",
+    "promote_model_assumption",
 ]
