@@ -2,41 +2,36 @@
 
 Langarian Math grows by receipts, not hype.
 
-## Current trunk
+## Current trunk candidate
 
-**v0.1.2 — Public Proof-Gate Patch**
+**v0.1.4 — SaaSy Reduced-Domain Helper Patch**
 
 - Finite complex vector states
 - Normalized complex similarity
 - Receipt-emitting operators
 - Epistemic tags
 - Proof Gate
+- Receipt validation and explanation CLI
+- SaaSy reduced bracket-wall scan for finite samples
 - Public docs and contribution flow
 
 ## v0.1.x — Kernel hardening
 
 - Expand property tests
-- Add receipt validation CLI
 - Add deterministic example receipts
 - Improve error messages
+- Keep package/kernel versions aligned
 - Add type checking / linting later if useful
 
-## v0.2.x — CLI Receipt Runner
+## v0.2.x — Equation card registry
 
-Target commands:
+Target additions:
 
-```bash
-langarian run examples/basic_369.yaml --emit-receipt
-langarian validate receipts/basic_369_bridge.json
-langarian explain receipts/basic_369_bridge.json
-```
-
-Goals:
-
-- First-class receipt validation
-- Human-readable receipt explanations
-- Better YAML examples
-- Claim-boundary failure examples
+- Named equation cards for reduced SaaSy expressions such as `gamma`, `C_red`, and `B(t)`
+- Symbol custody metadata for every card
+- Dimensional/unit notes where available
+- Claim-boundary examples that show what fails promotion
+- JSON export for equation-card receipts
 
 ## v0.3.x — Visual Explorer
 
@@ -45,6 +40,7 @@ Goals:
 - Receipt explorer
 - Operator cards
 - Epistemic tag viewer
+- SaaSy bracket-wall receipt viewer
 
 ## Future research lanes
 
@@ -57,6 +53,8 @@ These are not trunk claims yet:
 - Formal theorem lanes
 - Richer glyph dictionaries
 - Category-theoretic bridge semantics
+- SaaSy finite parameter sweeps
+- Parallax Ledger packet export
 
 ## Promotion rule
 
