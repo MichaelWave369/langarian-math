@@ -2,7 +2,7 @@
 
 This document describes a generic finite-sample domain helper in Langarian Math.
 
-It scans supplied scalar samples for the bracket-wall expression:
+It scans supplied scalar samples for an explicit bracket-wall expression of the form:
 
 ```text
 B(t) = 1 - 6*kappa^2*c^2*V_gamma_gamma(t)

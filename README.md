@@ -65,13 +65,7 @@ langarian validate receipts/bracket_wall_scan.json
 langarian explain receipts/bracket_wall_scan.json
 ```
 
-This command computes the finite sample screen for:
-
-```text
-B(t) = 1 - 6*kappa^2*c^2*V_gamma_gamma(t)
-```
-
-A PASS receipt means the supplied samples satisfy the selected bracket-wall rule. It is not a proof of a larger theory or a validation of full dynamics.
+This command computes a finite sample screen for an explicit bracket-wall expression. A PASS receipt means the supplied samples satisfy the selected bracket-wall rule. It is not a proof of a larger theory or a validation of full dynamics.
 
 ## Validate and explain receipts
 
