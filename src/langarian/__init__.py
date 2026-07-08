@@ -7,7 +7,16 @@ from .epistemic import EpistemicTag, ResultStatus
 from .spaces import FiniteComplexSpace
 from .dynamics import UnitaryFlowDemo
 from .proof_gate import ProofGateError, ProofGateReport, evaluate_claims, require_proof_eligible, promote_model_assumption
-from .reduced_domain import BracketSample, BracketWallScan, bracket_wall_value, scan_bracket_wall
+from .reduced_domain import (
+    BoundarySample,
+    BoundaryScan,
+    boundary_value,
+    scan_boundary_domain,
+    BracketSample,
+    BracketWallScan,
+    bracket_wall_value,
+    scan_bracket_wall,
+)
 
 __all__ = [
     "ResonantState",
@@ -29,6 +38,10 @@ __all__ = [
     "evaluate_claims",
     "require_proof_eligible",
     "promote_model_assumption",
+    "BoundarySample",
+    "BoundaryScan",
+    "boundary_value",
+    "scan_boundary_domain",
     "BracketSample",
     "BracketWallScan",
     "bracket_wall_value",

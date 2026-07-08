@@ -60,9 +60,9 @@ python -m langarian.cli run examples/basic_369.yaml --receipts-dir receipts
 ## Run the reduced-domain scan
 
 ```bash
-langarian run examples/bracket_wall_scan.yaml --receipts-dir receipts
-langarian validate receipts/bracket_wall_scan.json
-langarian explain receipts/bracket_wall_scan.json
+langarian run examples/boundary_domain_scan.yaml --receipts-dir receipts
+langarian validate receipts/boundary_domain_scan.json
+langarian explain receipts/boundary_domain_scan.json
 ```
 
 A PASS receipt means the supplied samples satisfy the selected boundary rule. It is not a proof of a larger theory or a validation of full dynamics.

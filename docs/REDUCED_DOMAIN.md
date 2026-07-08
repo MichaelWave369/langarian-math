@@ -2,11 +2,11 @@
 
 This document describes a generic finite-sample domain helper in Langarian Math.
 
-It scans supplied scalar samples for an explicit bracket-wall expression.
+It scans supplied scalar samples for an explicit boundary expression.
 
 A PASS receipt means only this:
 
-> The supplied finite samples satisfy the selected bracket-wall inequality.
+> The supplied finite samples satisfy the selected boundary inequality.
 
 It does **not** prove a larger theory, solve dynamics, infer a potential, or promote a physics claim.
 
@@ -22,28 +22,28 @@ The helper records a generic reduced-symbol custody set:
 coordinate, momentum, angle, angle_momentum, lapse_like_parameter, gamma_like_parameter, reduced_constraint, B(t)
 ```
 
-The scanner does not introduce a new degree of freedom. It only accepts finite scalar samples for `t`, `kappa`, `c`, and a curvature-like second-derivative input, then computes `B(t)`.
+The scanner does not introduce a new degree of freedom. It only accepts finite scalar samples for `t`, `kappa`, `c`, and a curvature-like input, then computes a boundary value.
 
 ## CLI example
 
 ```bash
-langarian run examples/bracket_wall_scan.yaml --receipts-dir receipts
-langarian validate receipts/bracket_wall_scan.json
-langarian explain receipts/bracket_wall_scan.json
+langarian run examples/boundary_domain_scan.yaml --receipts-dir receipts
+langarian validate receipts/boundary_domain_scan.json
+langarian explain receipts/boundary_domain_scan.json
 ```
 
 ## Python example
 
 ```python
-from langarian import scan_bracket_wall
+from langarian import scan_boundary_domain
 
-scan = scan_bracket_wall([
-    {"t": 0.0, "kappa": 1.0, "c": 0.1, "v_gamma_gamma": 0.5},
-    {"t": 1.0, "kappa": 1.0, "c": 0.1, "v_gamma_gamma": 0.75},
+scan = scan_boundary_domain([
+    {"t": 0.0, "kappa": 1.0, "c": 0.1, "curvature": 0.5},
+    {"t": 1.0, "kappa": 1.0, "c": 0.1, "curvature": 0.75},
 ])
 
 print(scan.is_safe)
-print(scan.min_bracket_value)
+print(scan.min_boundary_value)
 print(scan.receipt.status)
 ```
 

@@ -12,7 +12,7 @@ from typing import Any
 import yaml
 
 from .operators import attenuated_phase_shift, bridge, harmonic_sum, phi_scale
-from .reduced_domain import scan_bracket_wall
+from .reduced_domain import scan_boundary_domain
 from .state import ResonantState
 
 REQUIRED_RECEIPT_FIELDS = {
@@ -178,18 +178,18 @@ def run_example(path: Path, receipts_dir: Path) -> int:
         print(f"wrote {receipt_path}")
         return 0
 
-    if operation == "bracket_wall_scan":
-        result = scan_bracket_wall(
+    if operation in {"boundary_domain_scan", "bracket_wall_scan"}:
+        result = scan_boundary_domain(
             config.get("samples", []),
             strict=bool(config.get("strict", True)),
             label=config.get("label"),
         )
-        receipt_path = _write_receipt(receipts_dir, "bracket_wall_scan.json", result.receipt.to_json())
-        print("bracket_wall_scan complete")
+        receipt_path = _write_receipt(receipts_dir, "boundary_domain_scan.json", result.receipt.to_json())
+        print("boundary_domain_scan complete")
         print(f"wrote {receipt_path}")
         print(f"status: {result.receipt.status.value}")
         print(f"samples: {len(result.samples)}")
-        print(f"min B(t): {result.min_bracket_value:.12g}")
+        print(f"min B(t): {result.min_boundary_value:.12g}")
         if result.violating_indices:
             joined = ", ".join(str(index) for index in result.violating_indices)
             print(f"violating sample indices: {joined}")
