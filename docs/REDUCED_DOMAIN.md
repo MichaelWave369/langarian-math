@@ -2,11 +2,7 @@
 
 This document describes a generic finite-sample domain helper in Langarian Math.
 
-It scans supplied scalar samples for an explicit bracket-wall expression of the form:
-
-```text
-B(t) = 1 - 6*kappa^2*c^2*V_gamma_gamma(t)
-```
+It scans supplied scalar samples for an explicit bracket-wall expression.
 
 A PASS receipt means only this:
 
@@ -26,7 +22,7 @@ The helper records a generic reduced-symbol custody set:
 coordinate, momentum, angle, angle_momentum, lapse_like_parameter, gamma_like_parameter, reduced_constraint, B(t)
 ```
 
-The scanner does not introduce a new degree of freedom. It only accepts finite scalar samples for `t`, `kappa`, `c`, and `v_gamma_gamma`, then computes `B(t)`.
+The scanner does not introduce a new degree of freedom. It only accepts finite scalar samples for `t`, `kappa`, `c`, and a curvature-like second-derivative input, then computes `B(t)`.
 
 ## CLI example
 
