@@ -12,6 +12,7 @@ from typing import Any
 import yaml
 
 from .operators import attenuated_phase_shift, bridge, harmonic_sum, phi_scale
+from .saasy import scan_bracket_wall
 from .state import ResonantState
 
 REQUIRED_RECEIPT_FIELDS = {
@@ -175,6 +176,23 @@ def run_example(path: Path, receipts_dir: Path) -> int:
         receipt_path = _write_receipt(receipts_dir, "phase_shift_cost.json", result.receipt.to_json())
         print("attenuated_phase_shift complete")
         print(f"wrote {receipt_path}")
+        return 0
+
+    if operation == "saasy_bracket_wall_scan":
+        result = scan_bracket_wall(
+            config.get("samples", []),
+            strict=bool(config.get("strict", True)),
+            label=config.get("label"),
+        )
+        receipt_path = _write_receipt(receipts_dir, "saasy_bracket_wall_scan.json", result.receipt.to_json())
+        print("saasy_bracket_wall_scan complete")
+        print(f"wrote {receipt_path}")
+        print(f"status: {result.receipt.status.value}")
+        print(f"samples: {len(result.samples)}")
+        print(f"min B(t): {result.min_bracket_value:.12g}")
+        if result.violating_indices:
+            joined = ", ".join(str(index) for index in result.violating_indices)
+            print(f"violating sample indices: {joined}")
         return 0
 
     print(f"Unsupported operation: {operation}", file=sys.stderr)
