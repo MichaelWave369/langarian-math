@@ -9,7 +9,7 @@ import json
 
 import numpy as np
 
-KERNEL_VERSION = "langarian-python-ref-v0.1.1"
+KERNEL_VERSION = "langarian-python-ref-v0.1.4"
 
 
 def _complex_to_pair(z: complex) -> list[float]:

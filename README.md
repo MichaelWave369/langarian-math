@@ -5,7 +5,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-**Version:** Python reference implementation v0.1.3 for **Langarian Math v0.2 FKC** plus the **v0.2.1 Epistemic Receipt Patch**, **Public Proof Gate**, and **Public Polish Patch**.
+**Version:** Python reference implementation v0.1.4 for **Langarian Math v0.2 FKC** plus the **v0.2.1 Epistemic Receipt Patch**, **Public Proof Gate**, **Public Polish Patch**, and the first **Reduced-Domain Helper**.
 
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
@@ -28,6 +28,7 @@ This repo is intentionally finite-dimensional, executable, and test-first. It do
 - Invariant checks and PASS/WARN/FAIL statuses
 - Finite space helper harvested safely from Kimi v1
 - Norm-preserving unitary flow demo kept as a research-lane demo
+- Generic reduced-domain bracket-wall scanner with MODEL-tagged receipts
 - React / GitHub Pages scaffold in `web/`
 
 ## Install locally
@@ -56,6 +57,22 @@ or without installing console scripts:
 python -m langarian.cli run examples/basic_369.yaml --receipts-dir receipts
 ```
 
+## Run the reduced-domain scan
+
+```bash
+langarian run examples/bracket_wall_scan.yaml --receipts-dir receipts
+langarian validate receipts/bracket_wall_scan.json
+langarian explain receipts/bracket_wall_scan.json
+```
+
+This command computes the finite sample screen for:
+
+```text
+B(t) = 1 - 6*kappa^2*c^2*V_gamma_gamma(t)
+```
+
+A PASS receipt means the supplied samples satisfy the selected bracket-wall rule. It is not a proof of a larger theory or a validation of full dynamics.
+
 ## Validate and explain receipts
 
 ```bash
@@ -80,13 +97,14 @@ A GitHub Pages workflow is included at `.github/workflows/pages.yml`. To publish
 
 ## Core boundary
 
-A poetic or interpretive statement may ride along with a computation, but it cannot be used as proof. The formal kernel only promotes typed states, computed metrics, invariant checks, and receipts.
+A poetic or interpretive statement may ride along with a computation, but it cannot be used as proof. The formal kernel only promotes typed states, computed metrics, invariant checks, and receipts. Reduced-domain helpers are model-tagged until a later proof lane earns stronger claims.
 
 ## Public docs
 
 - `docs/PROOF_GATE.md`
 - `docs/RECEIPT_SCHEMA.md`
-- `docs/CLI.md`
+- `docs/USAGE.md`
+- `docs/REDUCED_DOMAIN.md`
 - `docs/ROADMAP.md`
 - `docs/Kimi_v1_Harvest_Review.md`
 
@@ -94,19 +112,20 @@ A poetic or interpretive statement may ride along with a computation, but it can
 
 ```text
 src/langarian/
-  state.py       finite complex vector state model
-  metrics.py     resonance, phase, coherence metrics
-  operators.py   harmonic_sum, phase_shift, attenuated_phase_shift, phi_scale, bridge
-  receipts.py    immutable operation receipt + hashing
-  validator.py   invariant runner
-  epistemic.py   proposition/result tags
-  proof_gate.py  formal proof-context eligibility gate
-  claims.py      tagged proposition records
-  contracts.py   invariant contracts
-  glyphs.py      tiny glyph dictionary stub with nearest-score helper
-  spaces.py      finite C^n utility helper, no infinite Hilbert claim
-  dynamics.py    norm-preserving rotation demo, no symplectic theorem claim
-  cli.py         example runner + receipt validator/explainer
+  state.py           finite complex vector state model
+  metrics.py         resonance, phase, coherence metrics
+  operators.py       harmonic_sum, phase_shift, attenuated_phase_shift, phi_scale, bridge
+  receipts.py        immutable operation receipt + hashing
+  validator.py       invariant runner
+  epistemic.py       proposition/result tags
+  proof_gate.py      formal proof-context eligibility gate
+  claims.py          tagged proposition records
+  contracts.py       invariant contracts
+  glyphs.py          tiny glyph dictionary stub with nearest-score helper
+  spaces.py          finite C^n utility helper, no infinite Hilbert claim
+  dynamics.py        norm-preserving rotation demo, no symplectic theorem claim
+  reduced_domain.py  reduced-domain bracket-wall scanner, model-tagged
+  cli.py             example runner + receipt validator/explainer
 ```
 
 ## Kimi v1 Harvest

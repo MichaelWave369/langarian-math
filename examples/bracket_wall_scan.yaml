@@ -1,0 +1,16 @@
+operation: bracket_wall_scan
+label: reduced_domain_demo
+strict: true
+samples:
+  - t: 0.0
+    kappa: 1.0
+    c: 0.1
+    v_gamma_gamma: 0.5
+  - t: 1.0
+    kappa: 1.0
+    c: 0.1
+    v_gamma_gamma: 0.75
+  - t: 2.0
+    kappa: 1.0
+    c: 0.1
+    v_gamma_gamma: 1.0
