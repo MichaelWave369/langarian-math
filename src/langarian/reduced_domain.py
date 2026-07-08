@@ -20,7 +20,6 @@ from .epistemic import EpistemicTag, ResultStatus
 from .receipts import OperationReceipt, canonical_json
 
 REDUCED_DOMAIN_VERSION = "reduced-domain:v0.1"
-BRACKET_WALL_FORMULA = "B(t) = 1 - 6*kappa^2*c^2*V_gamma_gamma(t)"
 REQUIRED_REDUCED_SYMBOLS = (
     "coordinate",
     "momentum",
@@ -90,7 +89,7 @@ class BracketSample:
             kappa=_finite_float(_lookup(data, "kappa", "κ"), "kappa"),
             c=_finite_float(_lookup(data, "c"), "c"),
             v_gamma_gamma=_finite_float(
-                _lookup(data, "v_gamma_gamma", "V_gamma_gamma", "Vγγ"),
+                _lookup(data, "v_gamma_gamma", "V_gamma_gamma", "Vgg", "curvature"),
                 "v_gamma_gamma",
             ),
         )
@@ -112,7 +111,6 @@ class BracketWallScan:
     def to_dict(self) -> dict[str, Any]:
         return {
             "domain_version": REDUCED_DOMAIN_VERSION,
-            "formula": BRACKET_WALL_FORMULA,
             "sample_count": len(self.samples),
             "min_bracket_value": self.min_bracket_value,
             "violating_indices": list(self.violating_indices),
@@ -181,7 +179,6 @@ def scan_bracket_wall(
     input_hash = _hash_payload(
         {
             "domain_version": REDUCED_DOMAIN_VERSION,
-            "formula": BRACKET_WALL_FORMULA,
             "samples": sample_payload,
         }
     )
@@ -218,7 +215,6 @@ def scan_bracket_wall(
         output_hash=output_hash,
         parameters={
             "domain_version": REDUCED_DOMAIN_VERSION,
-            "formula": BRACKET_WALL_FORMULA,
             "strict": bool(strict),
             "label": label,
             "samples": sample_payload,
@@ -231,7 +227,6 @@ def scan_bracket_wall(
             Claim(
                 "Bracket-wall values were computed from supplied finite samples as a reduced-domain screen, not as proof of a larger model.",
                 EpistemicTag.MODEL,
-                metadata={"formula": BRACKET_WALL_FORMULA},
             )
         ],
     )
