@@ -12,7 +12,7 @@ Langarian Math grows by receipts, not hype.
 - Epistemic tags
 - Proof Gate
 - Receipt validation and explanation CLI
-- Generic reduced bracket-wall scan for finite samples
+- Generic reduced-domain scan for finite samples
 - Public docs and contribution flow
 
 ## v0.1.x — Kernel hardening

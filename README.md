@@ -28,7 +28,7 @@ This repo is intentionally finite-dimensional, executable, and test-first. It do
 - Invariant checks and PASS/WARN/FAIL statuses
 - Finite space helper harvested safely from Kimi v1
 - Norm-preserving unitary flow demo kept as a research-lane demo
-- Generic reduced-domain bracket-wall scanner with MODEL-tagged receipts
+- Generic reduced-domain scanner with MODEL-tagged receipts
 - React / GitHub Pages scaffold in `web/`
 
 ## Install locally
@@ -65,7 +65,7 @@ langarian validate receipts/bracket_wall_scan.json
 langarian explain receipts/bracket_wall_scan.json
 ```
 
-This command computes a finite sample screen for an explicit bracket-wall expression. A PASS receipt means the supplied samples satisfy the selected bracket-wall rule. It is not a proof of a larger theory or a validation of full dynamics.
+A PASS receipt means the supplied samples satisfy the selected boundary rule. It is not a proof of a larger theory or a validation of full dynamics.
 
 ## Validate and explain receipts
 
@@ -118,7 +118,7 @@ src/langarian/
   glyphs.py          tiny glyph dictionary stub with nearest-score helper
   spaces.py          finite C^n utility helper, no infinite Hilbert claim
   dynamics.py        norm-preserving rotation demo, no symplectic theorem claim
-  reduced_domain.py  reduced-domain bracket-wall scanner, model-tagged
+  reduced_domain.py  reduced-domain scanner, model-tagged
   cli.py             example runner + receipt validator/explainer
 ```
 
