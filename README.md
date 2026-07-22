@@ -5,110 +5,82 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-**Version:** Python reference implementation v0.1.3 for **Langarian Math v0.2 FKC** plus the **v0.2.1 Epistemic Receipt Patch**, **Public Proof Gate**, and **Public Polish Patch**.
+**Current development branch:** [`k3/langarian-workbench-v0.3`](https://github.com/MichaelWave369/langarian-math/tree/k3/langarian-workbench-v0.3)  
+**Package:** `0.3.0-dev` — Langarian Math Workbench foundations  
+**Kernel:** `langarian-python-ref-v0.2.0`
 
-**Live site:** https://michaelwave369.github.io/langarian-math/
+**Live site (still the v0.2 informational landing):** https://michaelwave369.github.io/langarian-math/
 
-This repo is intentionally finite-dimensional, executable, and test-first. It does not claim to be physics, psychology, therapy, or a completed mathematical theory. It is a small formal kernel candidate for resonance-style symbolic state transformations with receipts.
+This repository contains a finite-dimensional, executable, test-first reference kernel for resonance-style symbolic state transformations with immutable operation receipts, plus the growing Workbench that turns the kernel into a usable mathematical calculator.
 
-## What this builds
+> Langarian Math grows by receipts, not hype.  
+> Ledger above ego.
 
-- Finite complex vector states
-- Resonance as vector norm
-- Phase as a derived global phase estimate
-- Coherence as normalized complex similarity
-- Pure phase shifts that preserve resonance
-- Attenuated phase shifts with declared cost
-- Phi scaling / golden-angle rotation
-- Harmonic sum via vector addition
-- Bridge receipts between states
-- Epistemic tags for every claim/result
-- Proof Gate for formal claim eligibility
-- Receipt validation and explanation CLI commands
-- Invariant checks and PASS/WARN/FAIL statuses
-- Finite space helper harvested safely from Kimi v1
-- Norm-preserving unitary flow demo kept as a research-lane demo
-- React / GitHub Pages scaffold in `web/`
+## What exists today
 
-## Install locally
+### Stable kernel
+- Finite complex vector states (`ResonantState`)
+- Resonance (norm), global phase estimate, normalized complex similarity / coherence
+- Operators: `harmonic_sum`, `phase_shift`, `attenuated_phase_shift`, `phi_scale`, `bridge`
+- Immutable operation receipts + deterministic hashing
+- Invariant contracts (PASS / WARN / FAIL)
+- Epistemic tags + Proof Gate
+- CLI: `run`, `validate`, `explain`, **`program`** (DSL)
+
+### Workbench foundations (v0.3-dev)
+- Multi-step `Program` model with full lineage
+- Safe DSL (`dsl:v0.3.0`) — parser → typed Program, no eval, resource bounds
+- Deterministic executor that emits a receipt for every state-changing step
+- Numerical policy, Claim Boundary Matrix, Operator Catalog, Mathematical Definitions
+- Property-based tests and security threat model
+- Architecture Decision Record for browser kernel strategy
+
+### Still in progress for full Workbench v0.3
+- Interactive browser calculator (State Builder, Operator Laboratory, Receipt Ledger, Proof Gate panel)
+- Visualizations with explicit mathematical definitions
+- TypeScript conformance port + fixtures
+- Expanded example library and accessibility pass
+- Final documentation suite and completion gates
+
+## Install & test
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate
 pip install -e '.[dev]'
-```
-
-## Run tests
-
-```bash
 pytest
 ```
 
-## Run the 3-6-9 example
+## Quick DSL example
 
 ```bash
-langarian run examples/basic_369.yaml --receipts-dir receipts
+langarian program examples/basic_369.lang --receipts-dir receipts
 ```
 
-or without installing console scripts:
+or
 
 ```bash
-python -m langarian.cli run examples/basic_369.yaml --receipts-dir receipts
+python -m langarian.cli program examples/basic_369.lang
 ```
-
-## Validate and explain receipts
-
-```bash
-langarian validate receipts/basic_369_bridge.json
-langarian explain receipts/basic_369_bridge.json
-```
-
-These commands validate public receipt shape and print a human-readable summary. They do not recompute or overclaim the underlying operation.
-
-## Web app
-
-A small Vite + React public landing page lives in `web/`.
-
-```bash
-cd web
-npm install
-npm run dev
-npm run build
-```
-
-A GitHub Pages workflow is included at `.github/workflows/pages.yml`. To publish it, set the repository Pages source to **GitHub Actions** in the repo settings.
 
 ## Core boundary
 
 A poetic or interpretive statement may ride along with a computation, but it cannot be used as proof. The formal kernel only promotes typed states, computed metrics, invariant checks, and receipts.
 
-## Public docs
+## Key documents (Workbench branch)
 
-- `docs/PROOF_GATE.md`
-- `docs/RECEIPT_SCHEMA.md`
-- `docs/CLI.md`
+- `docs/SWARM_AUDIT_REPORT.md`
+- `docs/MASTER_ARCHITECTURE_v0.3.md`
+- `docs/MATHEMATICAL_DEFINITIONS.md`
+- `docs/OPERATOR_CATALOG.md`
+- `docs/CLAIM_BOUNDARY_MATRIX.md`
+- `docs/RECEIPT_SCHEMA_vNEXT.md`
+- `docs/DSL_SPEC.md`
+- `docs/NUMERICAL_POLICY.md`
+- `docs/WEB_KERNEL_ADR.md`
+- `docs/SECURITY_THREAT_MODEL.md`
 - `docs/ROADMAP.md`
-- `docs/Kimi_v1_Harvest_Review.md`
 
-## Package layout
+## License
 
-```text
-src/langarian/
-  state.py       finite complex vector state model
-  metrics.py     resonance, phase, coherence metrics
-  operators.py   harmonic_sum, phase_shift, attenuated_phase_shift, phi_scale, bridge
-  receipts.py    immutable operation receipt + hashing
-  validator.py   invariant runner
-  epistemic.py   proposition/result tags
-  proof_gate.py  formal proof-context eligibility gate
-  claims.py      tagged proposition records
-  contracts.py   invariant contracts
-  glyphs.py      tiny glyph dictionary stub with nearest-score helper
-  spaces.py      finite C^n utility helper, no infinite Hilbert claim
-  dynamics.py    norm-preserving rotation demo, no symplectic theorem claim
-  cli.py         example runner + receipt validator/explainer
-```
-
-## Kimi v1 Harvest
-
-Kimi's v1.0 artifact is preserved under `experimental/kimi_v1_harvest/` as a pressure-test branch. It is not trunk. The safe harvest patch adds finite-space utilities, a norm-preserving rotation demo, and glyph nearest-score helpers while downgrading unearned category/RKHS/symplectic/theorem claims. See `docs/Kimi_v1_Harvest_Review.md`.
+MIT

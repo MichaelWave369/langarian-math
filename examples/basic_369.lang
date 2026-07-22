@@ -1,0 +1,11 @@
+# Langarian Math — basic 3-6-9 harmonic demonstration (DSL v0.3)
+# Classification: computational / mathematical demonstration
+# Not a theorem. Not a physical claim.
+
+state sigma3 = [3+0i] glyph "3" label "sigma3"
+state sigma6 = [6+0i] glyph "6" label "sigma6"
+state sigma9 = [9+0i] glyph "9" label "sigma9"
+
+sum36 = harmonic_sum(sigma3, sigma6)
+bridged = bridge(sum36, sigma9)
+scaled = phi_scale(sum36, 1)

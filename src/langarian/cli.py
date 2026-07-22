@@ -1,4 +1,4 @@
-"""Small CLI for Langarian example runs and receipt inspection."""
+"""CLI for Langarian example runs, receipt inspection, and DSL programs."""
 
 from __future__ import annotations
 
@@ -13,6 +13,8 @@ import yaml
 
 from .operators import attenuated_phase_shift, bridge, harmonic_sum, phi_scale
 from .state import ResonantState
+from .dsl import parse_dsl, DSLError
+from .executor import execute_program, ExecutionError
 
 REQUIRED_RECEIPT_FIELDS = {
     "receipt_id",
@@ -56,13 +58,6 @@ def _load_receipt(path: Path) -> dict[str, Any]:
 
 
 def validate_receipt_data(data: dict[str, Any]) -> tuple[bool, list[str]]:
-    """Validate the public receipt shape.
-
-    This is schema validation, not recomputation of the underlying operation.
-    It checks that the receipt is shaped like a Langarian receipt and that its
-    collapsed status/tag values are known.
-    """
-
     errors: list[str] = []
     missing = sorted(REQUIRED_RECEIPT_FIELDS - set(data))
     if missing:
@@ -181,6 +176,34 @@ def run_example(path: Path, receipts_dir: Path) -> int:
     return 2
 
 
+def run_program(path: Path, receipts_dir: Path) -> int:
+    """Parse and execute a .lang DSL program, writing all receipts."""
+    try:
+        text = path.read_text(encoding="utf-8")
+        prog = parse_dsl(text, program_id=path.stem)
+        executed = execute_program(prog)
+    except (DSLError, ExecutionError) as exc:
+        print(f"Program failed: {exc}", file=sys.stderr)
+        return 1
+
+    receipts_dir.mkdir(parents=True, exist_ok=True)
+    for i, receipt in enumerate(executed.receipts):
+        name = f"{path.stem}_{receipt.operator}_{i:02d}.json"
+        out = _write_receipt(receipts_dir, name, receipt.to_json())
+        print(f"wrote {out}  [{receipt.status.value}] {receipt.operator}")
+
+    if executed.warnings:
+        print("Warnings:")
+        for w in executed.warnings:
+            print(f"  - {w}")
+
+    if executed.final_state is not None:
+        print(f"final resonance: {executed.final_state.resonance:.6f}")
+        print(f"final state hash: {executed.final_state.state_hash()}")
+    print(f"program {path.name} complete ({len(executed.receipts)} receipts)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="langarian")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -188,6 +211,10 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run", help="Run a YAML example and emit receipts.")
     run.add_argument("example", type=Path)
     run.add_argument("--receipts-dir", type=Path, default=Path("receipts"))
+
+    prog_cmd = sub.add_parser("program", help="Parse and execute a Langarian DSL (.lang) program.")
+    prog_cmd.add_argument("program", type=Path)
+    prog_cmd.add_argument("--receipts-dir", type=Path, default=Path("receipts"))
 
     validate = sub.add_parser("validate", help="Validate a receipt JSON file.")
     validate.add_argument("receipt", type=Path)
@@ -198,6 +225,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "run":
         return run_example(args.example, args.receipts_dir)
+    if args.command == "program":
+        return run_program(args.program, args.receipts_dir)
     if args.command == "validate":
         return validate_receipt_file(args.receipt)
     if args.command == "explain":
