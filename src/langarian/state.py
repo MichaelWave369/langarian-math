@@ -9,7 +9,9 @@ import json
 
 import numpy as np
 
-KERNEL_VERSION = "langarian-python-ref-v0.1.1"
+# Reconciled for Workbench v0.3 tracking. Mathematical behavior of existing
+# operators is unchanged. See docs/SWARM_AUDIT_REPORT.md and MIGRATION notes.
+KERNEL_VERSION = "langarian-python-ref-v0.2.0"
 
 
 def _complex_to_pair(z: complex) -> list[float]:
