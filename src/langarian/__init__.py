@@ -8,6 +8,8 @@ from .spaces import FiniteComplexSpace
 from .dynamics import UnitaryFlowDemo
 from .proof_gate import ProofGateError, ProofGateReport, evaluate_claims, require_proof_eligible, promote_model_assumption
 from .program import Program, ProgramStep, empty_program, PROGRAM_SCHEMA_VERSION
+from .dsl import parse_dsl, DSLError, DSL_VERSION
+from .executor import execute_program, ExecutionError
 
 __all__ = [
     "ResonantState",
@@ -33,4 +35,9 @@ __all__ = [
     "ProgramStep",
     "empty_program",
     "PROGRAM_SCHEMA_VERSION",
+    "parse_dsl",
+    "DSLError",
+    "DSL_VERSION",
+    "execute_program",
+    "ExecutionError",
 ]
