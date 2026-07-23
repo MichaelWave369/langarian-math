@@ -56,7 +56,8 @@ describe('conformance suite validation', () => {
 
   it('rejects predicate outcomes that disagree with the case expectation', () => {
     const broken = structuredClone(bundledSuite)
-    broken.observations[0]!.predicate_results[0]!.status = 'FAIL'
+    const original = broken.observations[0]!.predicate_results[0]!
+    broken.observations[0]!.predicate_results[0] = { ...original, status: 'FAIL' }
     const result = validateConformanceSuite(langarian, broken)
     expect(result.ok).toBe(false)
     expect(result.issues.some((issue) => issue.code === 'PREDICATE_RESULT_MISMATCH')).toBe(true)
@@ -104,7 +105,7 @@ function observation(
     contract_version: OPERATOR_CONTRACT_SCHEMA_VERSION,
     receipt_schema_version: RECEIPT_ENVELOPE_SCHEMA_VERSION,
     status: testCase.expected_status,
-    predicate_results: [...testCase.expected_predicates],
+    predicate_results: testCase.expected_predicates.map((item) => ({ ...item })),
     failure_ids_observed: [...testCase.expected_failure_ids],
     result_signature: testCase.expected_status === 'PASS' || testCase.expected_status === 'WARN' ? `signature:${testCase.id}` : null,
     evidence_ref: `test-evidence:${implementationId}:${testCase.id}`,
