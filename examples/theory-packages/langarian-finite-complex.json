@@ -1,5 +1,5 @@
 {
-  "schema_version": "theory-package:v0.1",
+  "schema_version": "theory-package:v0.2",
   "theory": {
     "id": "langarian-finite-complex",
     "name": "Langarian Finite Complex Transformations",
@@ -10,27 +10,9 @@
   },
   "maturity_level": 4,
   "objects": [
-    {
-      "id": "state",
-      "name": "ResonantState",
-      "definition": "A finite vector in C^n, 1 <= n <= 64, plus bounded metadata and receipt history.",
-      "evidence_class": "IMPLEMENTED",
-      "status": "ACCEPTED"
-    },
-    {
-      "id": "receipt",
-      "name": "OperationReceipt",
-      "definition": "A versioned integrity record for one operator execution and its checks.",
-      "evidence_class": "IMPLEMENTED",
-      "status": "ACCEPTED"
-    },
-    {
-      "id": "bridge-result",
-      "name": "BridgeResult",
-      "definition": "A recorded source/target relation candidate with similarity and edge-local declared cost.",
-      "evidence_class": "IMPLEMENTED",
-      "status": "PROVISIONAL"
-    }
+    { "id": "state", "name": "ResonantState", "definition": "A finite vector in C^n, 1 <= n <= 64, plus bounded metadata and receipt history.", "evidence_class": "IMPLEMENTED", "status": "ACCEPTED" },
+    { "id": "receipt", "name": "OperationReceipt", "definition": "A versioned integrity record for one operator execution and its checks.", "evidence_class": "IMPLEMENTED", "status": "ACCEPTED" },
+    { "id": "bridge-result", "name": "BridgeResult", "definition": "A recorded source/target relation candidate with similarity and edge-local declared cost.", "evidence_class": "IMPLEMENTED", "status": "PROVISIONAL" }
   ],
   "operators": [
     {
@@ -41,7 +23,27 @@
       "semantics": "P_theta(x) = exp(i theta) x.",
       "evidence_class": "IMPLEMENTED",
       "status": "ACCEPTED",
-      "implementation": "src/langarian/operators.py#phase_shift"
+      "implementation": "src/langarian/operators.py#phase_shift",
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [{ "id": "angle", "name": "Angle", "type": "finite real radians", "required": true, "constraints": "Must be finite." }],
+        "preconditions": ["Input is a valid finite complex state.", "angle is a finite real number in radians."],
+        "assumptions_used": ["a1"],
+        "invariants_checked": ["i1", "i2"],
+        "predicates": [
+          { "id": "output-well-typed", "statement": "The output is a finite state with the same dimension as the input.", "required": true },
+          { "id": "norm-preserved", "statement": "Output norm equals input norm within the declared numerical policy.", "required": true, "tolerance": "docs/NUMERICAL_POLICY.md" },
+          { "id": "receipt-bound", "statement": "The receipt records input hash, output hash, operator, parameters, and versions.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "invalid-state", "condition": "Input fails state validation or dimension limits.", "outcome": "REJECT" },
+          { "id": "nonfinite-angle", "condition": "angle is NaN or infinite.", "outcome": "REJECT" },
+          { "id": "invariant-failure", "condition": "A required predicate fails after execution.", "outcome": "FAIL_RECEIPT" }
+        ],
+        "reversibility": { "classification": "reversible", "condition": "Inverse is phase_shift with angle -theta." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "An admissible finite input and angle for which independent high-precision evaluation disagrees with exp(i theta)x beyond the numerical policy."
+      }
     },
     {
       "id": "harmonic-sum",
@@ -51,7 +53,28 @@
       "semantics": "Zero-pad to a common dimension and add componentwise.",
       "evidence_class": "IMPLEMENTED",
       "status": "PROVISIONAL",
-      "implementation": "src/langarian/operators.py#harmonic_sum"
+      "implementation": "src/langarian/operators.py#harmonic_sum",
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [],
+        "preconditions": ["Both inputs are valid finite complex states.", "Each dimension is within MAX_DIM."],
+        "assumptions_used": ["a1", "a2"],
+        "invariants_checked": ["i2"],
+        "predicates": [
+          { "id": "output-well-typed", "statement": "The output is a valid finite complex state.", "required": true },
+          { "id": "common-dimension", "statement": "Output dimension equals max(dim(a), dim(b)).", "required": true },
+          { "id": "componentwise-sum", "statement": "Each output component equals the sum of the explicitly padded input components.", "required": true, "tolerance": "docs/NUMERICAL_POLICY.md" },
+          { "id": "receipt-bound", "statement": "The receipt records both input hashes and the output hash.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "invalid-input", "condition": "Either input fails validation.", "outcome": "REJECT" },
+          { "id": "dimension-limit", "condition": "The common dimension exceeds MAX_DIM.", "outcome": "REJECT" },
+          { "id": "predicate-failure", "condition": "A required output predicate fails.", "outcome": "FAIL_RECEIPT" }
+        ],
+        "reversibility": { "classification": "irreversible", "condition": "The output alone does not uniquely recover both input vectors." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "A valid input pair for which the implementation output differs from explicit zero-padding followed by componentwise addition."
+      }
     },
     {
       "id": "phase-weighted-scale",
@@ -61,7 +84,33 @@
       "semantics": "A_(theta,eta)(x) = eta exp(i theta) x for eta >= 0.",
       "evidence_class": "IMPLEMENTED",
       "status": "PROVISIONAL",
-      "implementation": "src/langarian/operators.py#attenuated_phase_shift"
+      "implementation": "src/langarian/operators.py#attenuated_phase_shift",
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [
+          { "id": "angle", "name": "Angle", "type": "finite real radians", "required": true, "constraints": "Must be finite." },
+          { "id": "attenuation", "name": "Scale factor", "type": "finite non-negative real", "required": true, "constraints": "eta >= 0; eta > 1 is amplification." },
+          { "id": "cost-label", "name": "Declared cost label", "type": "string or null", "required": false, "constraints": "Required by the current I3 gate when eta < 1." }
+        ],
+        "preconditions": ["Input is a valid finite complex state.", "angle is finite.", "attenuation is finite and non-negative."],
+        "assumptions_used": ["a1"],
+        "invariants_checked": ["i2"],
+        "predicates": [
+          { "id": "output-well-typed", "statement": "The output is a valid finite state with unchanged dimension.", "required": true },
+          { "id": "norm-scaled", "statement": "Output norm equals eta times input norm within the numerical policy.", "required": true, "tolerance": "docs/NUMERICAL_POLICY.md" },
+          { "id": "decrease-accounted", "statement": "When eta < 1, a non-empty declared cost label is present.", "required": true },
+          { "id": "receipt-bound", "statement": "The receipt records input hash, output hash, theta, eta, cost declaration, and versions.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "invalid-input", "condition": "Input fails state validation.", "outcome": "REJECT" },
+          { "id": "invalid-parameter", "condition": "angle or attenuation is non-finite, or attenuation is negative.", "outcome": "REJECT" },
+          { "id": "missing-cost", "condition": "eta < 1 and no declared cost label is supplied.", "outcome": "FAIL_RECEIPT" },
+          { "id": "amplification-unaccounted", "condition": "eta > 1 under the current decrease-only accounting rule.", "outcome": "WARN_RECEIPT" }
+        ],
+        "reversibility": { "classification": "conditionally_reversible", "condition": "Reversible exactly when eta > 0, using angle -theta and scale 1/eta; eta = 0 is irreversible." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "An admissible input, angle, and eta for which the output differs from eta exp(i theta)x or the receipt misstates the declared cost boundary."
+      }
     },
     {
       "id": "bridge",
@@ -71,73 +120,47 @@
       "semantics": "Record a source/target relation candidate, normalized similarity, and an edge-local caller declaration.",
       "evidence_class": "IMPLEMENTED",
       "status": "THEORY_MAP_OPEN",
-      "implementation": "src/langarian/operators.py#bridge"
+      "implementation": "src/langarian/operators.py#bridge",
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [{ "id": "cost", "name": "Declared edge cost", "type": "finite real", "required": false, "constraints": "Edge-local caller declaration only; not accumulated path cost." }],
+        "preconditions": ["Source and target are valid finite complex states.", "Declared edge cost is finite."],
+        "assumptions_used": ["a1"],
+        "invariants_checked": ["i2", "i3"],
+        "predicates": [
+          { "id": "endpoints-well-typed", "statement": "Both source and target states pass validation.", "required": true },
+          { "id": "similarity-bounded", "statement": "Recorded normalized similarity lies in [0,1] under the software zero-vector convention.", "required": true, "tolerance": "docs/NUMERICAL_POLICY.md" },
+          { "id": "edge-cost-local", "statement": "The receipt labels cost as edge-local and does not infer accumulated path cost.", "required": true },
+          { "id": "receipt-bound", "statement": "The receipt records both endpoint hashes, similarity, declared edge cost, and versions.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "invalid-endpoint", "condition": "Either endpoint fails validation.", "outcome": "REJECT" },
+          { "id": "nonfinite-cost", "condition": "Declared edge cost is NaN or infinite.", "outcome": "REJECT" },
+          { "id": "claim-overreach", "condition": "The result is presented as equality, path equivalence, provenance completeness, or zero path cost.", "outcome": "FAIL_RECEIPT" }
+        ],
+        "reversibility": { "classification": "not_applicable", "condition": "The current operation records a relation candidate and does not transform source into target." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "A valid run whose receipt erases intermediate history, treats edge cost as path cost, or records similarity outside the declared bounded convention."
+      }
     }
   ],
   "assumptions": [
-    {
-      "id": "a1",
-      "text": "The executable model is finite-dimensional and represented with finite IEEE-754 components.",
-      "evidence_class": "IMPLEMENTED",
-      "status": "ACCEPTED"
-    },
-    {
-      "id": "a2",
-      "text": "Zero-padding is the selected embedding convention for unequal dimensions.",
-      "evidence_class": "DOCUMENTED",
-      "status": "PROVISIONAL"
-    }
+    { "id": "a1", "text": "The executable model is finite-dimensional and represented with finite IEEE-754 components.", "evidence_class": "IMPLEMENTED", "status": "ACCEPTED" },
+    { "id": "a2", "text": "Zero-padding is the selected embedding convention for unequal dimensions.", "evidence_class": "DOCUMENTED", "status": "PROVISIONAL" }
   ],
   "invariants": [
-    {
-      "id": "i1",
-      "text": "phase_shift preserves Euclidean norm in exact arithmetic.",
-      "scope": "general theorem plus per-instance conformance",
-      "evidence_class": "IMPLEMENTED",
-      "status": "ACCEPTED"
-    },
-    {
-      "id": "i2",
-      "text": "Every operation receipt records declared input hashes and an output hash.",
-      "scope": "current implementation",
-      "evidence_class": "IMPLEMENTED",
-      "status": "ACCEPTED"
-    }
+    { "id": "i1", "text": "phase_shift preserves Euclidean norm in exact arithmetic.", "scope": "general theorem plus per-instance conformance", "evidence_class": "IMPLEMENTED", "status": "ACCEPTED" },
+    { "id": "i2", "text": "Every operation receipt records declared input hashes and an output hash or relation target hash.", "scope": "current implementation", "evidence_class": "IMPLEMENTED", "status": "ACCEPTED" },
+    { "id": "i3", "text": "A bridge edge declaration must not be promoted into a claim about accumulated path cost or state equality.", "scope": "governance boundary", "evidence_class": "DOCUMENTED", "status": "PROVISIONAL" }
   ],
   "claim_boundaries": {
-    "allowed": [
-      "a declared transformation was computed",
-      "listed checks ran under declared versions",
-      "two implementation surfaces conform to reviewed fixtures"
-    ],
-    "prohibited": [
-      "the model describes nature",
-      "a demonstration fixture is mathematically privileged",
-      "Formal Eligibility equals proof",
-      "zero bridge edge cost means zero historical path cost"
-    ]
+    "allowed": ["a declared transformation was computed", "listed contract predicates ran under declared versions", "two implementation surfaces conform to reviewed fixtures"],
+    "prohibited": ["the model describes nature", "a demonstration fixture is mathematically privileged", "Formal Eligibility equals proof", "zero bridge edge cost means zero historical path cost", "implementation agreement is independent scientific confirmation"]
   },
-  "evidence": {
-    "reality_gate": "not_evaluated",
-    "notes": "The package is a mathematical software workbench, not an empirically validated physical theory."
-  },
+  "evidence": { "reality_gate": "not_evaluated", "notes": "The package is a mathematical software workbench, not an empirically validated physical theory." },
   "implementations": [
-    {
-      "id": "python-reference",
-      "language": "Python",
-      "version": "langarian-python-ref-v0.3.0",
-      "status": "reference"
-    },
-    {
-      "id": "typescript-mirror",
-      "language": "TypeScript",
-      "version": "langarian-ts-port-v0.3.0",
-      "status": "mirror",
-      "independent_from": ["python-reference:algorithmically mirrored, not epistemically independent"]
-    }
+    { "id": "python-reference", "language": "Python", "version": "langarian-python-ref-v0.3.0", "status": "reference" },
+    { "id": "typescript-mirror", "language": "TypeScript", "version": "langarian-ts-port-v0.3.0", "status": "mirror", "independent_from": ["python-reference:algorithmically mirrored, not epistemically independent"] }
   ],
-  "metadata": {
-    "bundled": true,
-    "execution_route": "program"
-  }
+  "metadata": { "bundled": true, "execution_route": "program" }
 }
