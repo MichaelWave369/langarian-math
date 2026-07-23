@@ -5,50 +5,130 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-**Version:** Langarian Math Workbench **v0.3.1-rc.1**. This is a governance-clarification release over the v0.3.0 kernel. The mathematical model remains the bounded finite complex model (v0.2.1 lineage); no physics, psychology, therapy, or completed-theory claims.
-
-**Version map:** version strings are declared once in `src/langarian/version.py` (`VERSION_MANIFEST`) and are the source of truth:
-
-- `product_version`: `0.3.1-rc.1` — this package (matches `pyproject.toml`)
-- `kernel_version`: `langarian-python-ref-v0.3.0` — embedded in receipts and state hashes
-- `model_version`: `langarian-finite-complex-model-v0.2.1` — the finite complex model stays bounded
-- `metric_version`: `metric:v0.3.scale_safe_normalized_complex_similarity`
-- `receipt_schema_version`: `receipt:v0.3`
-- `dsl_version`: `langarian-dsl:v0.3`
-- `fixture_version`: `fixtures:v0.3`
-- `ts_port_version`: `langarian-ts-port-v0.3.0` — TypeScript mirror of the kernel (`web/src/kernel/`)
-- `visualization_version`: `viz:v0.3` — workbench visualization surface (`web/src/ui/`)
-
+**Version:** Langarian Math Workbench **v0.3.1-rc.1**  
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
-This repo is intentionally finite-dimensional, executable, and test-first. It does not claim to be physics, psychology, therapy, or a completed mathematical theory. It is a formal-kernel candidate for resonance-style symbolic state transformations with receipts and explicit research-governance boundaries.
+Langarian is a finite-dimensional, executable, receipt-bearing research workbench for governed mathematical transformations. It records what was computed, which checks ran, what claims the run may support, and what remains unproved.
+
+It does **not** claim to be physics, psychology, therapy, sacred geometry, or a completed mathematical theory.
 
 > **The ledger serves reality, not the author.**
 
-## What this builds
+## Foundation Phase
 
-- Finite complex vector states
-- Resonance as vector norm
-- Phase as a derived global phase estimate
-- Coherence as normalized complex similarity
-- Pure phase shifts that preserve resonance
-- Attenuated phase shifts with declared cost
-- Phi scaling / golden-angle rotation
-- Harmonic sum via vector addition
-- Bridge receipts between states
-- Epistemic tags for every claim/result
-- A **Formal Eligibility Gate** for admission into mathematical review
-- A documented three-gate architecture: Syntax / Integrity → Formal Eligibility → Reality
-- A future Reality Gate evidence design that is explicitly **not implemented or passed**
-- Receipt validation and explanation CLI commands
-- Invariant checks and PASS/WARN/FAIL statuses
-- Finite-space helper harvested safely from Kimi v1
-- Norm-preserving unitary-flow demo kept as a research-lane demo
-- Browser workbench in `web/`: TypeScript kernel mirror, DSL runner, receipt ledger, and an eight-module UI, deployed as a static GitHub Pages site
+The project is now recovering the mathematics already implicit in the implementation rather than imposing a Lagrangian, scalar-field story, preferred number sequence, or visual metaphor onto the software.
 
-## The three-gate boundary
+The foundation begins with:
 
-Langarian separates three questions:
+- typed finite complex states;
+- implemented operators;
+- lawful composition;
+- invariant checks;
+- receipts and versions;
+- claim boundaries;
+- failure and ambiguity records.
+
+The governing obligations are:
+
+1. **Expressiveness** — reproduce every legal operation in scope.
+2. **Exclusion** — reject illegal operations.
+3. **Preservation** — preserve proved or enforced invariants.
+4. **Observability** — expose ambiguity, failure, unsupported inference, and implementation divergence.
+
+See [`docs/NATIVE_FOUNDATION_PROTOCOL.md`](docs/NATIVE_FOUNDATION_PROTOCOL.md).
+
+## Input-general mathematics
+
+The neutral state class is:
+
+\[
+x\in\mathbb C^n,\qquad 1\le n\le64.
+\]
+
+Every foundational theorem or invariant must be stated for arbitrary admissible inputs and pressure-tested with ordinary, signed, complex, zero-containing, degenerate, random, extreme, and adversarial cases.
+
+### Fixture Non-Privilege Rule
+
+No property observed from a selected demonstration input may become a general claim until it is derived for the full admissible class or tested against declared boundaries.
+
+### Symbolic Separation Rule
+
+Branding, shells, spirals, Fibonacci imagery, the golden ratio, and the historical 3-6-9 fixture receive no mathematical privilege without independent operational necessity or proof.
+
+The historical examples remain available only as clearly labeled, non-foundational demonstrations.
+
+## What the workbench implements
+
+- finite complex vector states;
+- resonance as Euclidean norm;
+- a deterministic representative-phase convention;
+- normalized complex similarity;
+- vector addition through `harmonic_sum`;
+- global phase rotation through `phase_shift`;
+- phase-weighted non-negative scaling through `attenuated_phase_shift`;
+- `bridge` relation/transition-candidate receipts;
+- the historical `phi_scale` symbolic extension;
+- epistemic tags and bounded claim language;
+- operation receipts with deterministic integrity hashes;
+- a Formal Eligibility Gate;
+- a local-first browser workbench and DSL.
+
+## Core versus symbolic extension
+
+### Core neutral maps
+
+\[
+P_\theta(x)=e^{i\theta}x
+\]
+
+and
+
+\[
+A_{\theta,\eta}(x)=\eta e^{i\theta}x,\qquad \eta\ge0.
+\]
+
+The implementation permits `eta > 1`, which is amplification rather than attenuation; the interface must say so.
+
+### `phi_scale`
+
+`phi_scale` is not generic scaling. It applies a golden-ratio power plus a reflex golden-angle phase convention. It remains implemented for compatibility and explicit symbolic experiments, but it is **not** a privileged law of the native foundation.
+
+The neutral future family is:
+
+\[
+S_a(x)=ax,\qquad a\in\mathbb C.
+\]
+
+A future `scalar_scale` command must pass the normal implementation, receipt, fixture, and conformance promotion process before entering the stable surface.
+
+## Bridge boundary
+
+The current `bridge(source, target, cost=k)` command records source and target identities, similarity, and a caller-declared edge annotation.
+
+It does not prove:
+
+- state equality;
+- path equivalence;
+- category-theoretic naturality;
+- provenance completeness;
+- unique ancestry;
+- zero historical path cost.
+
+`cost=0` means zero declared cost on the new bridge edge only. It does not erase intermediate transformation history.
+
+The object kind of `bridge` remains under audit and may later split into comparison, provenance-link, declared-correspondence, and transformation concepts.
+
+## Receipts and genesis custody
+
+Operator calls emit receipts. In v0.3, `state()` constructs a root state without an operation receipt.
+
+That is now treated as an explicit open custody boundary:
+
+> No prior transformation is valid for a genesis state. No lineage record is not.
+
+A future genesis-receipt design should record whether the state was constructed, imported, observed, simulated, manually declared, or recovered.
+
+## The three gates
 
 ```text
 Syntax / Integrity Gate
@@ -59,10 +139,10 @@ Reality Gate
 ```
 
 1. **Syntax / Integrity Gate** — is the artifact well formed, internally consistent, version-compatible, and untampered?
-2. **Formal Eligibility Gate** — is the claim allowed to enter formal mathematical review?
-3. **Reality Gate** — has the formally coherent model earned scientific confidence through literature comparison, empirical consistency, prediction, and independent replication?
+2. **Formal Eligibility Gate** — may the claim enter formal mathematical review?
+3. **Reality Gate** — has the model earned scientific confidence through evidence and independent replication?
 
-The current workbench implements the first two boundaries. It does **not** run or pass the Reality Gate. See `docs/THREE_GATE_ARCHITECTURE.md` and `docs/REALITY_GATE.md`.
+The current workbench implements the first two boundaries. It does not run or pass the Reality Gate.
 
 ## Install locally
 
@@ -78,17 +158,13 @@ pip install -e '.[dev]'
 pytest
 ```
 
-## Run the 3-6-9 example
+## Run the historical compatibility example
 
 ```bash
 langarian run examples/basic_369.yaml --receipts-dir receipts
 ```
 
-or without installing console scripts:
-
-```bash
-python -m langarian.cli run examples/basic_369.yaml --receipts-dir receipts
-```
+This example is retained for project history and compatibility. Its selected numbers and Phi operation are not validation of their own significance.
 
 ## Validate and explain receipts
 
@@ -97,32 +173,9 @@ langarian validate receipts/basic_369_bridge.json
 langarian explain receipts/basic_369_bridge.json
 ```
 
-`validate` checks a receipt at four distinct levels — schema shape, hash integrity (`content_hash` recomputed), status consistency, and schema-version allowlist — and `explain` prints a human-readable summary. A shape-only pass is never reported as "verified", and these commands do not recompute the underlying operation.
+Validation separately checks schema shape, content-hash integrity, status consistency, and schema-version allowance. It does not independently recompute the underlying operation.
 
-## Conformance fixtures
-
-Deterministic conformance fixtures (fixed clock `1970-01-01T00:00:00+00:00`) are generated by:
-
-```bash
-python -m langarian.fixtures --out fixtures/conformance
-```
-
-Committed fixtures are the canonical hash artifacts. Cross-platform regeneration is retained as a numerical-drift diagnostic; semantic tolerances and TypeScript-to-fixture hash conformance remain release gates. See `docs/NUMERICAL_POLICY.md`.
-
-## Web workbench
-
-`web/` is the v0.3 browser workbench: a Vite + React static site (no backend, local-first) with a TypeScript mirror of the Python kernel (`web/src/kernel/`), the DSL v0.3 text/JSON runner (`web/src/dsl/`), a session receipt ledger (`web/src/ledger/`), and eight UI modules — State Builder, Operator Lab, Program Builder, Result Inspector, Receipt Ledger, Formal Eligibility Gate, Visualizations, and Example Library.
-
-The TypeScript kernel is checked against the Python conformance fixtures: values within absolute `1e-12`, and `state_hash`/receipt `content_hash` byte-exact. Any hash mismatch fails conformance.
-
-Bounded honesty notes for the web surface:
-
-- Receipt checks remain separate: "Check shape", "Verify hash/status/version", and "Recompute locally".
-- There is no single vague "verified" badge.
-- `cost` annotations are caller-declared, not computed or verified.
-- Receipts provide integrity hashing only and are **not authenticated**.
-- Formal eligibility is not proof.
-- Formal validity is not evidence that a model describes nature.
+## Browser workbench
 
 ```bash
 cd web
@@ -133,49 +186,45 @@ npm run test
 npm run build
 ```
 
-Release evidence for the integrated v0.3 workbench includes Python 3.11/3.12 test passes, 181 Vitest checks including 43 conformance tests, a successful Vite production build, and a passing high-severity npm audit. See `docs/TEST_AND_CONFORMANCE_REPORT.md` and the repository Actions history.
+The default browser program now uses a neutral complex fixture:
+
+```text
+A = state([[1,1],[3,-2],[0,-4]], label="A")
+B = phase_shift(A, pi/7)
+C = harmonic_sum(B, B)
+D = attenuated_phase_shift(C, pi/11, 0.75, cost="declared edge-local attenuation")
+bridge(A, D, cost=0, label="comparison edge only")
+```
+
+This is a reproducible example, not a privileged input.
+
+## Version map
+
+Version strings are declared in `src/langarian/version.py`:
+
+- product: `0.3.1-rc.1`
+- Python kernel: `langarian-python-ref-v0.3.0`
+- finite complex model: `langarian-finite-complex-model-v0.2.1`
+- metric: `metric:v0.3.scale_safe_normalized_complex_similarity`
+- receipt schema: `receipt:v0.3`
+- DSL: `langarian-dsl:v0.3`
+- fixtures: `fixtures:v0.3`
+- TypeScript port: `langarian-ts-port-v0.3.0`
+- visualization: `viz:v0.3`
+
+## Key documents
+
+- [`docs/NATIVE_FOUNDATION_PROTOCOL.md`](docs/NATIVE_FOUNDATION_PROTOCOL.md)
+- [`docs/DSL_SPEC.md`](docs/DSL_SPEC.md)
+- [`docs/OPERATOR_CATALOG.md`](docs/OPERATOR_CATALOG.md)
+- [`docs/MATHEMATICAL_DEFINITIONS.md`](docs/MATHEMATICAL_DEFINITIONS.md)
+- [`docs/CLAIM_BOUNDARY_MATRIX.md`](docs/CLAIM_BOUNDARY_MATRIX.md)
+- [`docs/RECEIPT_SCHEMA_vNEXT.md`](docs/RECEIPT_SCHEMA_vNEXT.md)
+- [`docs/NUMERICAL_POLICY.md`](docs/NUMERICAL_POLICY.md)
+- [`docs/TEST_AND_CONFORMANCE_REPORT.md`](docs/TEST_AND_CONFORMANCE_REPORT.md)
 
 ## Core boundary
 
-A poetic or interpretive statement may ride along with a computation, but it cannot be used as a formal mathematical result. A formal result may enter review, but that does not make the model empirically true.
+A poetic or interpretive statement may accompany a computation, but it cannot certify a formal result. A formal result may enter review, but that does not make the model empirically true.
 
-Record what happened. Record what did not happen. Record what was assumed. Record what remains unproved.
-
-## Public docs
-
-- `docs/USER_GUIDE.md` / `docs/DEVELOPER_GUIDE.md`
-- `docs/PROOF_GATE.md` — public Formal Eligibility Gate documentation; filename retained for compatibility
-- `docs/THREE_GATE_ARCHITECTURE.md`
-- `docs/REALITY_GATE.md`
-- `docs/RECEIPT_SCHEMA.md`
-- `docs/RECEIPT_SCHEMA_vNEXT.md`
-- `docs/USAGE.md`
-- `docs/MIGRATION_v0.2_to_v0.3.md`
-- `docs/TEST_AND_CONFORMANCE_REPORT.md`
-- `docs/SWARM_AUDIT_REPORT.md`
-- `docs/SECURITY_THREAT_MODEL.md`
-- `docs/ROADMAP.md`
-- `docs/Kimi_v1_Harvest_Review.md`
-
-## Package layout
-
-```text
-src/langarian/
-  state.py       finite complex vector state model
-  metrics.py     resonance, phase, coherence metrics
-  operators.py   harmonic_sum, phase_shift, attenuated_phase_shift, phi_scale, bridge
-  receipts.py    immutable operation receipt + hashing
-  validator.py   invariant runner
-  epistemic.py   proposition/result tags
-  proof_gate.py  compatibility API for the Formal Eligibility Gate
-  claims.py      tagged proposition records
-  contracts.py   invariant contracts
-  glyphs.py      tiny glyph dictionary stub with nearest-score helper
-  spaces.py      finite C^n utility helper, no infinite Hilbert claim
-  dynamics.py    norm-preserving rotation demo, no symplectic theorem claim
-  cli.py         example runner + receipt validator/explainer
-```
-
-## Kimi v1 Harvest
-
-Kimi's v1.0 artifact is preserved under `experimental/kimi_v1_harvest/` as a pressure-test branch. It is not trunk. The safe harvest patch adds finite-space utilities, a norm-preserving rotation demo, and glyph nearest-score helpers while downgrading unearned category/RKHS/symplectic/theorem claims. See `docs/Kimi_v1_Harvest_Review.md`.
+Record what happened. Record what did not happen. Record what was assumed. Record what remains unknown.

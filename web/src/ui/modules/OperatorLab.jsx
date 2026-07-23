@@ -1,12 +1,13 @@
 /**
- * Operator Lab: five operator cards with formulas, domains, parameters,
- * assumptions, and expected invariants. Runs go through the kernel directly
- * and are recorded into the session ledger with produced-state lineage.
+ * Operator Lab: implemented operator cards with formulas, domains, parameters,
+ * assumptions, and expected invariant checks. Runs go through the kernel
+ * directly and are recorded into the session ledger with produced-state lineage.
  *
  * UI rules mirrored from the kernel contracts:
  * - attenuation < 1 requires a declared cost label before run (I3);
  * - amplification (> 1) is explicitly noted as unaccounted increase;
- * - bridge cost is a caller-declared, unverified annotation.
+ * - bridge cost is an edge-local caller declaration, never inferred path cost;
+ * - phi_scale is an implemented symbolic extension, not a foundational law.
  */
 
 import { useState } from 'react'
@@ -22,7 +23,7 @@ const OP_DEFS = [
     name: 'Harmonic Sum',
     formula: 'z = a + b  (componentwise addition, zero-padded to common dim)',
     domain: 'two states (any dims 1..64; shorter input is zero-padded)',
-    assumptions: 'Finite complex vectors. Recomposition may reduce pairwise similarity; the change must be accounted.',
+    assumptions: 'Finite complex vectors. Zero-padding is an explicit embedding convention; recomposition may reduce pairwise similarity.',
     invariants: ['I1 well-typed states', 'I2 coherence in [0,1]', 'I3 accounted change', 'I4 trace inputs recorded', 'I8 interpretation quarantine'],
   },
   {
@@ -30,31 +31,31 @@ const OP_DEFS = [
     name: 'Phase Shift',
     formula: "z' = z · e^{iθ}",
     domain: 'one state; θ any finite angle in radians',
-    assumptions: 'Pure rotation: resonance must be preserved within 1e-9 (checked per instance, not a group-theoretic proof).',
+    assumptions: 'The general norm-preservation theorem comes from complex linear algebra. The receipt checks this implementation instance within tolerance.',
     invariants: ['I1 well-typed states', 'I2 coherence in [0,1]', 'I5 phase equivariance (resonance preserved)', 'I4 trace inputs recorded', 'I8 interpretation quarantine'],
   },
   {
     id: 'attenuated_phase_shift',
-    name: 'Attenuated Phase Shift',
+    name: 'Phase-Weighted Scale',
     formula: "z' = α · z · e^{iθ},  α ≥ 0",
     domain: 'one state; θ finite; α finite and non-negative',
-    assumptions: 'Decrease (α < 1) requires a declared cost (label-presence gate only — adequacy is not verified). Amplification (α > 1) passes but increases are unaccounted.',
+    assumptions: 'α < 1 attenuates and requires a declared cost label. α > 1 amplifies; the current I3 rule does not account for that increase.',
     invariants: ['I1 well-typed states', 'I2 coherence in [0,1]', 'I3 accounted change', 'I4 trace inputs recorded', 'I8 interpretation quarantine'],
   },
   {
     id: 'phi_scale',
-    name: 'Phi Scale',
-    formula: `z' = Φⁿ · z · e^{i·n·(2π/Φ)}  — dilation by Φⁿ plus n golden-angle (2π/Φ) phase advances`,
+    name: 'Phi Scale — symbolic extension',
+    formula: `z' = Φⁿ · z · e^{i·n·(2π/Φ)}  — selected dilation and reflex golden-angle convention`,
     domain: 'one state; n integer with |n| ≤ 64 (non-integral n is a typed error, never truncated)',
-    assumptions: `Φ = ${fmtShort(PHI, 12)}…; golden angle 2π/Φ = ${fmtShort(GOLDEN_ANGLE, 12)}… rad.`,
+    assumptions: `Implemented compatibility extension only. Φ = ${fmtShort(PHI, 12)}… and 2π/Φ = ${fmtShort(GOLDEN_ANGLE, 12)}… rad are not privileged laws of the native foundation.`,
     invariants: ['I1 well-typed states', 'I2 coherence in [0,1]', 'I3 accounted change', 'I4 trace inputs recorded', 'I8 interpretation quarantine'],
   },
   {
     id: 'bridge',
-    name: 'Bridge',
-    formula: 'B(x, y): typed transition candidate with coherence C(x,y) and caller-declared cost',
-    domain: 'two states; cost any finite number (caller-declared, unverified)',
-    assumptions: 'A bridge receipt records a transition/path candidate. It is NOT a category-theoretic naturality proof.',
+    name: 'Bridge — semantics open',
+    formula: 'B(x, y): source/target relation candidate with coherence C(x,y) and caller-declared edge cost',
+    domain: 'two states; edge cost any finite number (caller-declared, unverified)',
+    assumptions: 'The current command may conflate comparison, provenance link, declared correspondence, and transition edge. It is not state equality, path equivalence, or category-theoretic proof.',
     invariants: ['I1 well-typed states', 'I2 coherence in [0,1]', 'I4 trace inputs recorded', 'I8 interpretation quarantine'],
   },
 ]
@@ -94,7 +95,7 @@ function OpCard({ def, children, onRun, result, error, runDisabled, runHint }) {
           </ul>
         </dd>
         <dt>claim classification</dt>
-        <dd><TagBadge tag="COMPUTED" /> <span className="dim-text">claims are emitted by the kernel verbatim</span></dd>
+        <dd><TagBadge tag="COMPUTED" /> <span className="dim-text">claims are emitted by the kernel verbatim and remain instance-scoped</span></dd>
       </dl>
       <div className="op-controls">{children}</div>
       <div className="btn-row" style={{ marginTop: 10 }}>
@@ -222,7 +223,7 @@ function AttenuatedCard({ def, states }) {
         !state
           ? 'select a session state'
           : costMissing
-            ? 'attenuation < 1 requires a declared cost label before run (mirrors invariant I3)'
+            ? 'factor < 1 requires a declared cost label before run (mirrors invariant I3)'
             : null
       }
       onRun={() => run(() => {
@@ -253,7 +254,7 @@ function AttenuatedCard({ def, states }) {
         </label>
       </div>
       {amplifies && (
-        <p className="warn-text" role="status">α &gt; 1 amplifies: I3 passes, but the increase is unaccounted (label-presence gate covers decreases only).</p>
+        <p className="warn-text" role="status">α &gt; 1 amplifies: I3 passes, but the increase is unaccounted (the current label-presence gate covers decreases only).</p>
       )}
     </OpCard>
   )
@@ -267,7 +268,7 @@ function PhiScaleCard({ def, states }) {
   return (
     <OpCard def={def} result={result} error={error}
       runDisabled={!state}
-      runHint={!state ? 'select a session state' : null}
+      runHint={!state ? 'select a session state' : 'non-foundational symbolic extension'}
       onRun={() => run(() => {
         const power = Number(n)
         const out = phiScale(state, power)
@@ -310,13 +311,14 @@ function BridgeCard({ def, states }) {
       <div className="btn-row">
         <StatePicker value={aKey} onChange={setAKey} label="source x" states={states} />
         <StatePicker value={bKey} onChange={setBKey} label="target y" states={states} />
-        <label className="field" style={{ width: 140 }}>
-          <span>cost (caller-declared, unverified)</span>
+        <label className="field" style={{ width: 170 }}>
+          <span>edge cost (caller-declared)</span>
           <input type="text" inputMode="decimal" value={costValue} onChange={(event) => setCostValue(event.target.value)} />
         </label>
       </div>
       <p className="panel-sub" style={{ marginTop: 8 }}>
-        The cost value is your annotation; the kernel records it but does not verify it.
+        This value annotates only the newly declared bridge edge. The kernel does not infer accumulated path cost,
+        erase intermediate costs, or prove equivalence between the states.
       </p>
     </OpCard>
   )

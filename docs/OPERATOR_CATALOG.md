@@ -1,154 +1,264 @@
 # Operator Catalog — Langarian Math Workbench v0.3
 
-Stable surface at commit f00bd61: exactly five operators
-(`src/langarian/operators.py`). SPEC §1: **no new stable operators in v0.3**;
-proposed extensions are classified here (§3) but none are implemented in the
-stable surface. All operators emit `OperationReceipt` records
-(`docs/RECEIPT_SCHEMA_vNEXT.md`) tagged COMPUTED, with invariants per
-`docs/MATHEMATICAL_DEFINITIONS.md` §7.
+This catalog describes the executable surface currently implemented in `src/langarian/operators.py` and mirrored in `web/src/kernel/operators.ts`.
 
-Claim language below is verbatim from the kernel where quoted. Claims certify
-the operation instance only.
+It separates three questions:
 
-## 1. Stable operators
+1. What does the implementation execute?
+2. What mathematics follows from the declared map?
+3. What status does the operator have in the input-general native foundation?
 
-### 1.1 `harmonic_sum(a, b, *, glyph=None, label=None) -> OperationResult`
+An implemented operator is not automatically a foundational law.
 
-- **Math:** finite vector addition over the padded common dimension:
-  `out = pad(a) + pad(b) ∈ C^max(dim a, dim b)` (standard vector addition;
-  embedding convention in `docs/MATHEMATICAL_DEFINITIONS.md` §1).
-- **Parameters:** optional `glyph`, `label` (output cosmetics only).
-- **Coherence fields:** `coherence_before = C(a, b)` (pairwise similarity of
-  inputs); `coherence_after = system_coherence([a, b, out])` (average pairwise
-  similarity of the augmented 3-state system, diagonal included).
-  **Documented caveat** (`operators.py:98-100`): before and after are
-  *different statistics*; Δcoherence in I3 compares them anyway, so the
-  operator always declares a blanket cost string.
-- **Declared cost (always):** `"harmonic recomposition may reduce pairwise
-  similarity"` — covers e.g. `harmonic_sum(a, −a)` → zero resonance.
-- **Invariants emitted:** I1 (×3: a, b, out), I2 (×2), I3, I4, I8.
-- **Claim (verbatim):** "Harmonic sum computed by finite complex vector
-  addition." (COMPUTED)
-- **Failure modes:** state-construction errors propagate (dim, finiteness,
-  metadata). An extreme-magnitude sum (`|a+b|` overflowing binary64) produces
-  non-finite components, which the output-state constructor rejects with a
-  typed `ValueError` — no inf state can be emitted.
+## 1. Shared state domain
 
-### 1.2 `phase_shift(state, angle_radians, *, label=None) -> OperationResult`
+Unless stated otherwise, operators act on finite complex vectors:
 
-- **Math:** `out = e^{iθ} · v` — multiplication by a unit-modulus complex
-  scalar (a U(1) global rotation; unit-modulus scalar multiplication is
-  norm-preserving on Cⁿ by standard definition). Norm preservation is exact in
-  exact arithmetic and checked per instance within 1e-9 by I5.
-- **Parameters:** `angle_radians` must coerce to a **finite** float; NaN/±inf
-  is a typed `ValueError`, non-numeric a `TypeError`
-  (`operators.py:_finite_parameter`).
-- **Coherence fields:** `coherence_before = C(v, v) = 1`;
-  `coherence_after = C(v, out)` (1 up to floating point, by projective
-  invariance).
-- **Invariants emitted:** I1 (×2), I2 (×2), I5, I4, I8.
-- **Claim (verbatim):** "Pure phase shift preserved resonance in this operation
-  instance under the v0.2 finite vector model." (COMPUTED) — instance-scoped
-  per Lane C item 3.
-- **Failure modes:** non-finite/non-numeric angle (typed errors). Note: the
-  zero state is a valid input (output is the zero state; I5 compares 0 to 0).
+\[
+x\in\mathbb C^n,\qquad 1\le n\le 64.
+\]
 
-### 1.3 `attenuated_phase_shift(state, angle_radians, attenuation, *, cost_label, label=None) -> OperationResult`
+Demonstration coordinates, names, glyphs, and project branding are not part of the mathematical domain.
 
-- **Math:** `out = s · e^{iθ} · v`, so `Δresonance = (s − 1)·‖v‖` exactly for
-  finite `s ≥ 0`.
-- **Parameters:** `angle_radians` finite float; `attenuation` finite float,
-  `s < 0` rejected with `ValueError`; `cost_label` is a caller-declared,
-  **unverified** annotation string (required in practice when `s < 1` — I3
-  fails otherwise). UI/DSL must present `cost` as caller-declared, not computed.
-- **Amplification note (bounded wording):** `s > 1` is allowed and passes I3
-  *without* any cost declaration, because I3 is a label-presence gate for
-  decreases only — it is not a bound on amplification and does not verify cost
-  adequacy. Increases are unaccounted by design of I3
-  (`operators.py:173-178`).
-- **Coherence fields:** `coherence_before = C(v, v) = 1`;
-  `coherence_after = C(v, out) = 1` up to floating point (projective
-  invariance; attenuation is a positive rescaling).
-- **Invariants emitted:** I1 (×2), I2 (×2), I3, I4, I8.
-- **Claim (verbatim):** "Attenuated phase shift computed with declared cost
-  accounting." (COMPUTED)
-- **Failure modes:** non-finite angle/attenuation (`ValueError`), negative
-  attenuation (`ValueError`), missing cost label with `s < 1` (receipt FAIL via
-  I3 — a normal, typed outcome, exercised in `tests/test_operators.py`). An
-  extreme `s` that overflows the output vector is caught by output-state
-  construction (typed `ValueError`).
+## 2. Foundation status vocabulary
 
-### 1.4 `phi_scale(state, n=1, *, label=None) -> OperationResult`
+- **CORE** — neutral implemented behavior appropriate for foundation recovery.
+- **CORE / SEMANTICS OPEN** — implemented neutral behavior whose object kind or governance meaning remains ambiguous.
+- **SYMBOLIC EXTENSION** — implemented behavior tied to a selected symbolic convention; valid computation, non-foundational.
+- **CANDIDATE** — proposed but not yet stable.
+- **EXPERIMENTAL** — research/demo lane.
+- **INTERPRETIVE** — quarantined from formal eligibility.
+- **REJECTED** — must not re-enter the stable surface without a new promotion review.
 
-- **Math:** `out = φⁿ · e^{i·n·GOLDEN_ANGLE} · v` — scalar dilation by the
-  golden-ratio power plus a phase advance of `n` golden-angle increments
-  (`GOLDEN_ANGLE = 2π/φ`, the reflex of the conventional `2π/φ²`; see
-  `docs/MATHEMATICAL_DEFINITIONS.md` §6). Projective similarity `C(v, out)`
-  is 1 up to floating point (exercised by tests).
-- **Parameters:** `n` must be **integral** with `|n| ≤ MAX_PHI_SCALE_POWER =
-  64`. Non-integral `n` → `TypeError` (v0.3 intentional hardening; v0.2
-  silently truncated — see `docs/MIGRATION_v0.2_to_v0.3.md`); non-finite `n` →
-  `ValueError`; `|n| > 64` → `LimitError`. No `OverflowError` can escape.
-- **Negative n:** decreases resonance and `phi_scale` exposes no declared-cost
-  channel, so such receipts FAIL I3 **by design** (`operators.py:222-229`).
-- **Coherence fields:** `coherence_before = C(v, v) = 1`;
-  `coherence_after = C(v, out)` ≈ 1.
-- **Receipt parameters recorded:** `n`, `phi`, `golden_angle_radians`.
-- **Invariants emitted:** I1 (×2), I2 (×2), I3, I4, I8.
-- **Claim (verbatim):** "Phi scaling applied as scalar dilation plus
-  golden-angle phase advance." (COMPUTED)
-- **Failure modes:** typed parameter errors above; overflow of the scaled
-  vector is caught by output-state construction (typed `ValueError`).
+## 3. Implemented operators
 
-### 1.5 `bridge(source, target, *, cost=0.0, label=None) -> BridgeResult`
+### 3.1 `harmonic_sum(a, b)` — CORE
 
-- **Math/semantics:** records a typed transition candidate from `source` to
-  `target`: `coherence = C(source, target)`, caller-supplied `cost`, input
-  hashes, output hash = `target.state_hash()`. The docstring and claim
-  explicitly disclaim category-theoretic naturality
-  (`operators.py:267-271`).
-- **Parameters:** `cost` is a finite float, **caller-declared, unverified
-  annotation** — it is not computed from, or checked against, coherence or any
-  other quantity. UI/DSL must label it as such (SPEC §5).
-- **Coherence fields:** `coherence_before = None` (schema-consistent: the
-  field is nullable); `coherence_after = C(source, target)`.
-- **Invariants emitted:** I1 (×2), I2, I4, I8. (No I3: there is no
-  before/after delta for a transition record.)
-- **Claim (verbatim):** "Bridge candidate recorded as a typed transition/path,
-  not a category-theoretic proof." (COMPUTED)
-- **Failure modes:** non-finite `cost` (`ValueError`); state-construction
-  errors propagate.
+**Map**
 
-## 2. Invariant profile summary
+\[
+H(a,b)=\iota_a(a)+\iota_b(b)\in\mathbb C^{\max(\dim a,\dim b)},
+\]
 
-| Operator | I1 | I2 | I3 | I4 | I5 | I8 |
-|---|---|---|---|---|---|---|
-| harmonic_sum | ×3 | ×2 | ✓ (always-declared cost) | ✓ | — | ✓ |
-| phase_shift | ×2 | ×2 | — | ✓ | ✓ | ✓ |
-| attenuated_phase_shift | ×2 | ×2 | ✓ | ✓ | — | ✓ |
-| phi_scale | ×2 | ×2 | ✓ (no cost channel) | ✓ | — | ✓ |
-| bridge | ×2 | ×1 | — | ✓ | — | ✓ |
+where the shorter vector is embedded by leading-coordinate zero padding.
 
-## 3. Proposed extensions — classification (docs only; not implemented)
+**Input type**
 
-Classification levels: **STABLE** (implemented, receipt-emitting, tested),
-**CANDIDATE** (plausible future stable, needs implementation + tests +
-receipts), **EXPERIMENTAL** (research lane, may exist as demo code, not
-promoted), **INTERPRETIVE** (quarantined content, never proof-eligible),
-**REJECTED** (formally downgraded; do not re-import into trunk).
+Two finite complex states, possibly of different dimensions.
 
-| Proposal | Class | Basis |
-|---|---|---|
-| `harmonic_sum`, `phase_shift`, `attenuated_phase_shift`, `phi_scale`, `bridge` | **STABLE** | This catalog, §1 |
-| Direct-sum / tensor composition operators | **CANDIDATE** | Named as future-lane material in the `harmonic_sum` docstring (`operators.py:84-88`); requires full catalog entry, fixtures, receipts before entering trunk |
-| `GlyphDictionary.nearest_with_score` (finite-vector similarity lookup over labeled states) | **CANDIDATE** (stub exists) | `src/langarian/glyphs.py` — self-described stub, not exported from `__init__`; explicitly "not proof of RKHS completeness or symbolic truth" |
-| `FiniteComplexSpace` helper-based future operators | **CANDIDATE** (infrastructure) | `src/langarian/spaces.py` — Cⁿ utility "not a proof of infinite-dimensional Hilbert, RKHS, or physics claims"; no operator uses it yet |
-| `UnitaryFlowDemo` / `UnitaryFlowStep` (U(1) scalar-rotation trajectory demo) | **EXPERIMENTAL** | `src/langarian/dynamics.py` — self-described demo/research lane, "deliberately not called a symplectic theorem" (Lane C item 7); tested as a demo (`tests/test_harvest.py`), not promoted |
-| ASSUMPTION epistemic tag (distinct from COMPUTED for promoted model assumptions) | **CANDIDATE** (documented future addition) | SPEC §3.7; `proof_gate.py:40-50` currently blocks promoted MODEL claims lacking `formal_derivation_id` as the interim mechanism |
-| Kimi v1 harvest items: "Complete v1.0", "unique canonical metric", bridge naturality, "RKHS frame glyphs", "symplectic resonance conservation theorem" | **REJECTED** | `docs/Kimi_v1_Harvest_Review.md`; `experimental/kimi_v1_harvest/README.md`; re-entry only via the stated 5-point promotion rule (implementation, tests, receipts, no theorem language, tags) |
-| Numerology-flavored example labels/glyphs (`sigma_3/6/9`, glyph "creative") | **INTERPRETIVE** (quarantined by construction) | `examples/basic_369.yaml` — opaque label strings only; they never enter `claims[]` (Lane C item 14) |
+**Output type**
 
-Promotion rule for any CANDIDATE → STABLE move: implementation in the Python
-reference kernel, tests, deterministic conformance fixtures, receipts with
-invariants, bounded claim wording reviewed against
-`docs/CLAIM_BOUNDARY_MATRIX.md`. No operator enters the stable surface silently.
+One finite complex state.
+
+**Preserved or controlled properties**
+
+- output dimension is the padded common dimension;
+- both input hashes are recorded;
+- state finiteness and coherence bounds are checked.
+
+**Changed quantities**
+
+Norm, phase, component values, and similarity may change.
+
+**Important boundary**
+
+The padding map is an explicit convention, not a theorem forced by the objects. The emitted before/after coherence fields use different statistics; they must not be read as a single canonical delta without further formalization.
+
+### 3.2 `phase_shift(state, angle)` — CORE
+
+**Map**
+
+\[
+P_\theta(x)=e^{i\theta}x.
+\]
+
+**Input type**
+
+One finite complex state and a finite real angle in radians.
+
+**Output type**
+
+One finite complex state.
+
+**General mathematics**
+
+For every admissible `x` and real `theta`:
+
+\[
+\|P_\theta(x)\|=\|x\|.
+\]
+
+Component ratios and projective direction are preserved. The representative global phase changes.
+
+**Software claim boundary**
+
+The general theorem comes from elementary complex linear algebra. The receipt records a per-instance conformance check under the declared numerical policy; it does not prove the theorem.
+
+### 3.3 `attenuated_phase_shift(state, angle, attenuation)` — CORE
+
+**Map**
+
+\[
+A_{\theta,\eta}(x)=\eta e^{i\theta}x,\qquad \eta\ge0.
+\]
+
+**Input type**
+
+One finite complex state, a finite real angle, and a finite non-negative real factor.
+
+**Output type**
+
+One finite complex state.
+
+**General mathematics**
+
+\[
+\|A_{\theta,\eta}(x)\|=\eta\|x\|.
+\]
+
+For nonzero `x` and nonzero `eta`, projective direction is preserved. At `eta=0`, the output is the zero vector and projective direction is undefined.
+
+**Naming boundary**
+
+The implementation permits `eta>1`; this is amplification, not attenuation. Interfaces must state that explicitly.
+
+**Cost boundary**
+
+The current cost label is caller-declared and unverified. I3 checks presence for decreases; it does not calculate adequacy and does not account for amplification.
+
+### 3.4 `phi_scale(state, n)` — SYMBOLIC EXTENSION
+
+**Implemented map**
+
+\[
+F_n(x)=\varphi^n e^{in\gamma}x,
+\qquad
+\gamma=\frac{2\pi}{\varphi}.
+\]
+
+Here `gamma` is the reflex of the conventional phyllotaxis golden angle.
+
+**Input type**
+
+One finite complex state and an integer `n` with `|n|<=64`.
+
+**Output type**
+
+One finite complex state.
+
+**Foundation ruling**
+
+This operator is valid finite arithmetic and remains available for compatibility and explicit symbolic experiments. It is **not** generic scalar multiplication and does not establish that the golden ratio, Fibonacci numbers, spirals, shells, growth, harmony, or 3-6-9 are privileged in the native theory.
+
+The neutral family for future formalization is:
+
+\[
+S_a(x)=ax,\qquad a\in\mathbb C.
+\]
+
+A future `scalar_scale` operator may enter the stable surface only through the normal promotion rule: Python and TypeScript implementations, tests, conformance fixtures, receipts, and reviewed claim boundaries.
+
+### 3.5 `bridge(source, target, cost=0)` — CORE / SEMANTICS OPEN
+
+**Current computation**
+
+- records source and target hashes;
+- computes normalized complex similarity;
+- stores the target hash as output hash;
+- records a caller-declared finite cost value;
+- emits a typed receipt.
+
+**Current object-kind ambiguity**
+
+The command may be read as a comparison, provenance relation, declared correspondence, synthetic transition edge, or path annotation. These are not the same mathematical object.
+
+**Audit disposition**
+
+\[
+\boxed{\text{SPLIT REQUIRED — candidate, not yet executed}}
+\]
+
+Until a future API split is implemented, the bounded meaning is:
+
+> `bridge` records a source/target relation candidate plus coherence and an edge-local caller declaration.
+
+It does not establish state equality, path equivalence, category-theoretic naturality, provenance completeness, or a unique ancestry chain.
+
+## 4. Edge cost versus path cost
+
+The current `bridge` parameter must be interpreted as:
+
+\[
+c_{\mathrm{edge}}(x,y).
+\]
+
+It must not be promoted to:
+
+\[
+c_{\mathrm{path}}(x\rightsquigarrow y)=\bigoplus_j c(e_j).
+\]
+
+The cost domain and composition operator remain open. Consequently:
+
+```text
+bridge(A, D, cost=0)
+```
+
+means only that the new declared bridge edge has zero caller-declared cost. It does not erase intermediate costs or imply a zero-cost historical path.
+
+## 5. Composition observations
+
+For phase-weighted scaling maps:
+
+\[
+T_{\theta,\eta}(x)=\eta e^{i\theta}x,
+\]
+
+composition gives:
+
+\[
+T_{\theta_2,\eta_2}\circ T_{\theta_1,\eta_1}
+=
+T_{\theta_1+\theta_2,\eta_1\eta_2}.
+\]
+
+The identity is `T_(0,1)`. An inverse exists when `eta` is nonzero:
+
+\[
+T_{\theta,\eta}^{-1}=T_{-\theta,1/\eta}.
+\]
+
+If the admissible family is restricted to `0<=eta<=1`, it is generally not closed under inverses. These are mathematical observations about the declared maps; the full receipt-bearing algebra remains a candidate until receipt composition and governance semantics are recovered.
+
+## 6. Invariant classes
+
+Future audit should classify checks as:
+
+- **structural** — type, dimension, finite representation;
+- **numerical** — bounds, tolerances, norm or similarity checks;
+- **provenance** — input and parent identities remain addressable;
+- **governance** — authority, version, cost, and promotion rules;
+- **epistemic** — claim tags and prohibited inferences.
+
+A single label `PASS` is insufficient. Each result must identify the actual predicate, operands, expected condition, observed value, tolerance, and implementation version.
+
+## 7. Fixture non-privilege
+
+The historical `(3,6,9)` example is classified as an **INTERPRETIVE demonstration fixture**. It may be preserved for project history but may not validate its own significance.
+
+Every foundational claim must be stated for arbitrary admissible inputs and pressure-tested on neutral, random, zero, degenerate, extreme, and adversarial cases.
+
+## 8. Promotion rule
+
+No new operator enters the stable executable surface silently. Promotion requires:
+
+1. an exact mathematical or computational map;
+2. admissible input and output types;
+3. Python reference implementation;
+4. TypeScript conformance mirror;
+5. deterministic fixtures and tests;
+6. receipt fields and failure behavior;
+7. reviewed claim language;
+8. explicit foundation status.
+
+See `docs/NATIVE_FOUNDATION_PROTOCOL.md` for the governing recovery and audit process.

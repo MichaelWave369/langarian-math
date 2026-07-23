@@ -1,7 +1,7 @@
 /**
  * Program Builder: DSL editor over langarian-dsl:v0.3.
  *
- * - default source is the SPEC §5 golden program;
+ * - default source is the input-general foundation program;
  * - structured line/column errors from the parser, never tracebacks;
  * - AST and canonical JSON-program views;
  * - execution via WorkbenchSession with per-step list, warnings, and budget
@@ -106,7 +106,7 @@ export default function ProgramBuilder() {
           <p className="panel-sub">
             Grammar: assignment or expression statements; calls restricted to the five-operator registry plus
             state(). Numeric expressions are decimal literals, pi, and + − * /, constant-folded at parse time.
-            No eval anywhere in the pipeline.
+            No eval anywhere in the pipeline. The default fixture is deliberately input-general and non-symbolic.
           </p>
           <textarea
             rows={10}
@@ -119,7 +119,7 @@ export default function ProgramBuilder() {
           <div className="btn-row" style={{ marginTop: 8 }}>
             <button type="button" className="btn btn-primary" onClick={doRun}>Run program</button>
             <button type="button" className="btn" onClick={doExport} disabled={!parsed.ast}>Export JSON program</button>
-            <button type="button" className="btn btn-ghost" onClick={() => setSource(GOLDEN_PROGRAM)}>Reset to golden example</button>
+            <button type="button" className="btn btn-ghost" onClick={() => setSource(GOLDEN_PROGRAM)}>Reset to foundation example</button>
           </div>
           {errors !== null && (
             <div className="error-box" role="alert" aria-label="program errors">
@@ -198,7 +198,7 @@ export default function ProgramBuilder() {
                         <span className="mono dim-text">{step.op}</span>
                         {step.receipt !== null
                           ? <StatusBadge status={step.receipt.status} />
-                          : <span className="dim-text">no receipt (state() construction is not an operation)</span>}
+                          : <span className="warn-text">genesis state — no v0.3 genesis receipt; origin custody remains open</span>}
                         {step.receipt !== null && (
                           <button
                             type="button"
@@ -236,8 +236,9 @@ export default function ProgramBuilder() {
                 )}
                 {plainLanguage && (
                   <p className="panel-sub">
-                    Each step either creates a state (no receipt — creation is not an operation) or applies an
-                    operator (receipt with checks). Steps run in dependency order with a hard budget.
+                    Operator steps emit receipts with checks. state() creates a genesis value without an operation
+                    receipt in v0.3, so its origin custody is explicitly not yet complete. Steps run in dependency
+                    order with a hard budget.
                   </p>
                 )}
               </>
