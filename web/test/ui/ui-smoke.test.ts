@@ -1,8 +1,8 @@
 /**
- * Lightweight UI smoke tests (no DOM, no new dependencies): the ingest
- * sanitizers, the pasted-array parser, and the two scripted example actions
- * (receipt tampering, Proof Gate rejection) exercised at the engine seam the
- * UI components call.
+ * Lightweight UI smoke tests (no DOM, no new dependencies): ingest
+ * sanitizers, the pasted-array parser, governance labels, and the two scripted
+ * example actions (receipt tampering, formal-eligibility rejection) exercised
+ * at the engine seam used by the UI components.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -12,6 +12,7 @@ import { wellTypedState } from '../../src/kernel/contracts.js'
 import { OperationReceipt } from '../../src/kernel/receipts.js'
 import { WorkbenchSession } from '../../src/engine.js'
 import { parsePairsText } from '../../src/ui/modules/StateBuilder.jsx'
+import { MODULES } from '../../src/ui/WorkbenchContext.jsx'
 import { EXAMPLES } from '../../src/ui/data/examples.js'
 import { sanitizeFilename, stripIngest } from '../../src/ui/util/sanitize.js'
 
@@ -57,6 +58,12 @@ describe('pasted array parser', () => {
   })
 })
 
+describe('governance labels', () => {
+  it('uses Formal Eligibility Gate as the public module name', () => {
+    expect(MODULES.find((module) => module.id === 'gate')?.label).toBe('Formal Eligibility Gate')
+  })
+})
+
 describe('example library data', () => {
   it('contains all twelve required examples with classifications', () => {
     expect(EXAMPLES).toHaveLength(12)
@@ -98,7 +105,7 @@ describe('scripted example actions (engine seam)', () => {
     expect(session.ledger.detectAltered().map((e) => e.seq)).toContain(entry.seq)
   })
 
-  it('gate example receipt validates honestly but is gate-blocked', () => {
+  it('gate example receipt validates honestly but is formal-eligibility blocked', () => {
     const gateExample = EXAMPLES.find((example) => example.id === 'proof-gate-rejection')!
     const session = new WorkbenchSession()
     const run = session.runText(gateExample.source)
@@ -116,7 +123,6 @@ describe('scripted example actions (engine seam)', () => {
       ],
     })
     const { entry } = session.ledger.importReceipt(receipt.toCanonicalJson())
-    // Honestly constructed: all four validation levels pass...
     expect(entry.validation).toEqual({
       schema_valid: true,
       hash_valid: true,
@@ -124,7 +130,6 @@ describe('scripted example actions (engine seam)', () => {
       version_allowed: true,
     })
     expect(entry.quarantine).toEqual([])
-    // ...but the claims are still inadmissible at the Proof Gate by tag rules.
     const claims = (entry.receipt.claims as { tag: string; metadata?: Record<string, unknown> }[])
     expect(claims[0]!.tag).toBe('INTERPRETIVE')
     expect(claims[1]!.metadata!.promoted_from).toBe('MODEL')
