@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/contract-conformance-suite.schema.json",
+  "title": "Parallax Contract Conformance Suite",
+  "description": "Portable evidence registry comparing package-specific implementation observations against operator execution contracts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["suite_schema_version", "package", "cases", "observations", "metadata"],
+  "properties": {
+    "suite_schema_version": { "const": "contract-conformance-suite:v0.1" },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "schema_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "schema_version": { "const": "theory-package:v0.2" }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/case" }
+    },
+    "observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/observation" }
+    },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)*$" },
+    "status": { "enum": ["PASS", "WARN", "FAIL", "REJECT"] },
+    "predicateStatus": { "enum": ["PASS", "WARN", "FAIL", "NOT_RUN"] },
+    "predicateResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate_id", "status"],
+      "properties": {
+        "predicate_id": { "$ref": "#/$defs/id" },
+        "status": { "$ref": "#/$defs/predicateStatus" }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operator_id",
+        "class",
+        "description",
+        "expected_status",
+        "expected_predicates",
+        "expected_failure_ids",
+        "exercises_first_falsifier",
+        "evidence_requirements"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "operator_id": { "$ref": "#/$defs/id" },
+        "class": { "enum": ["nominal", "boundary", "adversarial", "failure", "falsifier"] },
+        "description": { "type": "string", "minLength": 1 },
+        "expected_status": { "$ref": "#/$defs/status" },
+        "expected_predicates": { "type": "array", "items": { "$ref": "#/$defs/predicateResult" } },
+        "expected_failure_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "exercises_first_falsifier": { "type": "boolean" },
+        "evidence_requirements": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "implementation_id",
+        "implementation_version",
+        "contract_version",
+        "receipt_schema_version",
+        "status",
+        "predicate_results",
+        "failure_ids_observed",
+        "result_signature",
+        "evidence_ref",
+        "timestamp_utc"
+      ],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/id" },
+        "implementation_id": { "$ref": "#/$defs/id" },
+        "implementation_version": { "type": "string", "minLength": 1 },
+        "contract_version": { "const": "operator-contract:v0.2" },
+        "receipt_schema_version": { "const": "parallax-receipt-envelope:v0.2" },
+        "status": { "$ref": "#/$defs/status" },
+        "predicate_results": { "type": "array", "items": { "$ref": "#/$defs/predicateResult" } },
+        "failure_ids_observed": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "result_signature": { "type": ["string", "null"] },
+        "evidence_ref": { "type": "string", "minLength": 1 },
+        "timestamp_utc": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
