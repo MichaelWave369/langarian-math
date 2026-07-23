@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/theory-package.schema.json",
+  "title": "Parallax Theory Package",
+  "description": "Portable manifest for documentary, formal, executable, conformance-tested, and Reality-Gate theory packages.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "theory",
+    "maturity_level",
+    "objects",
+    "operators",
+    "assumptions",
+    "invariants",
+    "claim_boundaries",
+    "evidence",
+    "implementations",
+    "metadata"
+  ],
+  "properties": {
+    "schema_version": { "const": "theory-package:v0.1" },
+    "theory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "version", "status", "summary", "motivation"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$" },
+        "status": { "enum": ["draft", "candidate", "active", "deprecated"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "motivation": { "type": "string", "minLength": 1 }
+      }
+    },
+    "maturity_level": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "objects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectDefinition" }
+    },
+    "operators": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operatorDefinition" }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/statementDefinition" }
+    },
+    "invariants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/statementDefinition" }
+    },
+    "claim_boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "prohibited"],
+      "properties": {
+        "allowed": { "$ref": "#/$defs/stringList" },
+        "prohibited": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reality_gate", "notes"],
+      "properties": {
+        "reality_gate": { "enum": ["not_evaluated", "planned", "in_progress", "passed", "failed"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "implementations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "language", "version", "status"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "language": { "type": "string", "minLength": 1 },
+          "version": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["reference", "mirror", "documentary"] },
+          "independent_from": { "$ref": "#/$defs/stringList" }
+        }
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)*$"
+    },
+    "evidenceClass": {
+      "enum": ["OBSERVED", "IMPLEMENTED", "DOCUMENTED", "INFERRED", "ASPIRATIONAL", "UNKNOWN"]
+    },
+    "definitionStatus": {
+      "enum": ["ACCEPTED", "PROVISIONAL", "CANDIDATE", "THEORY_MAP_OPEN"]
+    },
+    "stringList": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "objectDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "definition", "evidence_class", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "definition": { "type": "string", "minLength": 1 },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
+        "status": { "$ref": "#/$defs/definitionStatus" }
+      }
+    },
+    "operatorDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "input_types", "output_types", "semantics", "evidence_class", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "input_types": { "$ref": "#/$defs/stringList" },
+        "output_types": { "$ref": "#/$defs/stringList" },
+        "semantics": { "type": "string", "minLength": 1 },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
+        "status": { "$ref": "#/$defs/definitionStatus" },
+        "implementation": { "type": ["string", "null"] }
+      }
+    },
+    "statementDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "evidence_class", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "text": { "type": "string", "minLength": 1 },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
+        "status": { "$ref": "#/$defs/definitionStatus" },
+        "scope": { "type": "string" }
+      }
+    }
+  }
+}

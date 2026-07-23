@@ -1,32 +1,124 @@
-# Langarian Math
+# Parallax Theory Workbench — Langarian Math
 
 [![tests](https://github.com/MichaelWave369/langarian-math/actions/workflows/tests.yml/badge.svg)](https://github.com/MichaelWave369/langarian-math/actions/workflows/tests.yml)
 [![pages](https://github.com/MichaelWave369/langarian-math/actions/workflows/pages.yml/badge.svg)](https://github.com/MichaelWave369/langarian-math/actions/workflows/pages.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-**Version:** Langarian Math Workbench **v0.3.1-rc.1**  
+**Product version:** Langarian Math Workbench **v0.3.1-rc.1**  
+**Theory Package Architecture:** **v0.1**  
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
-Langarian is a finite-dimensional, executable, receipt-bearing research workbench for governed mathematical transformations. It records what was computed, which checks ran, what claims the run may support, and what remains unproved.
+The site now has two deliberately separated layers:
 
-It does **not** claim to be physics, psychology, therapy, sacred geometry, or a completed mathematical theory.
+```text
+Parallax governance shell
+        ↓
+portable theory packages
+        ↓
+package-specific executable kernels, when earned
+```
+
+Langarian remains the first executable package: a finite-dimensional, receipt-bearing workbench for governed complex-vector transformations. The larger Parallax shell can now admit documentary and formal theory packages without pretending the Langarian vector kernel can execute every theory.
 
 > **The ledger serves reality, not the author.**
 
+## Where a theory enters
+
+A theory enters through a portable manifest that declares:
+
+- objects;
+- operators;
+- assumptions;
+- invariant candidates;
+- claim boundaries;
+- evidence and Reality Gate status;
+- implementation surfaces;
+- maturity level.
+
+The browser now opens on a **Theory Packages** module where a researcher can:
+
+- inspect the bundled Langarian and SaaSy packages;
+- see why each package exists;
+- distinguish documentary/formal packages from executable ones;
+- generate a generic package-bound receipt envelope;
+- create a new package with the Theory Definition Wizard;
+- validate, export, and locally import package manifests;
+- open the Langarian executable workbench only when the selected package has earned executable status.
+
+See [`docs/THEORY_PACKAGE_SPEC.md`](docs/THEORY_PACKAGE_SPEC.md) and [`schemas/theory-package.schema.json`](schemas/theory-package.schema.json).
+
+## Can any theory be plugged in?
+
+Any sufficiently explicit theory may enter at **Level 1** as a documentary package. That does not make it executable or true.
+
+| Level | Meaning |
+|---|---|
+| L1 | Documentary theory: objects, assumptions, claims, dependencies, and unknowns are mapped |
+| L2 | Formal specification: domains, operators, proof obligations, and failure conditions are defined |
+| L3 | Executable reference: at least one runtime executes declared operators and emits receipts |
+| L4 | Conformance tested: a second implementation or test surface produces compatible behavior |
+| L5 | Reality-Gate candidate: predictions, datasets, falsifiers, literature comparison, and replication are registered |
+
+The governance architecture is general. Execution is package-specific and must be earned.
+
+Imported manifests are treated as data. The browser does **not** execute arbitrary package code.
+
+## Bundled packages
+
+### Langarian Finite Complex Transformations — Level 4
+
+The current executable package includes:
+
+- finite complex vector states;
+- resonance as Euclidean norm;
+- a deterministic representative-phase convention;
+- normalized complex similarity;
+- `harmonic_sum`;
+- `phase_shift`;
+- `attenuated_phase_shift` / phase-weighted scaling;
+- a semantically open `bridge` relation candidate;
+- operation receipts and deterministic integrity hashes;
+- Python and TypeScript implementation surfaces;
+- conformance fixtures and tests;
+- a Formal Eligibility Gate.
+
+Package specimen: [`examples/theory-packages/langarian-finite-complex.json`](examples/theory-packages/langarian-finite-complex.json)
+
+### SaaSy Reduced Hamiltonian Program — Level 2
+
+SaaSy is admitted as a documentary/formal package shell rather than being routed through the wrong executable kernel. It records candidate objects, reduction and derivation operations, assumptions, provenance invariants, promotion boundaries, and open semantics.
+
+Package specimen: [`examples/theory-packages/saasy-reduced-hamiltonian.json`](examples/theory-packages/saasy-reduced-hamiltonian.json)
+
+Its non-executable status is a feature: open definitions remain `THEORY_MAP_OPEN` instead of being filled with invented equations.
+
+## Generic receipt envelope
+
+Theory packages can generate an unexecuted envelope with:
+
+- theory package id, version, and schema;
+- operation id;
+- implementation id and version;
+- inputs, parameters, and outputs;
+- assumptions used;
+- named predicate checks;
+- supported and prohibited claims;
+- parent receipt ids;
+- explicit status;
+- timestamp.
+
+The envelope schema version is:
+
+```text
+parallax-receipt-envelope:v0.1
+```
+
+An envelope marked `NOT_RUN` is a template, not evidence that an operation executed.
+
 ## Foundation Phase
 
-The project is now recovering the mathematics already implicit in the implementation rather than imposing a Lagrangian, scalar-field story, preferred number sequence, or visual metaphor onto the software.
-
-The foundation begins with:
-
-- typed finite complex states;
-- implemented operators;
-- lawful composition;
-- invariant checks;
-- receipts and versions;
-- claim boundaries;
-- failure and ambiguity records.
+The native mathematics is recovered from executable behavior rather than imposed Lagrangian language, preferred numbers, shells, spirals, or golden-ratio symbolism.
 
 The governing obligations are:
 
@@ -39,13 +131,13 @@ See [`docs/NATIVE_FOUNDATION_PROTOCOL.md`](docs/NATIVE_FOUNDATION_PROTOCOL.md).
 
 ## Input-general mathematics
 
-The neutral state class is:
+The Langarian package begins with arbitrary admissible states:
 
 \[
 x\in\mathbb C^n,\qquad 1\le n\le64.
 \]
 
-Every foundational theorem or invariant must be stated for arbitrary admissible inputs and pressure-tested with ordinary, signed, complex, zero-containing, degenerate, random, extreme, and adversarial cases.
+Every foundational claim must be pressure-tested with ordinary, signed, complex, zero-containing, degenerate, random, extreme, and adversarial inputs.
 
 ### Fixture Non-Privilege Rule
 
@@ -55,27 +147,9 @@ No property observed from a selected demonstration input may become a general cl
 
 Branding, shells, spirals, Fibonacci imagery, the golden ratio, and the historical 3-6-9 fixture receive no mathematical privilege without independent operational necessity or proof.
 
-The historical examples remain available only as clearly labeled, non-foundational demonstrations.
+## Core maps and symbolic extension
 
-## What the workbench implements
-
-- finite complex vector states;
-- resonance as Euclidean norm;
-- a deterministic representative-phase convention;
-- normalized complex similarity;
-- vector addition through `harmonic_sum`;
-- global phase rotation through `phase_shift`;
-- phase-weighted non-negative scaling through `attenuated_phase_shift`;
-- `bridge` relation/transition-candidate receipts;
-- the historical `phi_scale` symbolic extension;
-- epistemic tags and bounded claim language;
-- operation receipts with deterministic integrity hashes;
-- a Formal Eligibility Gate;
-- a local-first browser workbench and DSL.
-
-## Core versus symbolic extension
-
-### Core neutral maps
+### Neutral maps
 
 \[
 P_\theta(x)=e^{i\theta}x
@@ -87,23 +161,21 @@ and
 A_{\theta,\eta}(x)=\eta e^{i\theta}x,\qquad \eta\ge0.
 \]
 
-The implementation permits `eta > 1`, which is amplification rather than attenuation; the interface must say so.
+The implementation permits `eta > 1`, which is amplification rather than attenuation.
 
 ### `phi_scale`
 
-`phi_scale` is not generic scaling. It applies a golden-ratio power plus a reflex golden-angle phase convention. It remains implemented for compatibility and explicit symbolic experiments, but it is **not** a privileged law of the native foundation.
+`phi_scale` remains an implemented compatibility extension using a golden-ratio power and reflex golden-angle convention. It is not generic scaling or a privileged native law.
 
-The neutral future family is:
+A neutral future family would be:
 
 \[
 S_a(x)=ax,\qquad a\in\mathbb C.
 \]
 
-A future `scalar_scale` command must pass the normal implementation, receipt, fixture, and conformance promotion process before entering the stable surface.
-
 ## Bridge boundary
 
-The current `bridge(source, target, cost=k)` command records source and target identities, similarity, and a caller-declared edge annotation.
+`bridge(source, target, cost=k)` currently records a source/target relation candidate, similarity, and an edge-local caller declaration.
 
 It does not prove:
 
@@ -114,21 +186,15 @@ It does not prove:
 - unique ancestry;
 - zero historical path cost.
 
-`cost=0` means zero declared cost on the new bridge edge only. It does not erase intermediate transformation history.
+`cost=0` means zero declared cost on the newly recorded edge only.
 
-The object kind of `bridge` remains under audit and may later split into comparison, provenance-link, declared-correspondence, and transformation concepts.
+## Genesis custody
 
-## Receipts and genesis custody
+Operator calls emit receipts. In v0.3, `state()` creates a root state without an operation receipt. The interface exposes this as an open genesis-custody boundary rather than claiming complete lineage.
 
-Operator calls emit receipts. In v0.3, `state()` constructs a root state without an operation receipt.
+A future genesis receipt should distinguish constructed, imported, observed, simulated, manually declared, and recovered roots.
 
-That is now treated as an explicit open custody boundary:
-
-> No prior transformation is valid for a genesis state. No lineage record is not.
-
-A future genesis-receipt design should record whether the state was constructed, imported, observed, simulated, manually declared, or recovered.
-
-## The three gates
+## Three gates
 
 ```text
 Syntax / Integrity Gate
@@ -138,24 +204,29 @@ Formal Eligibility Gate
 Reality Gate
 ```
 
-1. **Syntax / Integrity Gate** — is the artifact well formed, internally consistent, version-compatible, and untampered?
-2. **Formal Eligibility Gate** — may the claim enter formal mathematical review?
-3. **Reality Gate** — has the model earned scientific confidence through evidence and independent replication?
+1. **Syntax / Integrity** — well formed, internally consistent, version-compatible, and untampered.
+2. **Formal Eligibility** — allowed into mathematical review.
+3. **Reality** — compared with literature, empirical evidence, prediction, falsification, and replication.
 
-The current workbench implements the first two boundaries. It does not run or pass the Reality Gate.
+The current executable workbench implements the first two boundaries. Theory packages explicitly record Reality Gate status but do not silently pass it.
 
-## Install locally
+## Install and test
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e '.[dev]'
+pytest
 ```
 
-## Run tests
+Browser workbench:
 
 ```bash
-pytest
+cd web
+npm ci
+npm run sync:version
+npm run test
+npm run build
 ```
 
 ## Run the historical compatibility example
@@ -164,56 +235,37 @@ pytest
 langarian run examples/basic_369.yaml --receipts-dir receipts
 ```
 
-This example is retained for project history and compatibility. Its selected numbers and Phi operation are not validation of their own significance.
+The example remains for project history. Its selected numbers and Phi operation do not validate their own significance.
 
-## Validate and explain receipts
+## Validate and explain executable receipts
 
 ```bash
 langarian validate receipts/basic_369_bridge.json
 langarian explain receipts/basic_369_bridge.json
 ```
 
-Validation separately checks schema shape, content-hash integrity, status consistency, and schema-version allowance. It does not independently recompute the underlying operation.
-
-## Browser workbench
-
-```bash
-cd web
-npm ci
-npm run sync:version
-npm run dev
-npm run test
-npm run build
-```
-
-The default browser program now uses a neutral complex fixture:
-
-```text
-A = state([[1,1],[3,-2],[0,-4]], label="A")
-B = phase_shift(A, pi/7)
-C = harmonic_sum(B, B)
-D = attenuated_phase_shift(C, pi/11, 0.75, cost="declared edge-local attenuation")
-bridge(A, D, cost=0, label="comparison edge only")
-```
-
-This is a reproducible example, not a privileged input.
+Validation checks schema, integrity hash, status consistency, and allowed versions. It does not independently recompute the operation.
 
 ## Version map
 
-Version strings are declared in `src/langarian/version.py`:
+Declared in `src/langarian/version.py`:
 
 - product: `0.3.1-rc.1`
 - Python kernel: `langarian-python-ref-v0.3.0`
 - finite complex model: `langarian-finite-complex-model-v0.2.1`
 - metric: `metric:v0.3.scale_safe_normalized_complex_similarity`
-- receipt schema: `receipt:v0.3`
+- executable receipt schema: `receipt:v0.3`
 - DSL: `langarian-dsl:v0.3`
 - fixtures: `fixtures:v0.3`
 - TypeScript port: `langarian-ts-port-v0.3.0`
 - visualization: `viz:v0.3`
+- theory package schema: `theory-package:v0.1`
+- generic receipt envelope: `parallax-receipt-envelope:v0.1`
 
 ## Key documents
 
+- [`docs/THEORY_PACKAGE_SPEC.md`](docs/THEORY_PACKAGE_SPEC.md)
+- [`schemas/theory-package.schema.json`](schemas/theory-package.schema.json)
 - [`docs/NATIVE_FOUNDATION_PROTOCOL.md`](docs/NATIVE_FOUNDATION_PROTOCOL.md)
 - [`docs/DSL_SPEC.md`](docs/DSL_SPEC.md)
 - [`docs/OPERATOR_CATALOG.md`](docs/OPERATOR_CATALOG.md)
@@ -225,6 +277,6 @@ Version strings are declared in `src/langarian/version.py`:
 
 ## Core boundary
 
-A poetic or interpretive statement may accompany a computation, but it cannot certify a formal result. A formal result may enter review, but that does not make the model empirically true.
+A valid package manifest is not a valid theory. A valid receipt is not a proof. A formally coherent model is not automatically a description of nature.
 
 Record what happened. Record what did not happen. Record what was assumed. Record what remains unknown.

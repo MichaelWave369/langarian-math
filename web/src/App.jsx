@@ -1,13 +1,14 @@
 /**
- * Langarian Math Workbench v0.3 — application shell.
+ * Parallax Theory Workbench — Langarian executable package shell.
  *
- * Layout: left module rail, main workspace, persistent/collapsible
- * epistemic strip. All engine access goes through WorkbenchContext; the UI
- * never bypasses kernel validation.
+ * Layout: theory-package front door, executable workbench modules, and a
+ * persistent epistemic strip. All executable access goes through
+ * WorkbenchContext; documentary packages cannot silently use the wrong kernel.
  */
 
 import EpistemicStrip from './ui/EpistemicStrip.jsx'
 import { MODULES, useWorkbench, WorkbenchProvider } from './ui/WorkbenchContext.jsx'
+import TheoryPackages from './ui/modules/TheoryPackages.jsx'
 import StateBuilder from './ui/modules/StateBuilder.jsx'
 import OperatorLab from './ui/modules/OperatorLab.jsx'
 import ProgramBuilder from './ui/modules/ProgramBuilder.jsx'
@@ -16,8 +17,10 @@ import ReceiptLedgerModule from './ui/modules/ReceiptLedgerModule.jsx'
 import FormalEligibilityGate from './ui/modules/ProofGate.jsx'
 import Visualizations from './ui/modules/Visualizations.jsx'
 import ExampleLibrary from './ui/modules/ExampleLibrary.jsx'
+import './theory.css'
 
 const MODULE_COMPONENTS = {
+  theories: TheoryPackages,
   state: StateBuilder,
   operators: OperatorLab,
   program: ProgramBuilder,
@@ -33,8 +36,8 @@ function LeftRail() {
   return (
     <nav className="left-rail" aria-label="Workbench modules">
       <div className="rail-brand">
-        <span className="rail-logo" aria-hidden="true">ℒ</span>
-        <span className="rail-title">Langarian<br />Math Workbench</span>
+        <span className="rail-logo" aria-hidden="true">℘</span>
+        <span className="rail-title">Parallax Theory<br />Workbench</span>
       </div>
       <ul className="rail-list" role="list">
         {MODULES.map((item) => (
@@ -57,7 +60,7 @@ function LeftRail() {
 
 function Workspace() {
   const { module, notice, setNotice, plainLanguage } = useWorkbench()
-  const Active = MODULE_COMPONENTS[module] ?? StateBuilder
+  const Active = MODULE_COMPONENTS[module] ?? TheoryPackages
   const activeMeta = MODULES.find((item) => item.id === module)
   return (
     <main className="workspace" id="main-content" aria-label={activeMeta?.label ?? 'Workbench'}>
@@ -80,14 +83,15 @@ function Workspace() {
 }
 
 const PLAIN_BY_MODULE = {
-  state: 'Build a finite list of complex numbers (a “state”). You get its size, length (resonance), angle (phase), and fingerprint (hash).',
-  operators: 'Apply one of the five checked transformations to your states. Every run writes a receipt describing what was checked.',
-  program: 'Write a short program in the workbench language and run it step by step, with receipts.',
-  result: 'Look closely at the last result: exact numbers, checks that passed or failed, and where it came from.',
-  ledger: 'The audit trail of every operation. You can check whether a receipt was altered, and export or import records.',
-  gate: 'Checks whether claims are allowed to enter formal mathematical review. Passing means eligible for review — never “proved”, and never evidence that the model describes nature.',
-  viz: 'Pictures of your states and receipts. Every picture also has an exact table.',
-  examples: 'Ready-made demonstrations, including deliberate failures, so you can see how the workbench reports problems honestly.',
+  theories: 'Start here. Describe or import a theory without pretending it is executable. Packages earn higher levels by adding exact operators, receipts, independent implementations, and Reality Gate evidence.',
+  state: 'Build a finite list of complex numbers for the executable Langarian package. You get its dimension, norm, representative phase, and deterministic fingerprint.',
+  operators: 'Apply one of the checked Langarian transformations. Every run writes a package-specific receipt describing what was checked.',
+  program: 'Write a short program in the Langarian package language and run it step by step with receipts.',
+  result: 'Inspect the last executable result: exact numbers, checks, claim boundaries, and provenance.',
+  ledger: 'The audit trail of executable operations. Check whether a receipt was altered and export or import records.',
+  gate: 'Checks whether claims may enter formal mathematical review. Passing means eligible for review, never proved and never empirically true.',
+  viz: 'Pictures of Langarian states and receipts, always accompanied by exact values.',
+  examples: 'Ready-made package demonstrations, including honest failures and non-foundational historical fixtures.',
 }
 
 export default function App() {

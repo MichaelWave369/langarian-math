@@ -1,0 +1,134 @@
+{
+  "schema_version": "theory-package:v0.1",
+  "theory": {
+    "id": "saasy-reduced-hamiltonian",
+    "name": "SaaSy Reduced Hamiltonian Program",
+    "version": "0.1.0",
+    "status": "candidate",
+    "summary": "A documentary and formal package shell for the reduced Hamiltonian closure research program.",
+    "motivation": "Bring an active theory into Parallax before pretending every derivation has already become executable software."
+  },
+  "maturity_level": 2,
+  "objects": [
+    {
+      "id": "parent-system",
+      "name": "Parent system",
+      "definition": "The unreduced mathematical system from which a bounded reduced description is derived.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    },
+    {
+      "id": "reduced-system",
+      "name": "Reduced system",
+      "definition": "The retained variables, operators, and terms after a declared reduction.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    },
+    {
+      "id": "derivation-step",
+      "name": "Derivation step",
+      "definition": "A typed transformation or identity in the derivation tower with explicit dependencies.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    },
+    {
+      "id": "claim",
+      "name": "Bounded claim",
+      "definition": "A proposition tagged by scope, evidence, dependencies, and promotion status.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    }
+  ],
+  "operators": [
+    {
+      "id": "reduce",
+      "name": "reduction map",
+      "input_types": ["parent-system"],
+      "output_types": ["reduced-system"],
+      "semantics": "CANDIDATE — specify the exact admissible reduction and retained or discarded information.",
+      "evidence_class": "DOCUMENTED",
+      "status": "THEORY_MAP_OPEN",
+      "implementation": null
+    },
+    {
+      "id": "derive",
+      "name": "derivation step",
+      "input_types": ["derivation-step"],
+      "output_types": ["derivation-step"],
+      "semantics": "CANDIDATE — apply one lawful symbolic derivation rule with explicit assumptions and dependencies.",
+      "evidence_class": "DOCUMENTED",
+      "status": "THEORY_MAP_OPEN",
+      "implementation": null
+    },
+    {
+      "id": "promote-claim",
+      "name": "claim promotion",
+      "input_types": ["claim"],
+      "output_types": ["claim"],
+      "semantics": "Move a claim to a stronger review state only when its declared proof obligations are satisfied.",
+      "evidence_class": "ASPIRATIONAL",
+      "status": "CANDIDATE",
+      "implementation": null
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "a1",
+      "text": "Every retained and discarded term must be explicitly classified.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    },
+    {
+      "id": "a2",
+      "text": "A reduced closure claim remains bounded to its declared dimensional and source assumptions.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "i1",
+      "text": "No derivation step may lose its declared dependency set.",
+      "scope": "candidate provenance invariant",
+      "evidence_class": "ASPIRATIONAL",
+      "status": "CANDIDATE"
+    },
+    {
+      "id": "i2",
+      "text": "A promoted claim must remain attached to the derivation and assumptions that earned promotion.",
+      "scope": "candidate governance invariant",
+      "evidence_class": "ASPIRATIONAL",
+      "status": "CANDIDATE"
+    }
+  ],
+  "claim_boundaries": {
+    "allowed": [
+      "the package documents objects, assumptions, derivation dependencies, and proof obligations",
+      "a statement is identified as candidate, derived, or unresolved"
+    ],
+    "prohibited": [
+      "the theory is executable in the current finite-vector kernel",
+      "a documentary package proves closure",
+      "formal coherence alone establishes physical truth"
+    ]
+  },
+  "evidence": {
+    "reality_gate": "planned",
+    "notes": "Empirical and literature comparison requirements remain to be registered as a separate evidence lane."
+  },
+  "implementations": [
+    {
+      "id": "documentary-package",
+      "language": "Markdown/JSON",
+      "version": "0.1.0",
+      "status": "documentary"
+    }
+  ],
+  "metadata": {
+    "bundled": true,
+    "execution_route": null,
+    "steward": "Emet",
+    "auditor": "Ori",
+    "custodian": "Hughes"
+  }
+}
