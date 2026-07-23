@@ -40,13 +40,13 @@ jobs:
           if [ -f docs/ORI_ACCEPTANCE.md ]; then
             cp docs/ORI_ACCEPTANCE.md /tmp/ORI_ACCEPTANCE.md
           fi
+          rm -rf /tmp/langarian-src/.github
           find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github ! -name .langarian-import -exec rm -rf {} +
           cp -a /tmp/langarian-src/. .
           if [ -f /tmp/ORI_ACCEPTANCE.md ]; then
             cp /tmp/ORI_ACCEPTANCE.md docs/ORI_ACCEPTANCE.md
           fi
           rm -rf .langarian-import
-          rm -f .github/workflows/import-source.yml
 
       - name: Commit imported source
         shell: bash
