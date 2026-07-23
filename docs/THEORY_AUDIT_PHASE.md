@@ -1,41 +1,56 @@
-# Theory Audit and Execution Readiness Phase
+# Theory Audit and Operator Contract Phase v0.2
 
 **Status:** implemented browser phase  
-**Scope:** package recovery, semantic attack, scaffold generation, and planning receipts  
+**Scope:** package recovery, semantic attack, exact execution contracts, scaffold generation, and planning receipts  
 **Non-goal:** this phase does not execute arbitrary imported theories.
 
 ## Why this phase exists
 
-Theory Package Architecture v0.1 created a lawful intake path. A theory can now enter Parallax as a documentary, formal, executable, conformance-tested, or Reality-Gate package without being forced through the finite-complex Langarian kernel.
+Theory Package Architecture v0.1 created a lawful intake path. The audit phase then exposed a missing layer: an operator could have a name, typed inputs and outputs, prose semantics, and even an implementation location without declaring the exact obligations an independent implementation must satisfy.
 
-The next problem is harder:
+Theory Package v0.2 closes that gap with a required execution contract for every operator.
 
-> What must be true before a documentary or formal package may become executable?
+## Required per-operator contract
 
-A single maturity number is not enough. A project may have working code while its definitions remain ambiguous, or elegant formal semantics while no executable reference exists. This phase therefore audits five independent readiness axes.
+Every operator now declares:
+
+- parameter names, types, required status, and constraints;
+- preconditions;
+- assumption identifiers used;
+- invariant identifiers checked;
+- named predicates and tolerances;
+- failure conditions with `REJECT`, `FAIL_RECEIPT`, or `WARN_RECEIPT` outcomes;
+- reversibility classification and boundary;
+- required receipt fields;
+- a first falsifier.
+
+The contract schema is:
+
+```text
+operator-contract:v0.2
+```
+
+The package schema is:
+
+```text
+theory-package:v0.2
+```
 
 ## Five readiness axes
 
 ### Documentary recovery
 
-Checks whether the package declares:
+Checks identity, motivation, objects, assumptions, claim boundaries, and manifest validity.
 
-- identity and motivation;
-- objects;
-- assumptions;
-- allowed claims;
-- prohibited claims;
-- a valid portable manifest.
-
-### Formal semantics
+### Formal semantics and contracts
 
 Checks whether:
 
 - object identities are resolved;
-- legal operators are declared;
-- operator maps are no longer `THEORY_MAP_OPEN`;
-- invariants and proof obligations are registered;
-- invariant identities are precise enough to falsify.
+- operator maps are bounded;
+- every operator carries a v0.2 contract;
+- contracts contain no `THEORY_MAP_OPEN` placeholders;
+- invariants and falsifiers are registered.
 
 ### Executable reference
 
@@ -43,101 +58,84 @@ Checks whether:
 
 - the package has earned executable status;
 - a reference implementation exists;
-- every executable operator names an implementation location;
-- every declared operator can be bound to a generic package receipt envelope.
+- every Level 3+ operator names an implementation location;
+- every generic receipt envelope binds the exact operator contract.
 
 ### Conformance and independence
 
-Checks whether:
-
-- at least two execution surfaces exist;
-- mirror dependence is disclosed;
-- implementation agreement is not presented as independent empirical confirmation.
-
-Conformance and epistemic independence remain different claims.
+Checks multiple execution surfaces, disclosed mirror dependence, and the boundary between implementation agreement and independent scientific confirmation.
 
 ### Reality Gate
 
-Checks whether:
+Tracks evidence, prediction, falsification, literature comparison, and replication separately from formal and computational success.
 
-- external evidence status is explicitly classified;
-- evidence notes describe datasets, literature comparisons, predictions, falsifiers, or replication;
-- formal success is prohibited from implying physical or empirical truth.
+## Contract-bound receipt envelope
 
-## H0–H6 packet export
+The generic receipt envelope is now:
 
-The browser can export a Markdown recovery packet generated only from the selected package manifest:
+```text
+parallax-receipt-envelope:v0.2
+```
 
-- **H0:** scope and evidence freeze;
-- **H1:** observable object inventory;
-- **H2:** operation catalog;
-- **H3:** receipt-envelope specimen;
-- **H4:** authority map;
-- **H5:** ambiguity register;
-- **H6:** app-to-concept map.
+It binds:
 
-The packet preserves `PROVISIONAL`, `CANDIDATE`, and `THEORY_MAP_OPEN` states. Generation never promotes a definition.
+- package identity and version;
+- operator identity;
+- operator-contract version;
+- assumption ids;
+- invariant ids;
+- predicate ids;
+- the first falsifier;
+- implementation identity;
+- inputs, parameters, outputs, checks, parents, status, and bounded claims.
+
+A receipt marked `NOT_RUN` is still planning evidence only. Every contract predicate remains `NOT_RUN` until a package-specific implementation records an observation.
 
 ## Dependency and provenance map
 
-The audit module renders only edges supported by the package manifest:
+The audit graph now includes explicit edges:
 
 - object → operator input;
 - operator → object output;
-- operator → implementation location;
-- package → object, operator, assumption, invariant, implementation, and claim boundary.
+- assumption → operator;
+- operator → invariant;
+- operator → named predicate;
+- operator → failure condition;
+- operator → implementation location.
 
-Theory Package v0.1 does not yet declare which assumptions and invariants each operator consumes. Those missing edges are reported as open linkages rather than inferred.
+These edges are read from the contract. They are no longer inferred from package-level prose.
+
+## Operational contract versus interpretation
+
+A precise operational contract does not automatically settle every theoretical interpretation.
+
+The current Langarian `bridge` operation is the important example:
+
+- executable behavior is contracted;
+- input validation, bounded similarity, edge-local cost, failure outcomes, and receipt fields are explicit;
+- the higher-level question of whether the concept should ultimately be classified as a comparison, provenance relation, correspondence, or transition remains open.
+
+Therefore:
+
+> Contracted implementation behavior may be exact while theoretical object-kind interpretation remains `THEORY_MAP_OPEN`.
 
 ## Safe implementation scaffolds
 
-Python and TypeScript scaffolds may be exported for each package.
+Generated Python and TypeScript scaffolds include the full contract obligations, but immediately throw. They cannot emit `PASS`, produce outputs, or count as implementations.
 
-They contain:
+## H0–H6 packet export
 
-- package identity;
-- declared operator names;
-- declared input and output types;
-- declared semantics;
-- explicit `NotImplementedError` or thrown errors.
+The H2 operation catalog now includes the full per-operator contract table. First falsifiers are exported as declared attack surfaces rather than converted into proof claims.
 
-A scaffold is a planning artifact. It cannot emit `PASS`, produce outputs, or count as an implementation.
+## Public example boundary
 
-## Planning receipts
+The open-source repository contains:
 
-Before implementation, the audit module can create package-bound receipts with:
+- the executable Langarian package;
+- a neutral Generic Provenance Workflow example.
 
-```text
-status = NOT_RUN
-outputs = []
-claims_supported = []
-```
-
-The receipt records intended work without pretending that an operator executed. Planning receipts remain local to the browser session unless exported.
-
-## Current discovery
-
-The audit exposes a real structural issue in the existing Langarian package:
-
-- Python and TypeScript execution surfaces exist and conform;
-- some operator semantics, especially `bridge`, remain open.
-
-This is not treated as failure. It is recorded as an asymmetric maturity profile: implementation can be ahead of formal semantic recovery.
-
-## Next schema obligation
-
-Theory Package v0.2 should add per-operator execution contracts:
-
-- preconditions;
-- assumptions used;
-- invariants or predicates checked;
-- failure conditions;
-- reversibility;
-- receipt fields;
-- first falsifiers.
-
-Until that schema exists, the audit displays these linkages as `THEORY MAP OPEN`.
+No private or third-party research program is bundled into the active public package library.
 
 ## Governing rule
 
-> Implementation behavior may provide evidence about what exists, but it may not silently become the definition of what the theory means.
+> An implementation must satisfy the declared contract; the implementation may not silently rewrite the contract, and the contract may not silently resolve an open interpretation.
