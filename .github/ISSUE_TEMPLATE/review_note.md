@@ -1,3 +1,10 @@
+---
+name: Review note
+about: Request a careful review of a claim, operator, receipt, example, or doc section
+title: "Review: "
+labels: [review]
+---
+
 # Review note
 
 Use this for a careful review of a claim, operator, receipt, example, or doc section.
