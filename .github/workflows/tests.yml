@@ -23,9 +23,19 @@ jobs:
       - name: Run tests
         run: pytest -q
       - name: Check fixture determinism
+        id: fixtures
+        shell: bash
         run: |
+          set -o pipefail
           PYTHONPATH=src python -m langarian.fixtures --out /tmp/langarian-fixtures
-          diff -r fixtures/conformance /tmp/langarian-fixtures
+          diff -ru fixtures/conformance /tmp/langarian-fixtures | tee /tmp/fixture-diff.txt
+      - name: Upload fixture diagnostic
+        if: failure() && steps.fixtures.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixture-diff-py${{ matrix.python-version }}
+          path: /tmp/fixture-diff.txt
+          if-no-files-found: error
 
   web:
     runs-on: ubuntu-latest
@@ -41,8 +51,19 @@ jobs:
         working-directory: web
         run: npm run sync:version
       - name: Unit tests
+        id: web-unit
         working-directory: web
-        run: npm run test
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test 2>&1 | tee /tmp/web-unit.log
+      - name: Upload web unit diagnostic
+        if: failure() && steps.web-unit.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-unit-log
+          path: /tmp/web-unit.log
+          if-no-files-found: error
       - name: Python/TS conformance
         working-directory: web
         run: npm run test:conformance
