@@ -1,3 +1,10 @@
+---
+name: Feature request
+about: Propose a bounded feature or operator lane
+title: "Feature: "
+labels: [enhancement]
+---
+
 # Feature request
 
 ## What should we add?
