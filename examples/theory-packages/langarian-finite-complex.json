@@ -1,0 +1,143 @@
+{
+  "schema_version": "theory-package:v0.1",
+  "theory": {
+    "id": "langarian-finite-complex",
+    "name": "Langarian Finite Complex Transformations",
+    "version": "0.3.1",
+    "status": "active",
+    "summary": "The executable finite-complex-vector package currently powering the workbench.",
+    "motivation": "Make mathematical transformations reproducible, receipt-bearing, and unable to overstate what one computation establishes."
+  },
+  "maturity_level": 4,
+  "objects": [
+    {
+      "id": "state",
+      "name": "ResonantState",
+      "definition": "A finite vector in C^n, 1 <= n <= 64, plus bounded metadata and receipt history.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED"
+    },
+    {
+      "id": "receipt",
+      "name": "OperationReceipt",
+      "definition": "A versioned integrity record for one operator execution and its checks.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED"
+    },
+    {
+      "id": "bridge-result",
+      "name": "BridgeResult",
+      "definition": "A recorded source/target relation candidate with similarity and edge-local declared cost.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "PROVISIONAL"
+    }
+  ],
+  "operators": [
+    {
+      "id": "phase-shift",
+      "name": "phase_shift",
+      "input_types": ["state"],
+      "output_types": ["state"],
+      "semantics": "P_theta(x) = exp(i theta) x.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED",
+      "implementation": "src/langarian/operators.py#phase_shift"
+    },
+    {
+      "id": "harmonic-sum",
+      "name": "harmonic_sum",
+      "input_types": ["state", "state"],
+      "output_types": ["state"],
+      "semantics": "Zero-pad to a common dimension and add componentwise.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "PROVISIONAL",
+      "implementation": "src/langarian/operators.py#harmonic_sum"
+    },
+    {
+      "id": "phase-weighted-scale",
+      "name": "attenuated_phase_shift",
+      "input_types": ["state"],
+      "output_types": ["state"],
+      "semantics": "A_(theta,eta)(x) = eta exp(i theta) x for eta >= 0.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "PROVISIONAL",
+      "implementation": "src/langarian/operators.py#attenuated_phase_shift"
+    },
+    {
+      "id": "bridge",
+      "name": "bridge",
+      "input_types": ["state", "state"],
+      "output_types": ["bridge-result"],
+      "semantics": "Record a source/target relation candidate, normalized similarity, and an edge-local caller declaration.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "THEORY_MAP_OPEN",
+      "implementation": "src/langarian/operators.py#bridge"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "a1",
+      "text": "The executable model is finite-dimensional and represented with finite IEEE-754 components.",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED"
+    },
+    {
+      "id": "a2",
+      "text": "Zero-padding is the selected embedding convention for unequal dimensions.",
+      "evidence_class": "DOCUMENTED",
+      "status": "PROVISIONAL"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "i1",
+      "text": "phase_shift preserves Euclidean norm in exact arithmetic.",
+      "scope": "general theorem plus per-instance conformance",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED"
+    },
+    {
+      "id": "i2",
+      "text": "Every operation receipt records declared input hashes and an output hash.",
+      "scope": "current implementation",
+      "evidence_class": "IMPLEMENTED",
+      "status": "ACCEPTED"
+    }
+  ],
+  "claim_boundaries": {
+    "allowed": [
+      "a declared transformation was computed",
+      "listed checks ran under declared versions",
+      "two implementation surfaces conform to reviewed fixtures"
+    ],
+    "prohibited": [
+      "the model describes nature",
+      "a demonstration fixture is mathematically privileged",
+      "Formal Eligibility equals proof",
+      "zero bridge edge cost means zero historical path cost"
+    ]
+  },
+  "evidence": {
+    "reality_gate": "not_evaluated",
+    "notes": "The package is a mathematical software workbench, not an empirically validated physical theory."
+  },
+  "implementations": [
+    {
+      "id": "python-reference",
+      "language": "Python",
+      "version": "langarian-python-ref-v0.3.0",
+      "status": "reference"
+    },
+    {
+      "id": "typescript-mirror",
+      "language": "TypeScript",
+      "version": "langarian-ts-port-v0.3.0",
+      "status": "mirror",
+      "independent_from": ["python-reference:algorithmically mirrored, not epistemically independent"]
+    }
+  ],
+  "metadata": {
+    "bundled": true,
+    "execution_route": "program"
+  }
+}
