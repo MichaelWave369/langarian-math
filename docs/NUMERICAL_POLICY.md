@@ -114,11 +114,25 @@ vectors branch before scaling, and scaled norms are ≥ 1. Tests
 (`tests/test_hardening.py`, `tests/test_metrics.py`) exercise the extreme
 magnitudes directly.
 
-## 9. Determinism
+## 9. Determinism and fixture custody
 
 - `state_hash` and receipt `content_hash` are deterministic for identical
   inputs on a given platform (same float bit patterns → same bytes → same
   SHA-256).
-- Cross-platform/cross-language determinism is the conformance contract:
-  values within `1e-12`, hashes byte-exact; any mismatch fails the build
-  rather than passing silently.
+- The committed files under `fixtures/conformance/` are the **canonical
+  reference artifacts** for v0.3. Their bytes, hashes, and receipt identifiers
+  define the browser-conformance target. TypeScript must reproduce those
+  committed artifacts exactly; a mismatch remains a build failure.
+- Re-generating fixtures on the same numerical platform is expected to be
+  byte-identical. Across operating systems, CPUs, BLAS builds, or Python/NumPy
+  builds, mathematically equivalent binary64 operations can differ in the last
+  representable bit. Runner regeneration is therefore a visible diagnostic,
+  not a replacement for the committed canonical fixture set.
+- Cross-platform kernel behavior is checked semantically: Python unit tests
+  must pass on every supported runtime and numeric outputs must satisfy the
+  declared `1e-12` absolute conformance tolerance. Receipt hashes are compared
+  byte-exactly only against the committed canonical fixtures, never against an
+  arbitrary runner's newly generated least-significant bits.
+- Any proposed fixture refresh must be intentional: record the generating
+  platform, review the numerical diff, regenerate the TypeScript conformance
+  evidence, and promote the new fixture set through a reviewed commit.
