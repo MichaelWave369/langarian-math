@@ -36,8 +36,14 @@ class ResultStatus(str, Enum):
 
 
 def combine_statuses(statuses: list[ResultStatus]) -> ResultStatus:
-    """Collapse invariant statuses into one receipt status."""
+    """Collapse invariant statuses into one receipt status.
 
+    An empty invariant list collapses to FAIL, not PASS: "no checks ran" must
+    never read as "all checks passed".
+    """
+
+    if not statuses:
+        return ResultStatus.FAIL
     if any(status == ResultStatus.FAIL for status in statuses):
         return ResultStatus.FAIL
     if any(status == ResultStatus.WARN for status in statuses):

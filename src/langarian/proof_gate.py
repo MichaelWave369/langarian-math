@@ -37,13 +37,31 @@ class ProofGateReport:
         }
 
 
+def _is_promoted_model_without_derivation(claim: Claim) -> bool:
+    """A claim promoted from MODEL is not proof-eligible on its own.
+
+    Promotion via :func:`promote_model_assumption` records an accepted
+    assumption; it does not make the content kernel-computed. Such claims are
+    blocked from formal proof contexts unless the metadata also carries a
+    ``formal_derivation_id`` pointing at an explicit formal derivation.
+    (A distinct ASSUMPTION tag is a documented future addition.)
+    """
+
+    return claim.metadata.get("promoted_from") == EpistemicTag.MODEL.value and not claim.metadata.get("formal_derivation_id")
+
+
 def evaluate_claims(claims: Iterable[Claim]) -> ProofGateReport:
-    """Classify claims as allowed or blocked for formal proof use."""
+    """Classify claims as allowed or blocked for formal proof use.
+
+    Blocked: non-proof-eligible tags, and any claim with
+    ``metadata.promoted_from == "MODEL"`` that lacks a
+    ``metadata.formal_derivation_id``.
+    """
 
     allowed: list[Claim] = []
     blocked: list[Claim] = []
     for claim in claims:
-        if claim.can_be_used_as_proof():
+        if claim.can_be_used_as_proof() and not _is_promoted_model_without_derivation(claim):
             allowed.append(claim)
         else:
             blocked.append(claim)
@@ -59,6 +77,9 @@ def require_proof_eligible(claims: Iterable[Claim], *, context: str = "formal_pr
 
     Allowed tags: FORMAL and COMPUTED.
     Blocked tags: MODEL, INTERPRETIVE, METAPHOR, OBSERVED, FAILED.
+    Additionally blocked regardless of tag: claims with
+    ``metadata.promoted_from == "MODEL"`` that lack a
+    ``metadata.formal_derivation_id``.
     """
 
     report = evaluate_claims(claims)

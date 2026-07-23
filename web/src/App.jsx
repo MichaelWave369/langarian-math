@@ -1,94 +1,103 @@
-const operators = [
-  ['Harmonic Sum', 'z = Σ zᵢ', 'Combine finite complex states with receipts.'],
-  ['Phase Shift', "z' = z e^{iθ}", 'Pure rotation preserves resonance.'],
-  ['Attenuated Shift', "z' = αz e^{iθ}", 'Decrease requires declared cost.'],
-  ['Phi Scale', "z' = Φⁿz", 'Golden-ratio scaling, receipt tracked.'],
-  ['Bridge', 'B(x, y)', 'Typed transition candidate, not proof magic.'],
-]
+/**
+ * Langarian Math Workbench v0.3 — application shell.
+ *
+ * Layout: left module rail, main workspace, persistent/collapsible
+ * epistemic strip. All engine access goes through WorkbenchContext; the UI
+ * never bypasses kernel validation.
+ */
 
-const tags = ['FORMAL', 'COMPUTED', 'MODEL', 'INTERPRETIVE', 'METAPHOR', 'OBSERVED', 'FAILED']
+import EpistemicStrip from './ui/EpistemicStrip.jsx'
+import { MODULES, useWorkbench, WorkbenchProvider } from './ui/WorkbenchContext.jsx'
+import StateBuilder from './ui/modules/StateBuilder.jsx'
+import OperatorLab from './ui/modules/OperatorLab.jsx'
+import ProgramBuilder from './ui/modules/ProgramBuilder.jsx'
+import ResultInspector from './ui/modules/ResultInspector.jsx'
+import ReceiptLedgerModule from './ui/modules/ReceiptLedgerModule.jsx'
+import ProofGate from './ui/modules/ProofGate.jsx'
+import Visualizations from './ui/modules/Visualizations.jsx'
+import ExampleLibrary from './ui/modules/ExampleLibrary.jsx'
 
-function App() {
+const MODULE_COMPONENTS = {
+  state: StateBuilder,
+  operators: OperatorLab,
+  program: ProgramBuilder,
+  result: ResultInspector,
+  ledger: ReceiptLedgerModule,
+  gate: ProofGate,
+  viz: Visualizations,
+  examples: ExampleLibrary,
+}
+
+function LeftRail() {
+  const { module, setModule } = useWorkbench()
   return (
-    <main className="shell">
-      <section className="hero">
-        <p className="eyebrow">Public Python reference repo · v0.2 FKC trunk · v0.2.1 epistemic receipt patch</p>
-        <h1>Langarian Math</h1>
-        <h2>Claim-Safe Formal Kernel Candidate</h2>
-        <p className="lede">
-          A finite-dimensional symbolic computation kernel for resonance-style state transformations,
-          invariant checks, epistemic tags, and traceable receipts.
-        </p>
-        <div className="heroActions">
-          <a href="https://github.com/MichaelWave369/langarian-math">GitHub Repo</a>
-          <a href="https://github.com/MichaelWave369/langarian-math/blob/main/docs/RECEIPT_SCHEMA.md">Receipt Schema</a>
+    <nav className="left-rail" aria-label="Workbench modules">
+      <div className="rail-brand">
+        <span className="rail-logo" aria-hidden="true">ℒ</span>
+        <span className="rail-title">Langarian<br />Math Workbench</span>
+      </div>
+      <ul className="rail-list" role="list">
+        {MODULES.map((item) => (
+          <li key={item.id}>
+            <button
+              type="button"
+              className={`rail-item${module === item.id ? ' rail-item-active' : ''}`}
+              onClick={() => setModule(item.id)}
+              aria-current={module === item.id ? 'page' : undefined}
+            >
+              <span className="rail-icon" aria-hidden="true">{item.icon}</span>
+              <span className="rail-label">{item.label}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+function Workspace() {
+  const { module, notice, setNotice, plainLanguage } = useWorkbench()
+  const Active = MODULE_COMPONENTS[module] ?? StateBuilder
+  const activeMeta = MODULES.find((item) => item.id === module)
+  return (
+    <main className="workspace" id="main-content" aria-label={activeMeta?.label ?? 'Workbench'}>
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      {notice !== null && (
+        <div className="notice" role="status">
+          <span>{notice}</span>
+          <button type="button" className="btn btn-ghost btn-small" onClick={() => setNotice(null)} aria-label="Dismiss notice">
+            ✕
+          </button>
         </div>
-      </section>
-
-      <section className="grid two">
-        <article className="card formula">
-          <span className="number">01</span>
-          <h3>Formal Kernel</h3>
-          <code>z = a + bi ∈ ℂⁿ</code>
-          <code>R(z) = ||z||</code>
-          <code>φ = arg(Σ zᵢ)</code>
-          <code>C(x,y) = |&lt;x,y&gt;|² / (||x||² ||y||²)</code>
-          <p>Finite-dimensional by design. Deeper math later, once receipts justify promotion.</p>
-        </article>
-
-        <article className="card glow">
-          <span className="number">02</span>
-          <h3>Ledger / Validator Discipline</h3>
-          <ul>
-            <li>Input hashes + output hash</li>
-            <li>Invariant checks</li>
-            <li>PASS / WARN / FAIL</li>
-            <li>Coherence before / after</li>
-            <li>Declared cost when change decreases</li>
-          </ul>
-        </article>
-      </section>
-
-      <section className="card">
-        <span className="number">03</span>
-        <h3>Core Operators</h3>
-        <div className="operators">
-          {operators.map(([name, math, note]) => (
-            <div className="op" key={name}>
-              <strong>{name}</strong>
-              <code>{math}</code>
-              <p>{note}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid two">
-        <article className="card">
-          <span className="number">04</span>
-          <h3>Epistemic Tags</h3>
-          <div className="tags">
-            {tags.map((tag) => <span key={tag} className={`tag ${tag.toLowerCase()}`}>{tag}</span>)}
-          </div>
-          <p className="rule">Interpretive claims cannot be used as proof.</p>
-        </article>
-
-        <article className="card">
-          <span className="number">05</span>
-          <h3>Proof Gate</h3>
-          <p>The Proof Gate blocks MODEL, INTERPRETIVE, METAPHOR, OBSERVED, and FAILED claims from formal proof contexts.</p>
-          <pre>{`require_proof_eligible(claims)\n# PASS or ProofGateError`}</pre>
-        </article>
-      </section>
-
-      <section className="card repo">
-        <span className="number">06</span>
-        <h3>Public Repo Snapshot</h3>
-        <pre>{`langarian-math/\n├─ src/langarian/\n├─ examples/\n├─ tests/\n├─ docs/\n├─ web/\n├─ .github/workflows/\n├─ README.md\n├─ LICENSE\n└─ pyproject.toml`}</pre>
-        <p>MIT licensed · pytest workflow · GitHub Pages scaffold · Kimi harvest quarantined</p>
-      </section>
+      )}
+      <header className="module-head">
+        <h1>{activeMeta?.label}</h1>
+        {plainLanguage && <p className="module-plain">{PLAIN_BY_MODULE[module]}</p>}
+      </header>
+      <Active />
     </main>
   )
 }
 
-export default App
+const PLAIN_BY_MODULE = {
+  state: 'Build a finite list of complex numbers (a “state”). You get its size, length (resonance), angle (phase), and fingerprint (hash).',
+  operators: 'Apply one of the five checked transformations to your states. Every run writes a receipt describing what was checked.',
+  program: 'Write a short program in the workbench language and run it step by step, with receipts.',
+  result: 'Look closely at the last result: exact numbers, checks that passed or failed, and where it came from.',
+  ledger: 'The audit trail of every operation. You can check whether a receipt was altered, and export or import records.',
+  gate: 'Sorts claims into “allowed in formal contexts” and “quarantined”. Passing only means the labels allow it — not that the math is proven.',
+  viz: 'Pictures of your states and receipts. Every picture also has an exact table.',
+  examples: 'Ready-made demonstrations, including deliberate failures, so you can see how the workbench reports problems honestly.',
+}
+
+export default function App() {
+  return (
+    <WorkbenchProvider>
+      <div className="app-shell">
+        <LeftRail />
+        <Workspace />
+        <EpistemicStrip />
+      </div>
+    </WorkbenchProvider>
+  )
+}

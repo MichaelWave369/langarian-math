@@ -18,6 +18,7 @@ Langarian Math is an experimental formal-language and symbolic-computation proto
 4. **Use epistemic tags honestly.**
 5. **Do not promote metaphor into proof.**
 6. **Prefer small patches over huge rewrites.**
+7. **Claims must follow `docs/CLAIM_BOUNDARY_MATRIX.md`; request a claim-boundary review when wording changes public meaning.**
 
 ## Epistemic tags
 
@@ -42,15 +43,17 @@ Before opening a PR, ask:
 - Do receipts still serialize?
 - Are interpretive claims quarantined?
 - Is the README/docs updated if public behavior changed?
+- If claims, tags, receipts, or Proof Gate behavior changed, was a claim-boundary review requested?
 
 ## Good first contributions
 
 - More YAML examples
 - Better receipt explanations
-- More invariant tests
+- More invariant and property tests
 - Documentation cleanup
-- CLI validation commands
 - Visual demo mockups
+
+Note: CLI receipt validation commands have shipped; contributions there should focus on clearer validation-level explanations and tamper examples.
 
 ## Review culture
 

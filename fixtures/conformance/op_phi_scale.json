@@ -1,0 +1,257 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "coherence_after": 1.0,
+        "coherence_before": 1.0,
+        "finalized_output_hash": "sha256:ed56540e293a95c04aea20bd43396c3648d5a24f790c5cbdf2e47f88858d236b",
+        "output_hash": "sha256:fe9e72ef862c805eb74c52e02c3c3a4f2da617bc93293a8e85856a7aae7550ad",
+        "output_resonance": 14.339562719535438,
+        "output_vector": [
+          [
+            -4.987135768384863,
+            3.065776681192672
+          ],
+          [
+            11.118689130770207,
+            6.908494855577053
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Phi scaling applied as scalar dilation plus golden-angle phase advance."
+            }
+          ],
+          "coherence_after": 1.0,
+          "coherence_before": 1.0,
+          "content_hash": "sha256:d3464a1a56feab92613fc677b1861be9ef083b23e60aca6e20e997656904d47e",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "No decrease requiring cost declaration.",
+              "metadata": {},
+              "name": "I3.accounted_change",
+              "status": "PASS",
+              "value": {
+                "delta_coherence": 0.0,
+                "delta_resonance": 8.862337144483776
+              }
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "phi_scale",
+          "output_hash": "sha256:fe9e72ef862c805eb74c52e02c3c3a4f2da617bc93293a8e85856a7aae7550ad",
+          "parameters": {
+            "golden_angle_radians": 3.8832220774509327,
+            "n": 2,
+            "phi": 1.618033988749895
+          },
+          "receipt_id": "sha256:9df37c708348b11defb42846005909f711119a4690006c386519068139b57d6a",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:d3464a1a56feab92613fc677b1861be9ef083b23e60aca6e20e997656904d47e",
+        "receipt_id": "sha256:9df37c708348b11defb42846005909f711119a4690006c386519068139b57d6a",
+        "status": "PASS"
+      },
+      "inputs": {
+        "n": 2,
+        "state": [
+          [
+            1.0,
+            2.0
+          ],
+          [
+            3.0,
+            -4.0
+          ]
+        ]
+      },
+      "name": "n_equals_2"
+    },
+    {
+      "expected": {
+        "coherence_after": 1.0,
+        "coherence_before": 1.0,
+        "finalized_output_hash": "sha256:0be4fba1855c96e79988c3d2f3e949988adca516ed2d83a44ffd9e2f5e7d6112",
+        "output_hash": "sha256:c1e3adf705df1c010e99a8df7383a4aec976060dda8745061ed339a23b60bef1",
+        "output_resonance": 1.0,
+        "output_vector": [
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Phi scaling applied as scalar dilation plus golden-angle phase advance."
+            }
+          ],
+          "coherence_after": 1.0,
+          "coherence_before": 1.0,
+          "content_hash": "sha256:9f15b9ee31a707a714b032d6f78a7c755f1f5fb8649985d8db7942f5c5424cf3",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:591ad178ab1d2d53fec464596c865c5dfe4ec5a47a13562a355abe63e3388814"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 1
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 1
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "No decrease requiring cost declaration.",
+              "metadata": {},
+              "name": "I3.accounted_change",
+              "status": "PASS",
+              "value": {
+                "delta_coherence": 0.0,
+                "delta_resonance": 0.0
+              }
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:591ad178ab1d2d53fec464596c865c5dfe4ec5a47a13562a355abe63e3388814"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "phi_scale",
+          "output_hash": "sha256:c1e3adf705df1c010e99a8df7383a4aec976060dda8745061ed339a23b60bef1",
+          "parameters": {
+            "golden_angle_radians": 3.8832220774509327,
+            "n": 0,
+            "phi": 1.618033988749895
+          },
+          "receipt_id": "sha256:09b48233dda089b47c5d23df3e9909c2580deafdec0095ef01dfb405b24c473b",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:9f15b9ee31a707a714b032d6f78a7c755f1f5fb8649985d8db7942f5c5424cf3",
+        "receipt_id": "sha256:09b48233dda089b47c5d23df3e9909c2580deafdec0095ef01dfb405b24c473b",
+        "status": "PASS"
+      },
+      "inputs": {
+        "n": 0,
+        "state": [
+          [
+            1.0,
+            0.0
+          ]
+        ]
+      },
+      "name": "n_equals_0_identity"
+    }
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "operation",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "operator": "phi_scale",
+  "receipt_schema_version": "receipt:v0.3",
+  "timestamp_utc": "1970-01-01T00:00:00+00:00"
+}

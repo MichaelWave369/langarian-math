@@ -1,0 +1,142 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "coherence_after": 1.0,
+        "coherence_before": 1.0,
+        "finalized_output_hash": "sha256:5562a413987dd18509b11e875aa0cc3315223a939be923bc2b39fcf2b41a6841",
+        "output_hash": "sha256:c6ef94899d6c23eb870267fd95178b652e6801fc333183f2db4274e03aa42ef5",
+        "output_resonance": 4.107919181288746,
+        "output_vector": [
+          [
+            0.19173925060092822,
+            1.6660540386731142
+          ],
+          [
+            3.1403688267453003,
+            -2.0495325398749706
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Attenuated phase shift computed with declared cost accounting."
+            }
+          ],
+          "coherence_after": 1.0,
+          "coherence_before": 1.0,
+          "content_hash": "sha256:edd2a16aadcccadb649b05ec5ecbb0ae0f55cc38355f094dc877625ca9fd4344",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Decrease occurred with declared cost (label-presence gate only; adequacy of the cost is not verified).",
+              "metadata": {
+                "declared_cost": "declared attenuation"
+              },
+              "name": "I3.accounted_change",
+              "status": "PASS",
+              "value": {
+                "delta_coherence": 0.0,
+                "delta_resonance": -1.3693063937629164
+              }
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "attenuated_phase_shift",
+          "output_hash": "sha256:c6ef94899d6c23eb870267fd95178b652e6801fc333183f2db4274e03aa42ef5",
+          "parameters": {
+            "angle_radians": 0.3490658503988659,
+            "attenuation": 0.75,
+            "declared_cost": "declared attenuation"
+          },
+          "receipt_id": "sha256:1b6e406dc2858eb49dd6ed75ad8b028cba0a1d0b375a87ba0540c2c25c29a222",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:edd2a16aadcccadb649b05ec5ecbb0ae0f55cc38355f094dc877625ca9fd4344",
+        "receipt_id": "sha256:1b6e406dc2858eb49dd6ed75ad8b028cba0a1d0b375a87ba0540c2c25c29a222",
+        "status": "PASS"
+      },
+      "inputs": {
+        "angle_radians": 0.3490658503988659,
+        "attenuation": 0.75,
+        "cost_label": "declared attenuation",
+        "state": [
+          [
+            1.0,
+            2.0
+          ],
+          [
+            3.0,
+            -4.0
+          ]
+        ]
+      },
+      "name": "attenuate_075_with_cost"
+    }
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "operation",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "operator": "attenuated_phase_shift",
+  "receipt_schema_version": "receipt:v0.3",
+  "timestamp_utc": "1970-01-01T00:00:00+00:00"
+}

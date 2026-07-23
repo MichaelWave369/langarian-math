@@ -1,0 +1,144 @@
+{
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "states",
+  "states": [
+    {
+      "dim": 1,
+      "name": "zero_1",
+      "phase": 0.0,
+      "resonance": 0.0,
+      "state_hash": "sha256:1cf5325cb0db279912e4f488284727296854aa3b2b5fdbce88c66ec437ee91e3",
+      "vector": [
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 1,
+      "name": "one_1",
+      "phase": 0.0,
+      "resonance": 1.0,
+      "state_hash": "sha256:591ad178ab1d2d53fec464596c865c5dfe4ec5a47a13562a355abe63e3388814",
+      "vector": [
+        [
+          1.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 2,
+      "name": "basis_2_a",
+      "phase": 0.0,
+      "resonance": 1.0,
+      "state_hash": "sha256:860f413eb33f62abcb626524a0209405f9c2e7c3a2752a559b5c46bd089e7b5c",
+      "vector": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 2,
+      "name": "basis_2_b",
+      "phase": 0.0,
+      "resonance": 1.0,
+      "state_hash": "sha256:577ac048e6c0a4bfef0db41cb378227f229214abc1995f0d11c1d2e9be1f3d7e",
+      "vector": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 2,
+      "name": "mixed_2",
+      "phase": 5.81953769817878,
+      "resonance": 5.477225575051662,
+      "state_hash": "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b",
+      "vector": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          3.0,
+          -4.0
+        ]
+      ]
+    },
+    {
+      "dim": 3,
+      "name": "v_3_6_9",
+      "phase": 0.0,
+      "resonance": 11.224972160321823,
+      "state_hash": "sha256:1e22e2b5437a9c3e8858e12090a785829e5fbf1ea9ef2f40323f53674310fad3",
+      "vector": [
+        [
+          3.0,
+          0.0
+        ],
+        [
+          6.0,
+          0.0
+        ],
+        [
+          9.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 1,
+      "name": "small_1e-200",
+      "phase": 0.0,
+      "resonance": 1e-200,
+      "state_hash": "sha256:de9b2ab58ccc97cfb57a562c59b568f8df8d38347b54269b9cbfeebedfc77830",
+      "vector": [
+        [
+          1e-200,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 1,
+      "name": "large_1e200",
+      "phase": 0.0,
+      "resonance": 1e+200,
+      "state_hash": "sha256:5f562a3e3781be30b1c2ff33ad8fb163828455bfbfbe8eff55a748e8fe1d5e99",
+      "vector": [
+        [
+          1e+200,
+          0.0
+        ]
+      ]
+    },
+    {
+      "dim": 1,
+      "name": "subnormal_5e-162",
+      "phase": 0.0,
+      "resonance": 4.999999999999999e-162,
+      "state_hash": "sha256:5222ef75541d1a75ac283e278a9e1e35c07ab6581c8e616e4f97d0c140f14057",
+      "vector": [
+        [
+          5e-162,
+          0.0
+        ]
+      ]
+    }
+  ]
+}

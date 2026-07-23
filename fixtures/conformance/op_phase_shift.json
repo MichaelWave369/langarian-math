@@ -1,0 +1,253 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "coherence_after": 1.0,
+        "coherence_before": 1.0,
+        "finalized_output_hash": "sha256:a69166e36882ddca33ef9205e234fb4a89a57a6deea38dfc79ab875c3884db07",
+        "output_hash": "sha256:c4348c104cb5c7a52794e2b8d03d01c3167bc6b213ff0f1f3d64d8d394d42a51",
+        "output_resonance": 5.477225575051662,
+        "output_vector": [
+          [
+            -1.2320508075688772,
+            1.8660254037844388
+          ],
+          [
+            4.964101615137754,
+            0.5980762113533153
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Pure phase shift preserved resonance in this operation instance under the v0.2 finite vector model."
+            }
+          ],
+          "coherence_after": 1.0,
+          "coherence_before": 1.0,
+          "content_hash": "sha256:3d8114871123fd812facd65f002d67083e61b64cc7f5ba3a0012fe0b025914e1",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 2
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Pure phase rotation preserved resonance.",
+              "metadata": {},
+              "name": "I5.phase_equivariance",
+              "status": "PASS",
+              "value": {
+                "after": 5.477225575051662,
+                "before": 5.477225575051662
+              }
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:d987a96e5b58fb48021acea6da713fe216209a236b07860ade82e103e4483c3b"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "phase_shift",
+          "output_hash": "sha256:c4348c104cb5c7a52794e2b8d03d01c3167bc6b213ff0f1f3d64d8d394d42a51",
+          "parameters": {
+            "angle_radians": 1.0471975511965976
+          },
+          "receipt_id": "sha256:46543f4f895fbc191f108d202b594f86c976feaad1ebcc01ede7548657dc74e8",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:3d8114871123fd812facd65f002d67083e61b64cc7f5ba3a0012fe0b025914e1",
+        "receipt_id": "sha256:46543f4f895fbc191f108d202b594f86c976feaad1ebcc01ede7548657dc74e8",
+        "status": "PASS"
+      },
+      "inputs": {
+        "angle_radians": 1.0471975511965976,
+        "state": [
+          [
+            1.0,
+            2.0
+          ],
+          [
+            3.0,
+            -4.0
+          ]
+        ]
+      },
+      "name": "rotate_pi_over_3"
+    },
+    {
+      "expected": {
+        "coherence_after": 1.0,
+        "coherence_before": 1.0,
+        "finalized_output_hash": "sha256:03142a9ce5bd939caf422a25aad379168587244fae4ab09df854dc23d771e0a0",
+        "output_hash": "sha256:867323b23e5b265aca89c12b34774d45185ad47982eeda13bc84c8585b02c061",
+        "output_resonance": 0.0,
+        "output_vector": [
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Pure phase shift preserved resonance in this operation instance under the v0.2 finite vector model."
+            }
+          ],
+          "coherence_after": 1.0,
+          "coherence_before": 1.0,
+          "content_hash": "sha256:9883cb8f566160bcb24bb65b41a91738c371b967a869b8d3b8b50ccfc0609bc5",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:1cf5325cb0db279912e4f488284727296854aa3b2b5fdbce88c66ec437ee91e3"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 1
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 1
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 1.0
+            },
+            {
+              "message": "Pure phase rotation preserved resonance.",
+              "metadata": {},
+              "name": "I5.phase_equivariance",
+              "status": "PASS",
+              "value": {
+                "after": 0.0,
+                "before": 0.0
+              }
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:1cf5325cb0db279912e4f488284727296854aa3b2b5fdbce88c66ec437ee91e3"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "phase_shift",
+          "output_hash": "sha256:867323b23e5b265aca89c12b34774d45185ad47982eeda13bc84c8585b02c061",
+          "parameters": {
+            "angle_radians": 0.5
+          },
+          "receipt_id": "sha256:69b38e355d1198cfddf889793d049d687aea47176c7905f3a7bde2d15a958cf9",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:9883cb8f566160bcb24bb65b41a91738c371b967a869b8d3b8b50ccfc0609bc5",
+        "receipt_id": "sha256:69b38e355d1198cfddf889793d049d687aea47176c7905f3a7bde2d15a958cf9",
+        "status": "PASS"
+      },
+      "inputs": {
+        "angle_radians": 0.5,
+        "state": [
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "name": "zero_state"
+    }
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "operation",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "operator": "phase_shift",
+  "receipt_schema_version": "receipt:v0.3",
+  "timestamp_utc": "1970-01-01T00:00:00+00:00"
+}
