@@ -1,11 +1,13 @@
 name: Import Langarian Source
 
 on:
-  push:
+  pull_request:
     branches:
-      - review/langarian-workbench-v0.3-rc1
-    paths:
-      - .langarian-import/READY
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
 
 permissions:
@@ -13,9 +15,13 @@ permissions:
 
 jobs:
   import:
+    if: github.head_ref == 'review/langarian-workbench-v0.3-rc1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: review/langarian-workbench-v0.3-rc1
+          fetch-depth: 0
 
       - name: Reconstruct and verify accepted source archive
         shell: bash
@@ -50,4 +56,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Import Langarian Math Workbench v0.3 RC1 source"
-          git push
+          git push origin HEAD:review/langarian-workbench-v0.3-rc1
