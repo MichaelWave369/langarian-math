@@ -4,6 +4,56 @@ All notable changes to Langarian Math Workbench. This project records
 behavioral truth over marketing: entries list evidence and explicitly note
 what was **not** run.
 
+## [0.3.1-rc.1] — 2026-07-23
+
+Focused governance-clarification release. No mathematical operator, kernel,
+metric, receipt-schema, DSL, or TypeScript conformance semantics changed.
+
+### Added
+
+- Three-gate research architecture:
+  - Syntax / Integrity Gate
+  - Formal Eligibility Gate
+  - Reality Gate
+- `docs/THREE_GATE_ARCHITECTURE.md`.
+- `docs/REALITY_GATE.md`, explicitly marked as a future evidence framework and
+  not a current implementation or physics-validation claim.
+- Persistent UI explanation that formal validity does not imply empirical or
+  physical validity.
+- Governing maxim: **“The ledger serves reality, not the author.”**
+
+### Changed
+
+- Public-facing **Proof Gate** name changed to **Formal Eligibility Gate**.
+- Gate PASS language changed from proof-adjacent wording to “eligible for
+  formal mathematical review.”
+- Historical Python module and API names remain for backward compatibility:
+  `proof_gate.py`, `ProofGateReport`, `ProofGateError`, and
+  `require_proof_eligible`.
+- Epistemic-strip tag descriptions now distinguish formal-review eligibility
+  from proof and from contact with nature.
+- Example Library gate-rejection example renamed publicly while retaining its
+  stable internal id.
+- Product version bumped to `0.3.1-rc.1`; kernel/model/metric/receipt/DSL/port
+  versions remain unchanged because their behavior did not change.
+
+### Evidence
+
+- Existing Python and browser test suites remain the release gates.
+- Native GitHub Actions cover Python 3.11/3.12, browser tests,
+  Python/TypeScript conformance, Vite production build, and high-severity npm
+  audit.
+- New governance text introduces no claim that a Reality Gate has been run or
+  passed.
+
+### Still not claimed
+
+- No theorem is proved by a Formal Eligibility Gate pass.
+- No physical model is validated by this workbench.
+- No empirical, predictive, or replication status is generated in v0.3.1.
+- Automated real-browser accessibility and multi-engine end-to-end testing
+  remain future work.
+
 ## [0.3.0-rc.1] — 2026-07-23
 
 Full v0.3 workbench release candidate: hardened Python reference kernel,

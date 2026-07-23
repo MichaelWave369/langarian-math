@@ -30,12 +30,12 @@ const TAG_ICON = {
 }
 
 const TAG_DESCRIPTION = {
-  FORMAL: 'formally derived claim',
-  COMPUTED: 'finite computation under the v0.2 bounded model',
+  FORMAL: 'formally derived claim; eligible for formal mathematical review',
+  COMPUTED: 'finite computation under the v0.2 bounded model; review-eligible as computation, not proof',
   MODEL: 'model-based claim, not formally derived',
-  INTERPRETIVE: 'interpretive claim — quarantined from proof contexts',
-  METAPHOR: 'metaphorical claim — quarantined from proof contexts',
-  OBSERVED: 'empirical observation — quarantined from proof contexts',
+  INTERPRETIVE: 'interpretive claim — quarantined from formal mathematical review',
+  METAPHOR: 'metaphorical claim — quarantined from formal mathematical review',
+  OBSERVED: 'empirical observation — recorded separately from formal mathematical inputs',
   FAILED: 'failed check',
 }
 

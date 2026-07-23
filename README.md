@@ -5,23 +5,25 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-cyan.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-**Version:** Langarian Math Workbench **v0.3.0-rc.1** (Python reference kernel). The mathematical model remains the bounded finite complex model (v0.2.1 lineage); no physics, psychology, therapy, or completed-theory claims.
+**Version:** Langarian Math Workbench **v0.3.1-rc.1**. This is a governance-clarification release over the v0.3.0 kernel. The mathematical model remains the bounded finite complex model (v0.2.1 lineage); no physics, psychology, therapy, or completed-theory claims.
 
 **Version map:** version strings are declared once in `src/langarian/version.py` (`VERSION_MANIFEST`) and are the source of truth:
 
-- `product_version`: `0.3.0-rc.1` — this package (matches `pyproject.toml`)
+- `product_version`: `0.3.1-rc.1` — this package (matches `pyproject.toml`)
 - `kernel_version`: `langarian-python-ref-v0.3.0` — embedded in receipts and state hashes
 - `model_version`: `langarian-finite-complex-model-v0.2.1` — the finite complex model stays bounded
 - `metric_version`: `metric:v0.3.scale_safe_normalized_complex_similarity`
-- `receipt_schema_version`: `receipt:v0.3` (older receipts are rejected on import; see `docs/MIGRATION_v0.2_to_v0.3.md`)
+- `receipt_schema_version`: `receipt:v0.3`
 - `dsl_version`: `langarian-dsl:v0.3`
 - `fixture_version`: `fixtures:v0.3`
-- `ts_port_version`: `langarian-ts-port-v0.3.0` — TypeScript mirror of the kernel (`web/src/kernel/`), replayed against the Python conformance fixtures
+- `ts_port_version`: `langarian-ts-port-v0.3.0` — TypeScript mirror of the kernel (`web/src/kernel/`)
 - `visualization_version`: `viz:v0.3` — workbench visualization surface (`web/src/ui/`)
 
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
-This repo is intentionally finite-dimensional, executable, and test-first. It does not claim to be physics, psychology, therapy, or a completed mathematical theory. It is a small formal kernel candidate for resonance-style symbolic state transformations with receipts.
+This repo is intentionally finite-dimensional, executable, and test-first. It does not claim to be physics, psychology, therapy, or a completed mathematical theory. It is a formal-kernel candidate for resonance-style symbolic state transformations with receipts and explicit research-governance boundaries.
+
+> **The ledger serves reality, not the author.**
 
 ## What this builds
 
@@ -35,18 +37,38 @@ This repo is intentionally finite-dimensional, executable, and test-first. It do
 - Harmonic sum via vector addition
 - Bridge receipts between states
 - Epistemic tags for every claim/result
-- Proof Gate for formal claim eligibility
+- A **Formal Eligibility Gate** for admission into mathematical review
+- A documented three-gate architecture: Syntax / Integrity → Formal Eligibility → Reality
+- A future Reality Gate evidence design that is explicitly **not implemented or passed**
 - Receipt validation and explanation CLI commands
 - Invariant checks and PASS/WARN/FAIL statuses
-- Finite space helper harvested safely from Kimi v1
-- Norm-preserving unitary flow demo kept as a research-lane demo
+- Finite-space helper harvested safely from Kimi v1
+- Norm-preserving unitary-flow demo kept as a research-lane demo
 - Browser workbench in `web/`: TypeScript kernel mirror, DSL runner, receipt ledger, and an eight-module UI, deployed as a static GitHub Pages site
+
+## The three-gate boundary
+
+Langarian separates three questions:
+
+```text
+Syntax / Integrity Gate
+        ↓
+Formal Eligibility Gate
+        ↓
+Reality Gate
+```
+
+1. **Syntax / Integrity Gate** — is the artifact well formed, internally consistent, version-compatible, and untampered?
+2. **Formal Eligibility Gate** — is the claim allowed to enter formal mathematical review?
+3. **Reality Gate** — has the formally coherent model earned scientific confidence through literature comparison, empirical consistency, prediction, and independent replication?
+
+The current workbench implements the first two boundaries. It does **not** run or pass the Reality Gate. See `docs/THREE_GATE_ARCHITECTURE.md` and `docs/REALITY_GATE.md`.
 
 ## Install locally
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e '.[dev]'
 ```
 
@@ -85,38 +107,52 @@ Deterministic conformance fixtures (fixed clock `1970-01-01T00:00:00+00:00`) are
 python -m langarian.fixtures --out fixtures/conformance
 ```
 
+Committed fixtures are the canonical hash artifacts. Cross-platform regeneration is retained as a numerical-drift diagnostic; semantic tolerances and TypeScript-to-fixture hash conformance remain release gates. See `docs/NUMERICAL_POLICY.md`.
+
 ## Web workbench
 
-`web/` is the v0.3 browser workbench: a Vite + React static site (no backend, local-first) with a TypeScript mirror of the Python kernel (`web/src/kernel/`), the DSL v0.3 text/JSON runner (`web/src/dsl/`), a session receipt ledger (`web/src/ledger/`), and eight UI modules — State Builder, Operator Lab, Program Builder, Result Inspector, Receipt Ledger, Proof Gate, Visualizations, and Example Library. The TS kernel is checked against the Python conformance fixtures: values within absolute `1e-12`, and `state_hash`/receipt `content_hash` byte-exact (any hash mismatch fails the conformance tests).
+`web/` is the v0.3 browser workbench: a Vite + React static site (no backend, local-first) with a TypeScript mirror of the Python kernel (`web/src/kernel/`), the DSL v0.3 text/JSON runner (`web/src/dsl/`), a session receipt ledger (`web/src/ledger/`), and eight UI modules — State Builder, Operator Lab, Program Builder, Result Inspector, Receipt Ledger, Formal Eligibility Gate, Visualizations, and Example Library.
 
-Bounded honesty notes for the web surface: receipt checks are reported at distinct levels ("Check shape" vs "Verify hash/status/version" vs "Recompute locally") — there is no single "verified" badge; `cost` annotations are caller-declared, not computed or verified; receipts provide integrity hashing only and are **not authenticated** (no signing/provenance).
+The TypeScript kernel is checked against the Python conformance fixtures: values within absolute `1e-12`, and `state_hash`/receipt `content_hash` byte-exact. Any hash mismatch fails conformance.
+
+Bounded honesty notes for the web surface:
+
+- Receipt checks remain separate: "Check shape", "Verify hash/status/version", and "Recompute locally".
+- There is no single vague "verified" badge.
+- `cost` annotations are caller-declared, not computed or verified.
+- Receipts provide integrity hashing only and are **not authenticated**.
+- Formal eligibility is not proof.
+- Formal validity is not evidence that a model describes nature.
 
 ```bash
 cd web
 npm ci
-npm run sync:version   # regenerates src/kernel/version.ts from src/langarian/version.py
-npm run dev            # local dev server
-npm run test           # vitest: kernel, DSL, ledger, conformance replay, UI smoke
-npm run build          # static bundle in dist/
+npm run sync:version
+npm run dev
+npm run test
+npm run build
 ```
 
-Gate counts at `0.3.0-rc.1` (see `docs/TEST_AND_CONFORMANCE_REPORT.md`): Python `pytest` 81 passed; web `vitest` 181 passed (9 files, including 43 conformance-replay and 10 UI-smoke tests); `npm audit` reported 0 vulnerabilities.
-
-A GitHub Pages workflow is included at `.github/workflows/pages.yml`. To publish it, set the repository Pages source to **GitHub Actions** in the repo settings.
+Release evidence for the integrated v0.3 workbench includes Python 3.11/3.12 test passes, 181 Vitest checks including 43 conformance tests, a successful Vite production build, and a passing high-severity npm audit. See `docs/TEST_AND_CONFORMANCE_REPORT.md` and the repository Actions history.
 
 ## Core boundary
 
-A poetic or interpretive statement may ride along with a computation, but it cannot be used as proof. The formal kernel only promotes typed states, computed metrics, invariant checks, and receipts.
+A poetic or interpretive statement may ride along with a computation, but it cannot be used as a formal mathematical result. A formal result may enter review, but that does not make the model empirically true.
+
+Record what happened. Record what did not happen. Record what was assumed. Record what remains unproved.
 
 ## Public docs
 
 - `docs/USER_GUIDE.md` / `docs/DEVELOPER_GUIDE.md`
-- `docs/PROOF_GATE.md`
+- `docs/PROOF_GATE.md` — public Formal Eligibility Gate documentation; filename retained for compatibility
+- `docs/THREE_GATE_ARCHITECTURE.md`
+- `docs/REALITY_GATE.md`
 - `docs/RECEIPT_SCHEMA.md`
-- `docs/USAGE.md` (CLI reference; `docs/command_line.md` is a stub redirect to it)
+- `docs/RECEIPT_SCHEMA_vNEXT.md`
+- `docs/USAGE.md`
 - `docs/MIGRATION_v0.2_to_v0.3.md`
-- `docs/TEST_AND_CONFORMANCE_REPORT.md` — exact gate commands, counts, and what was not run
-- `docs/SWARM_AUDIT_REPORT.md` — audit/implementation/red-team lane summary for this release
+- `docs/TEST_AND_CONFORMANCE_REPORT.md`
+- `docs/SWARM_AUDIT_REPORT.md`
 - `docs/SECURITY_THREAT_MODEL.md`
 - `docs/ROADMAP.md`
 - `docs/Kimi_v1_Harvest_Review.md`
@@ -131,7 +167,7 @@ src/langarian/
   receipts.py    immutable operation receipt + hashing
   validator.py   invariant runner
   epistemic.py   proposition/result tags
-  proof_gate.py  formal proof-context eligibility gate
+  proof_gate.py  compatibility API for the Formal Eligibility Gate
   claims.py      tagged proposition records
   contracts.py   invariant contracts
   glyphs.py      tiny glyph dictionary stub with nearest-score helper

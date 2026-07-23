@@ -18,7 +18,7 @@ export const MODULES = [
   { id: 'program', label: 'Program Builder', icon: 'λ' },
   { id: 'result', label: 'Result Inspector', icon: '◫' },
   { id: 'ledger', label: 'Receipt Ledger', icon: '≣' },
-  { id: 'gate', label: 'Proof Gate', icon: '⊢' },
+  { id: 'gate', label: 'Formal Eligibility Gate', icon: '⊢' },
   { id: 'viz', label: 'Visualizations', icon: '∿' },
   { id: 'examples', label: 'Example Library', icon: '❖' },
 ]

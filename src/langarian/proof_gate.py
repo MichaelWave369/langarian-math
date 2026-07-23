@@ -1,7 +1,13 @@
-"""Proof gate for claim-safe Langarian reasoning.
+"""Formal-eligibility gate for claim-safe Langarian reasoning.
 
-The proof gate is intentionally small. It does not prove mathematics by itself;
-it prevents unsupported proposition types from entering a formal proof context.
+The public concept is the **Formal Eligibility Gate**. The historical module,
+class, and function names retain ``proof_gate`` / ``ProofGate`` for API and
+receipt compatibility.
+
+This gate does not prove mathematics by itself. It prevents unsupported
+proposition types from entering formal mathematical review. It also makes no
+claim that an internally valid formal system describes nature; that separate
+question belongs to a future Reality Gate evidence layer.
 """
 
 from __future__ import annotations
@@ -14,12 +20,12 @@ from .epistemic import EpistemicTag, ResultStatus
 
 
 class ProofGateError(ValueError):
-    """Raised when a proof context receives an ineligible claim."""
+    """Raised when formal review receives an ineligible claim."""
 
 
 @dataclass(frozen=True)
 class ProofGateReport:
-    """Result of checking a list of claims for formal proof eligibility."""
+    """Result of checking claims for formal mathematical review eligibility."""
 
     status: ResultStatus
     allowed: tuple[Claim, ...] = field(default_factory=tuple)
@@ -38,11 +44,11 @@ class ProofGateReport:
 
 
 def _is_promoted_model_without_derivation(claim: Claim) -> bool:
-    """A claim promoted from MODEL is not proof-eligible on its own.
+    """A claim promoted from MODEL is not formally eligible on its own.
 
     Promotion via :func:`promote_model_assumption` records an accepted
     assumption; it does not make the content kernel-computed. Such claims are
-    blocked from formal proof contexts unless the metadata also carries a
+    blocked from formal mathematical review unless the metadata also carries a
     ``formal_derivation_id`` pointing at an explicit formal derivation.
     (A distinct ASSUMPTION tag is a documented future addition.)
     """
@@ -51,11 +57,14 @@ def _is_promoted_model_without_derivation(claim: Claim) -> bool:
 
 
 def evaluate_claims(claims: Iterable[Claim]) -> ProofGateReport:
-    """Classify claims as allowed or blocked for formal proof use.
+    """Classify claims as allowed or blocked for formal mathematical review.
 
-    Blocked: non-proof-eligible tags, and any claim with
+    Blocked: non-eligible tags, and any claim with
     ``metadata.promoted_from == "MODEL"`` that lacks a
     ``metadata.formal_derivation_id``.
+
+    A PASS means only that the claims are eligible to enter formal review. It
+    is not a proof result and is not evidence that the model describes nature.
     """
 
     allowed: list[Claim] = []
@@ -73,21 +82,24 @@ def evaluate_claims(claims: Iterable[Claim]) -> ProofGateReport:
 
 
 def require_proof_eligible(claims: Iterable[Claim], *, context: str = "formal_proof") -> ProofGateReport:
-    """Require all claims to be formal-proof eligible.
+    """Require all claims to be eligible for formal mathematical review.
 
     Allowed tags: FORMAL and COMPUTED.
     Blocked tags: MODEL, INTERPRETIVE, METAPHOR, OBSERVED, FAILED.
     Additionally blocked regardless of tag: claims with
     ``metadata.promoted_from == "MODEL"`` that lack a
     ``metadata.formal_derivation_id``.
+
+    The historical function name remains for compatibility. Success means
+    formal eligibility only; it does not mean that a theorem has been proved.
     """
 
     report = evaluate_claims(claims)
     if report.blocked:
         blocked_tags = ", ".join(sorted({claim.tag.value for claim in report.blocked}))
         raise ProofGateError(
-            f"Proof gate blocked {len(report.blocked)} claim(s) in {context}: {blocked_tags}. "
-            "Promote assumptions explicitly or keep them out of proof context."
+            f"Formal Eligibility Gate blocked {len(report.blocked)} claim(s) in {context}: {blocked_tags}. "
+            "Promote assumptions explicitly or keep them out of formal review."
         )
     return report
 
@@ -95,8 +107,9 @@ def require_proof_eligible(claims: Iterable[Claim], *, context: str = "formal_pr
 def promote_model_assumption(claim: Claim, *, assumption_id: str, justification: str) -> Claim:
     """Promote a MODEL claim into a COMPUTED/FORMAL-adjacent assumption record.
 
-    This does not make the claim objectively proven. It records that a model
-    assumption has been explicitly accepted for a bounded context.
+    This does not make the claim objectively proven or empirically supported.
+    It records that a model assumption has been explicitly accepted for a
+    bounded formal context.
     """
 
     if claim.tag != EpistemicTag.MODEL:

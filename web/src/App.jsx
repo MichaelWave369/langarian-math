@@ -13,7 +13,7 @@ import OperatorLab from './ui/modules/OperatorLab.jsx'
 import ProgramBuilder from './ui/modules/ProgramBuilder.jsx'
 import ResultInspector from './ui/modules/ResultInspector.jsx'
 import ReceiptLedgerModule from './ui/modules/ReceiptLedgerModule.jsx'
-import ProofGate from './ui/modules/ProofGate.jsx'
+import FormalEligibilityGate from './ui/modules/ProofGate.jsx'
 import Visualizations from './ui/modules/Visualizations.jsx'
 import ExampleLibrary from './ui/modules/ExampleLibrary.jsx'
 
@@ -23,7 +23,7 @@ const MODULE_COMPONENTS = {
   program: ProgramBuilder,
   result: ResultInspector,
   ledger: ReceiptLedgerModule,
-  gate: ProofGate,
+  gate: FormalEligibilityGate,
   viz: Visualizations,
   examples: ExampleLibrary,
 }
@@ -85,7 +85,7 @@ const PLAIN_BY_MODULE = {
   program: 'Write a short program in the workbench language and run it step by step, with receipts.',
   result: 'Look closely at the last result: exact numbers, checks that passed or failed, and where it came from.',
   ledger: 'The audit trail of every operation. You can check whether a receipt was altered, and export or import records.',
-  gate: 'Sorts claims into “allowed in formal contexts” and “quarantined”. Passing only means the labels allow it — not that the math is proven.',
+  gate: 'Checks whether claims are allowed to enter formal mathematical review. Passing means eligible for review — never “proved”, and never evidence that the model describes nature.',
   viz: 'Pictures of your states and receipts. Every picture also has an exact table.',
   examples: 'Ready-made demonstrations, including deliberate failures, so you can see how the workbench reports problems honestly.',
 }

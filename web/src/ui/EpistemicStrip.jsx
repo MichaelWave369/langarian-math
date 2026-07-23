@@ -1,7 +1,8 @@
 /**
- * Persistent epistemic context strip (right rail): tag legend, version
- * manifest (read live from the generated kernel/version.ts), and the current
- * claim boundary. Collapsible on small screens; never shows user text.
+ * Persistent epistemic context strip (right rail): tag legend, three-gate
+ * research boundary, version manifest (read live from the generated
+ * kernel/version.ts), and display controls. Collapsible on small screens;
+ * never shows user text.
  */
 
 import { useState } from 'react'
@@ -12,13 +13,13 @@ import { useWorkbench } from './WorkbenchContext.jsx'
 const TAG_ORDER = ['FORMAL', 'COMPUTED', 'MODEL', 'INTERPRETIVE', 'METAPHOR', 'OBSERVED', 'FAILED']
 
 const TAG_HELP = {
-  FORMAL: 'Formally derived; proof-eligible.',
-  COMPUTED: 'Finite computation under the bounded v0.2 model; proof-eligible as a computation, not a proof.',
-  MODEL: 'Model-based; blocked at the Proof Gate without a formal derivation id.',
-  INTERPRETIVE: 'Interpretation only; quarantined, never proof-eligible.',
-  METAPHOR: 'Metaphor only; quarantined, never proof-eligible.',
-  OBSERVED: 'Empirical observation; quarantined, never proof-eligible.',
-  FAILED: 'A failed check; never proof-eligible.',
+  FORMAL: 'Formally derived; eligible for formal mathematical review.',
+  COMPUTED: 'Finite computation under the bounded v0.2 model; review-eligible as a computation, not a proof.',
+  MODEL: 'Model-based; blocked at the Formal Eligibility Gate without a formal derivation id.',
+  INTERPRETIVE: 'Interpretation only; quarantined, never formal-review eligible.',
+  METAPHOR: 'Metaphor only; quarantined, never formal-review eligible.',
+  OBSERVED: 'Empirical observation; recorded but not a formal mathematical input.',
+  FAILED: 'A failed check; never formal-review eligible.',
 }
 
 export default function EpistemicStrip() {
@@ -60,19 +61,32 @@ export default function EpistemicStrip() {
           {TAG_ORDER.map((tag) => (
             <li key={tag}>
               <TagBadge tag={tag} />
-              <span className="tag-help">{plainLanguage ? TAG_HELP[tag] : TAG_HELP[tag]}</span>
+              <span className="tag-help">{TAG_HELP[tag]}</span>
             </li>
           ))}
         </ul>
       </section>
 
+      <section className="strip-section" aria-labelledby="three-gates-heading">
+        <h3 id="three-gates-heading">Three gates</h3>
+        <ol className="strip-note" style={{ paddingLeft: 18, marginBottom: 8 }}>
+          <li><strong>Syntax / Integrity:</strong> well formed, consistent, untampered.</li>
+          <li><strong>Formal Eligibility:</strong> allowed into mathematical review.</li>
+          <li><strong>Reality:</strong> compared with literature, evidence, prediction, and replication.</li>
+        </ol>
+        <p className="strip-note">
+          This workbench implements the first two boundaries. It does <strong>not</strong> run or pass a Reality Gate.
+        </p>
+      </section>
+
       <section className="strip-section" aria-labelledby="claim-boundary-heading">
         <h3 id="claim-boundary-heading">Claim boundary</h3>
         <p className="strip-note">
-          Only FORMAL and COMPUTED claims may pass the Proof Gate tag filter. A gate pass is a
-          tag filter pass — <strong>not mathematical verification</strong>. Interpretive, metaphorical,
-          and observed content stays quarantined and has no path into the gate.
+          Only FORMAL and COMPUTED claims may pass the Formal Eligibility Gate filter. A gate pass means
+          <strong> eligible for formal review</strong> — not proof, not mathematical verification, and not evidence that the model describes nature.
+          Interpretive and metaphorical content stays quarantined.
         </p>
+        <p className="strip-note"><strong>The ledger serves reality, not the author.</strong></p>
       </section>
 
       <section className="strip-section" aria-labelledby="version-manifest-heading">
