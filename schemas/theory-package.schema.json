@@ -1,25 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://michaelwave369.github.io/langarian-math/schemas/theory-package.schema.json",
-  "title": "Parallax Theory Package",
-  "description": "Portable manifest for documentary, formal, executable, conformance-tested, and Reality-Gate theory packages.",
+  "title": "Parallax Theory Package v0.2",
+  "description": "Portable manifest for documentary, formal, executable, conformance-tested, and Reality-Gate theory packages with per-operator execution contracts.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "theory",
-    "maturity_level",
-    "objects",
-    "operators",
-    "assumptions",
-    "invariants",
-    "claim_boundaries",
-    "evidence",
-    "implementations",
-    "metadata"
-  ],
+  "required": ["schema_version", "theory", "maturity_level", "objects", "operators", "assumptions", "invariants", "claim_boundaries", "evidence", "implementations", "metadata"],
   "properties": {
-    "schema_version": { "const": "theory-package:v0.1" },
+    "schema_version": { "const": "theory-package:v0.2" },
     "theory": {
       "type": "object",
       "additionalProperties": false,
@@ -34,29 +22,17 @@
       }
     },
     "maturity_level": { "type": "integer", "minimum": 1, "maximum": 5 },
-    "objects": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/objectDefinition" }
-    },
-    "operators": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/operatorDefinition" }
-    },
-    "assumptions": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/statementDefinition" }
-    },
-    "invariants": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/statementDefinition" }
-    },
+    "objects": { "type": "array", "items": { "$ref": "#/$defs/objectDefinition" } },
+    "operators": { "type": "array", "items": { "$ref": "#/$defs/operatorDefinition" } },
+    "assumptions": { "type": "array", "items": { "$ref": "#/$defs/statementDefinition" } },
+    "invariants": { "type": "array", "items": { "$ref": "#/$defs/statementDefinition" } },
     "claim_boundaries": {
       "type": "object",
       "additionalProperties": false,
       "required": ["allowed", "prohibited"],
       "properties": {
-        "allowed": { "$ref": "#/$defs/stringList" },
-        "prohibited": { "$ref": "#/$defs/stringList" }
+        "allowed": { "$ref": "#/$defs/nonEmptyStringList" },
+        "prohibited": { "$ref": "#/$defs/nonEmptyStringList" }
       }
     },
     "evidence": {
@@ -86,20 +62,11 @@
     "metadata": { "type": "object" }
   },
   "$defs": {
-    "id": {
-      "type": "string",
-      "pattern": "^[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)*$"
-    },
-    "evidenceClass": {
-      "enum": ["OBSERVED", "IMPLEMENTED", "DOCUMENTED", "INFERRED", "ASPIRATIONAL", "UNKNOWN"]
-    },
-    "definitionStatus": {
-      "enum": ["ACCEPTED", "PROVISIONAL", "CANDIDATE", "THEORY_MAP_OPEN"]
-    },
-    "stringList": {
-      "type": "array",
-      "items": { "type": "string", "minLength": 1 }
-    },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)*$" },
+    "evidenceClass": { "enum": ["OBSERVED", "IMPLEMENTED", "DOCUMENTED", "INFERRED", "ASPIRATIONAL", "UNKNOWN"] },
+    "definitionStatus": { "enum": ["ACCEPTED", "PROVISIONAL", "CANDIDATE", "THEORY_MAP_OPEN"] },
+    "stringList": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "nonEmptyStringList": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
     "objectDefinition": {
       "type": "object",
       "additionalProperties": false,
@@ -112,21 +79,6 @@
         "status": { "$ref": "#/$defs/definitionStatus" }
       }
     },
-    "operatorDefinition": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "name", "input_types", "output_types", "semantics", "evidence_class", "status"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "name": { "type": "string", "minLength": 1 },
-        "input_types": { "$ref": "#/$defs/stringList" },
-        "output_types": { "$ref": "#/$defs/stringList" },
-        "semantics": { "type": "string", "minLength": 1 },
-        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
-        "status": { "$ref": "#/$defs/definitionStatus" },
-        "implementation": { "type": ["string", "null"] }
-      }
-    },
     "statementDefinition": {
       "type": "object",
       "additionalProperties": false,
@@ -137,6 +89,80 @@
         "evidence_class": { "$ref": "#/$defs/evidenceClass" },
         "status": { "$ref": "#/$defs/definitionStatus" },
         "scope": { "type": "string" }
+      }
+    },
+    "parameterDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "required", "constraints"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "constraints": { "type": "string", "minLength": 1 }
+      }
+    },
+    "predicateDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "required"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "tolerance": { "type": "string" }
+      }
+    },
+    "failureDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "condition", "outcome"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "condition": { "type": "string", "minLength": 1 },
+        "outcome": { "enum": ["REJECT", "FAIL_RECEIPT", "WARN_RECEIPT"] }
+      }
+    },
+    "executionContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_version", "parameters", "preconditions", "assumptions_used", "invariants_checked", "predicates", "failure_conditions", "reversibility", "receipt_fields", "first_falsifier"],
+      "properties": {
+        "contract_version": { "const": "operator-contract:v0.2" },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/parameterDefinition" } },
+        "preconditions": { "$ref": "#/$defs/nonEmptyStringList" },
+        "assumptions_used": { "$ref": "#/$defs/stringList" },
+        "invariants_checked": { "$ref": "#/$defs/stringList" },
+        "predicates": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/predicateDefinition" } },
+        "failure_conditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/failureDefinition" } },
+        "reversibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["classification", "condition"],
+          "properties": {
+            "classification": { "enum": ["reversible", "conditionally_reversible", "irreversible", "not_applicable", "unknown"] },
+            "condition": { "type": "string", "minLength": 1 }
+          }
+        },
+        "receipt_fields": { "$ref": "#/$defs/nonEmptyStringList" },
+        "first_falsifier": { "type": "string", "minLength": 1 }
+      }
+    },
+    "operatorDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "input_types", "output_types", "semantics", "evidence_class", "status", "contract"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "input_types": { "$ref": "#/$defs/stringList" },
+        "output_types": { "$ref": "#/$defs/stringList" },
+        "semantics": { "type": "string", "minLength": 1 },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
+        "status": { "$ref": "#/$defs/definitionStatus" },
+        "implementation": { "type": ["string", "null"] },
+        "contract": { "$ref": "#/$defs/executionContract" }
       }
     }
   }
