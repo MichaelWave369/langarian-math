@@ -1,15 +1,16 @@
 /**
  * Parallax Theory Workbench — Langarian executable package shell.
  *
- * Layout: theory-package intake, independent theory audit, executable workbench
- * modules, and a persistent epistemic strip. Documentary packages cannot
- * silently use the wrong kernel.
+ * Layout: theory-package intake, independent theory audit, contract
+ * conformance evidence, executable workbench modules, and a persistent
+ * epistemic strip. Documentary packages cannot silently use the wrong kernel.
  */
 
 import EpistemicStrip from './ui/EpistemicStrip.jsx'
 import { MODULES, useWorkbench, WorkbenchProvider } from './ui/WorkbenchContext.jsx'
 import TheoryPackages from './ui/modules/TheoryPackages.jsx'
 import TheoryAudit from './ui/modules/TheoryAudit.jsx'
+import ContractConformance from './ui/modules/ContractConformance.jsx'
 import StateBuilder from './ui/modules/StateBuilder.jsx'
 import OperatorLab from './ui/modules/OperatorLab.jsx'
 import ProgramBuilder from './ui/modules/ProgramBuilder.jsx'
@@ -23,6 +24,7 @@ import './theory.css'
 const MODULE_COMPONENTS = {
   theories: TheoryPackages,
   audit: TheoryAudit,
+  conformance: ContractConformance,
   state: StateBuilder,
   operators: OperatorLab,
   program: ProgramBuilder,
@@ -87,6 +89,7 @@ function Workspace() {
 const PLAIN_BY_MODULE = {
   theories: 'Start here. Describe or import a theory without pretending it is executable. Packages earn higher levels by adding exact operators, receipts, independent implementations, and Reality Gate evidence.',
   audit: 'Attack the selected package before formalization. See which definitions are mature, what blocks execution, which dependencies are actually declared, and export the H0–H6 recovery packet and safe implementation scaffolds.',
+  conformance: 'Compare package-specific evidence against each operator contract. The gate checks case classes, required predicates, declared failures, first falsifiers, implementation coverage, and cross-surface agreement without executing imported code.',
   state: 'Build a finite list of complex numbers for the executable Langarian package. You get its dimension, norm, representative phase, and deterministic fingerprint.',
   operators: 'Apply one of the checked Langarian transformations. Every run writes a package-specific receipt describing what was checked.',
   program: 'Write a short program in the Langarian package language and run it step by step with receipts.',

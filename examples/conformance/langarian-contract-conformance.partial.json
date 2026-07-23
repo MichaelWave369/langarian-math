@@ -1,0 +1,123 @@
+{
+  "suite_schema_version": "contract-conformance-suite:v0.1",
+  "package": {
+    "id": "langarian-finite-complex",
+    "version": "0.3.1",
+    "schema_version": "theory-package:v0.2"
+  },
+  "cases": [
+    {
+      "id": "harmonic-sum-basic",
+      "operator_id": "harmonic-sum",
+      "class": "nominal",
+      "description": "Same-dimension finite states are added componentwise.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "output-well-typed", "status": "PASS" },
+        { "predicate_id": "common-dimension", "status": "PASS" },
+        { "predicate_id": "componentwise-sum", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["Byte-exact Python fixture", "TypeScript replay", "Canonical receipt equality"]
+    },
+    {
+      "id": "harmonic-sum-cross-dimension",
+      "operator_id": "harmonic-sum",
+      "class": "boundary",
+      "description": "Unequal dimensions use the declared zero-padding convention.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "output-well-typed", "status": "PASS" },
+        { "predicate_id": "common-dimension", "status": "PASS" },
+        { "predicate_id": "componentwise-sum", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["Cross-dimension fixture", "Canonical output and receipt equality"]
+    },
+    {
+      "id": "phase-shift-rotation",
+      "operator_id": "phase-shift",
+      "class": "nominal",
+      "description": "A finite state is rotated by pi/3.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "output-well-typed", "status": "PASS" },
+        { "predicate_id": "norm-preserved", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["High-precision vector comparison", "Byte-exact hashes and receipt"]
+    },
+    {
+      "id": "phase-shift-zero-state",
+      "operator_id": "phase-shift",
+      "class": "boundary",
+      "description": "The zero state remains zero under phase rotation.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "output-well-typed", "status": "PASS" },
+        { "predicate_id": "norm-preserved", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["Zero-state fixture", "Byte-exact receipt replay"]
+    },
+    {
+      "id": "phase-weighted-scale-attenuation",
+      "operator_id": "phase-weighted-scale",
+      "class": "nominal",
+      "description": "A finite state is rotated and scaled by eta=0.75 with a declared cost label.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "output-well-typed", "status": "PASS" },
+        { "predicate_id": "norm-scaled", "status": "PASS" },
+        { "predicate_id": "decrease-accounted", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["Attenuation fixture", "Declared cost present", "Canonical receipt replay"]
+    },
+    {
+      "id": "bridge-cross-dimension",
+      "operator_id": "bridge",
+      "class": "nominal",
+      "description": "A cross-dimension bridge relation records bounded similarity and edge-local cost.",
+      "expected_status": "PASS",
+      "expected_predicates": [
+        { "predicate_id": "endpoints-well-typed", "status": "PASS" },
+        { "predicate_id": "similarity-bounded", "status": "PASS" },
+        { "predicate_id": "edge-cost-local", "status": "PASS" },
+        { "predicate_id": "receipt-bound", "status": "PASS" }
+      ],
+      "expected_failure_ids": [],
+      "exercises_first_falsifier": false,
+      "evidence_requirements": ["Bridge fixture", "Bounded similarity", "Canonical receipt replay"]
+    }
+  ],
+  "observations": [
+    { "case_id": "harmonic-sum-basic", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"common-dimension","status":"PASS"},{"predicate_id":"componentwise-sum","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_harmonic_sum.json#basic_same_dim", "evidence_ref": "fixtures/conformance/op_harmonic_sum.json#basic_same_dim; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "harmonic-sum-basic", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"common-dimension","status":"PASS"},{"predicate_id":"componentwise-sum","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_harmonic_sum.json#basic_same_dim", "evidence_ref": "fixtures/conformance/op_harmonic_sum.json#basic_same_dim; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "harmonic-sum-cross-dimension", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"common-dimension","status":"PASS"},{"predicate_id":"componentwise-sum","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_harmonic_sum.json#cross_dim_zero_padded", "evidence_ref": "fixtures/conformance/op_harmonic_sum.json#cross_dim_zero_padded; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "harmonic-sum-cross-dimension", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"common-dimension","status":"PASS"},{"predicate_id":"componentwise-sum","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_harmonic_sum.json#cross_dim_zero_padded", "evidence_ref": "fixtures/conformance/op_harmonic_sum.json#cross_dim_zero_padded; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-shift-rotation", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-preserved","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_phase_shift.json#rotate_pi_over_3", "evidence_ref": "fixtures/conformance/op_phase_shift.json#rotate_pi_over_3; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-shift-rotation", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-preserved","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_phase_shift.json#rotate_pi_over_3", "evidence_ref": "fixtures/conformance/op_phase_shift.json#rotate_pi_over_3; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-shift-zero-state", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-preserved","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_phase_shift.json#zero_state", "evidence_ref": "fixtures/conformance/op_phase_shift.json#zero_state; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-shift-zero-state", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-preserved","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_phase_shift.json#zero_state", "evidence_ref": "fixtures/conformance/op_phase_shift.json#zero_state; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-weighted-scale-attenuation", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-scaled","status":"PASS"},{"predicate_id":"decrease-accounted","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_attenuated_phase_shift.json#attenuate_075_with_cost", "evidence_ref": "fixtures/conformance/op_attenuated_phase_shift.json#attenuate_075_with_cost; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "phase-weighted-scale-attenuation", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"output-well-typed","status":"PASS"},{"predicate_id":"norm-scaled","status":"PASS"},{"predicate_id":"decrease-accounted","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_attenuated_phase_shift.json#attenuate_075_with_cost", "evidence_ref": "fixtures/conformance/op_attenuated_phase_shift.json#attenuate_075_with_cost; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "bridge-cross-dimension", "implementation_id": "python-reference", "implementation_version": "langarian-python-ref-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"endpoints-well-typed","status":"PASS"},{"predicate_id":"similarity-bounded","status":"PASS"},{"predicate_id":"edge-cost-local","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_bridge.json#cross_dim_bridge", "evidence_ref": "fixtures/conformance/op_bridge.json#cross_dim_bridge; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" },
+    { "case_id": "bridge-cross-dimension", "implementation_id": "typescript-mirror", "implementation_version": "langarian-ts-port-v0.3.0", "contract_version": "operator-contract:v0.2", "receipt_schema_version": "parallax-receipt-envelope:v0.2", "status": "PASS", "predicate_results": [{"predicate_id":"endpoints-well-typed","status":"PASS"},{"predicate_id":"similarity-bounded","status":"PASS"},{"predicate_id":"edge-cost-local","status":"PASS"},{"predicate_id":"receipt-bound","status":"PASS"}], "failure_ids_observed": [], "result_signature": "canonical-fixture:fixtures/conformance/op_bridge.json#cross_dim_bridge", "evidence_ref": "fixtures/conformance/op_bridge.json#cross_dim_bridge; replay: web/test/conformance/conformance.test.ts", "timestamp_utc": "2026-07-23T00:00:00Z" }
+  ],
+  "metadata": {
+    "bundled": true,
+    "partial_evidence": true,
+    "evidence_scope": "Static registry derived from the committed Python fixture corpus and TypeScript byte-exact replay. The browser does not rerun the kernels when rendering this profile."
+  }
+}

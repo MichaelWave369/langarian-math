@@ -8,14 +8,17 @@
 **Product version:** Langarian Math Workbench **v0.3.1-rc.1**  
 **Theory Package Architecture:** **v0.2**  
 **Operator Contract Schema:** **v0.2**  
+**Contract Conformance Suite:** **v0.1**  
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
-The project has three deliberately separated layers:
+The project has four deliberately separated layers:
 
 ```text
 Parallax governance shell
         ↓
 portable theory packages + exact operator contracts
+        ↓
+portable contract-conformance evidence
         ↓
 package-specific executable kernels, when earned
 ```
@@ -45,8 +48,10 @@ Normative documents:
 
 - [`docs/THEORY_PACKAGE_SPEC.md`](docs/THEORY_PACKAGE_SPEC.md)
 - [`docs/THEORY_AUDIT_PHASE.md`](docs/THEORY_AUDIT_PHASE.md)
+- [`docs/CONTRACT_CONFORMANCE_PHASE.md`](docs/CONTRACT_CONFORMANCE_PHASE.md)
 - [`schemas/theory-package.schema.json`](schemas/theory-package.schema.json)
 - [`schemas/receipt-envelope.schema.json`](schemas/receipt-envelope.schema.json)
+- [`schemas/contract-conformance-suite.schema.json`](schemas/contract-conformance-suite.schema.json)
 
 ## Can any theory enter?
 
@@ -57,16 +62,16 @@ Any sufficiently explicit theory may enter at **Level 1** as a documentary packa
 | L1 | Documentary theory: objects, assumptions, claims, dependencies, and unknowns are mapped |
 | L2 | Formal specification: domains, operators, exact contracts, failures, and falsifiers are declared |
 | L3 | Executable reference: a package-specific runtime executes every declared operator and emits contract-bound receipts |
-| L4 | Conformance tested: a second implementation or test surface produces compatible behavior |
+| L4 | Contract-conformance tested: every operator has nominal, boundary, adversarial, failure, and first-falsifier evidence across at least two surfaces |
 | L5 | Reality-Gate candidate: predictions, datasets, falsifiers, literature comparison, and replication are registered |
 
 The governance architecture is general. Execution is package-specific and must be earned.
 
-Imported manifests are treated as data. The browser does **not** execute arbitrary package code.
+Imported manifests and conformance suites are treated as data. The browser does **not** execute arbitrary package code.
 
 ## Public bundled packages
 
-### Langarian Finite Complex Transformations — Level 4
+### Langarian Finite Complex Transformations — declared Level 4
 
 The current executable package includes:
 
@@ -78,12 +83,16 @@ The current executable package includes:
 - `attenuated_phase_shift` / phase-weighted scaling;
 - a semantically open `bridge` relation candidate;
 - Python and TypeScript implementation surfaces;
-- deterministic fixtures and conformance tests;
+- deterministic fixtures and byte-exact replay;
 - operation receipts and integrity hashes;
 - exact v0.2 execution contracts;
 - a Formal Eligibility Gate.
 
-Specimen: [`examples/theory-packages/langarian-finite-complex.json`](examples/theory-packages/langarian-finite-complex.json)
+Package specimen: [`examples/theory-packages/langarian-finite-complex.json`](examples/theory-packages/langarian-finite-complex.json)
+
+Existing fixture replay establishes meaningful cross-runtime conformance. The stricter v0.3 contract-conformance gate does not silently grandfather it as complete: adversarial, declared-failure, and first-falsifier evidence still must be added for every operator.
+
+Partial public evidence specimen: [`examples/conformance/langarian-contract-conformance.partial.json`](examples/conformance/langarian-contract-conformance.partial.json)
 
 ### Generic Provenance Workflow — Level 2
 
@@ -164,6 +173,25 @@ The GitPage includes a dedicated **Theory Audit** workspace that:
 - creates contract-bound `NOT_RUN` planning receipts.
 
 The audit preserves asymmetric maturity. Working software may coexist with an unresolved interpretation, and the interface does not hide that fact.
+
+## Contract Conformance room
+
+The GitPage also includes a dedicated **Contract Conformance** workspace.
+
+It validates portable evidence suites and checks, per operator:
+
+- nominal-case coverage;
+- boundary-case coverage;
+- adversarial-case coverage;
+- declared failure-condition coverage;
+- first-falsifier execution;
+- required predicate coverage;
+- evidence from every executable surface;
+- cross-surface agreement on status, predicates, failures, and result signature.
+
+A package cannot earn the stricter Level-4 gate by running only happy-path fixtures. The browser can export a blank five-class scaffold for any package and import evidence locally as data.
+
+The current browser does not cryptographically authenticate evidence sources. Signed evidence custody is the next research obligation.
 
 ## Foundation obligations
 
@@ -251,6 +279,7 @@ cd web
 npm ci
 npm run sync:version
 npm run test
+npm run test:conformance
 npm run build
 ```
 

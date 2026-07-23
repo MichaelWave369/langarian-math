@@ -4,8 +4,9 @@
  * Holds the WorkbenchSession (DSL executor + receipt ledger), the session
  * state table, the current Result Inspector payload, navigation, and the
  * technical/plain explanation toggle. Theory Packages is the intake desk;
- * Theory Audit is the independent recovery and readiness room; executable
- * package routes continue through the validated kernel session.
+ * Theory Audit is the recovery room; Contract Conformance is the evidence
+ * comparison room; executable package routes continue through the validated
+ * kernel session.
  */
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
@@ -16,6 +17,7 @@ import { stripIngest } from './util/sanitize.js'
 export const MODULES = [
   { id: 'theories', label: 'Theory Packages', icon: '⌘' },
   { id: 'audit', label: 'Theory Audit', icon: '⚖' },
+  { id: 'conformance', label: 'Contract Conformance', icon: '≋' },
   { id: 'state', label: 'State Builder', icon: 'z' },
   { id: 'operators', label: 'Operator Lab', icon: 'ƒ' },
   { id: 'program', label: 'Program Builder', icon: 'λ' },
@@ -133,7 +135,7 @@ export function WorkbenchProvider({ children }) {
     setStates([])
     setInspection(null)
     bumpLedger()
-    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages and audit tools remain available.')
+    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, and conformance tools remain available.')
   }, [bumpLedger])
 
   const value = useMemo(
