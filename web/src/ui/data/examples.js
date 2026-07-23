@@ -4,7 +4,7 @@
  * Every example is deterministic DSL text (or a scripted action) and carries
  * an epistemic classification: mathematical / computational / model /
  * interpretive / metaphorical. Metaphorical readings are quarantined —
- * shown in dashed panels, never routed into the Proof Gate.
+ * shown in dashed panels, never routed into the Formal Eligibility Gate.
  */
 
 export const GOLDEN_PROGRAM = `A = state([[3,0],[6,0],[9,0]], label="A")
@@ -122,10 +122,10 @@ B = phase_shift(A, pi/3)
   },
   {
     id: 'proof-gate-rejection',
-    title: 'Proof Gate rejection',
+    title: 'Formal Eligibility Gate rejection',
     classification: 'model',
-    summary: 'Imports an honestly-hashed receipt carrying an INTERPRETIVE claim and a claim promoted from MODEL without a formal derivation id: the Proof Gate blocks both.',
-    boundary: 'Promoted MODEL claims without formal_derivation_id are rejected even when relabeled; interpretive claims have no path into the gate.',
+    summary: 'Imports an honestly hashed receipt carrying an INTERPRETIVE claim and a claim promoted from MODEL without a formal derivation id: the Formal Eligibility Gate blocks both.',
+    boundary: 'Promoted MODEL claims without formal_derivation_id are rejected even when relabeled; interpretive claims have no path into formal mathematical review.',
     action: 'gate',
     source: `A = state([[3,0],[6,0],[9,0]], label="A")
 B = phase_shift(A, pi/3)
