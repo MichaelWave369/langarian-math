@@ -7,7 +7,7 @@
  */
 
 export const VERSION_MANIFEST = {
-  product_version: "0.3.0-rc.1",
+  product_version: "0.3.1-rc.1",
   kernel_version: "langarian-python-ref-v0.3.0",
   model_version: "langarian-finite-complex-model-v0.2.1",
   metric_version: "metric:v0.3.scale_safe_normalized_complex_similarity",
