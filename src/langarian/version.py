@@ -1,4 +1,4 @@
-"""Single-source version manifest for Langarian Math Workbench v0.3.
+"""Single-source version manifest for Langarian Math Workbench v0.3.1.
 
 All version strings used by the Python kernel, receipts, metrics, fixtures,
 and the TypeScript mirror are declared here exactly once. If any value changes,
@@ -8,7 +8,7 @@ migration notes must say why.
 from __future__ import annotations
 
 VERSION_MANIFEST: dict[str, str] = {
-    "product_version": "0.3.0-rc.1",
+    "product_version": "0.3.1-rc.1",
     "kernel_version": "langarian-python-ref-v0.3.0",
     "model_version": "langarian-finite-complex-model-v0.2.1",
     "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
