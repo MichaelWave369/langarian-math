@@ -1,22 +1,12 @@
-# Parallax Theory Package Architecture v0.1
+# Parallax Theory Package Architecture v0.2
 
 **Status:** implemented browser architecture and portable manifest schema  
 **Executable package:** Langarian Finite Complex Transformations  
-**Documentary/formal example:** SaaSy Reduced Hamiltonian Program
+**Neutral formal example:** Generic Provenance Workflow
 
-## 1. Why this exists
+## 1. Purpose
 
-The original Langarian workbench answered a narrow but important question:
-
-> Did this finite-complex transformation execute as declared, and what claim boundary did the receipt earn?
-
-That did not yet answer the broader question a theorist naturally asks:
-
-> Where does my theory enter the system?
-
-The Theory Package Architecture adds that front door without pretending the current finite-vector kernel can execute every theory.
-
-The core separation is:
+The workbench separates a general governance shell from package-specific mathematics and software.
 
 ```text
 Parallax governance shell
@@ -24,6 +14,7 @@ Parallax governance shell
         +-- theory package manifest
         |     objects
         |     operators
+        |     execution contracts
         |     assumptions
         |     invariants
         |     claim boundaries
@@ -35,81 +26,47 @@ Parallax governance shell
 
 The governance shell is general. Execution is package-specific.
 
-## 2. What “plugging in a theory” means
-
-A theory may enter at different maturity levels.
+## 2. Maturity levels
 
 ### Level 1 — Documentary theory
 
-The package maps:
-
-- objects;
-- assumptions;
-- claims;
-- references or evidence classes;
-- dependencies;
-- unresolved questions.
-
-Nothing is claimed to execute.
+Objects, assumptions, claims, sources, dependencies, and unknowns are mapped. Nothing is claimed to execute.
 
 ### Level 2 — Formal specification
 
-The package adds exact or candidate definitions for:
-
-- admissible object types;
-- operator domains and codomains;
-- preconditions;
-- proof obligations;
-- invariant candidates;
-- failure conditions.
-
-A Level 2 package can be audited without being run.
+Object types, operator domains and codomains, execution contracts, invariant obligations, failure behavior, and first falsifiers are declared. A Level 2 package can be audited without being run.
 
 ### Level 3 — Executable reference
 
-At least one reference implementation can execute declared operators and emit package-bound receipts.
+At least one reference implementation executes every declared operator and emits package-and-contract-bound receipts.
 
 ### Level 4 — Conformance tested
 
-A second implementation or independent test surface produces compatible results under the package specification.
-
-Compatibility does not automatically imply epistemic independence. A direct language port may be conformance evidence while sharing the same algorithmic assumptions.
+A second implementation or independent test surface produces compatible results under the package specification. Compatibility does not automatically imply epistemic independence.
 
 ### Level 5 — Reality-Gate candidate
 
-The package explicitly registers:
-
-- empirical predictions;
-- datasets;
-- literature comparisons;
-- falsifiers;
-- replication requirements;
-- evidence status.
-
-Level 5 does not mean empirically true. It means the package is structured enough to undergo Reality Gate evaluation.
+Empirical predictions, datasets, literature comparisons, falsifiers, replication requirements, and evidence status are explicitly registered.
 
 ## 3. Portable manifest
 
-The normative JSON schema is:
+Normative schema:
 
 ```text
 schemas/theory-package.schema.json
 ```
 
-The browser validator additionally enforces cross-field rules that plain JSON Schema cannot fully express, including:
+Schema version:
 
-- unique definition identifiers;
-- operator input/output references to declared object types;
-- at least one executable implementation for Level 3;
-- at least two executable surfaces for Level 4;
-- explicit Reality Gate classification;
-- stable package identity and semantic versioning.
+```text
+theory-package:v0.2
+```
 
-The manifest root is:
+Root form:
 
 ```json
 {
-  "schema_version": "theory-package:v0.1",
+  "schema_version": "theory-package:v0.2",
   "theory": {},
   "maturity_level": 1,
   "objects": [],
@@ -129,9 +86,89 @@ The manifest root is:
 }
 ```
 
-## 4. Evidence classes
+The browser validator additionally enforces:
 
-Every object, operation, assumption, and invariant carries an evidence class:
+- unique definition and contract identifiers;
+- operator input/output references to declared object types;
+- assumption and invariant references to declared ids;
+- complete operator-contract shapes;
+- at least one executable implementation for Level 3;
+- at least two executable surfaces for Level 4;
+- implementation locations for every Level 3+ operator;
+- explicit Reality Gate classification;
+- stable package identity and semantic versioning.
+
+## 4. Per-operator execution contract
+
+Every operator must carry:
+
+```text
+operator-contract:v0.2
+```
+
+Required fields:
+
+```json
+{
+  "contract_version": "operator-contract:v0.2",
+  "parameters": [],
+  "preconditions": [],
+  "assumptions_used": [],
+  "invariants_checked": [],
+  "predicates": [],
+  "failure_conditions": [],
+  "reversibility": {
+    "classification": "unknown",
+    "condition": ""
+  },
+  "receipt_fields": [],
+  "first_falsifier": ""
+}
+```
+
+### Parameters
+
+Each parameter declares a stable id, name, type, whether it is required, and its constraints.
+
+### Preconditions
+
+Preconditions define the admissible execution domain. They are not post-hoc explanations for failed runs.
+
+### Assumptions and invariants
+
+Contracts reference package-level assumption and invariant ids. Unknown references are rejected.
+
+### Predicates
+
+Every check has a stable id, a statement, required status, and an optional tolerance policy. A receipt must name the predicate actually checked; `PASS` alone is insufficient.
+
+### Failure behavior
+
+Each failure condition declares one outcome:
+
+- `REJECT` — do not execute;
+- `FAIL_RECEIPT` — execution or postcondition failed and must be recorded;
+- `WARN_RECEIPT` — execution may continue, but the boundary remains visible.
+
+### Reversibility
+
+Allowed classes:
+
+- `reversible`;
+- `conditionally_reversible`;
+- `irreversible`;
+- `not_applicable`;
+- `unknown`.
+
+`unknown` is valid for an early documentary package but blocks a fully resolved contract audit.
+
+### First falsifier
+
+Every operator declares the first admissible counterexample or run that would defeat its stated behavior. A falsifier is an attack surface, not proof that the operator has survived it.
+
+## 5. Evidence classes and definition status
+
+Evidence classes:
 
 - `OBSERVED`
 - `IMPLEMENTED`
@@ -140,32 +177,41 @@ Every object, operation, assumption, and invariant carries an evidence class:
 - `ASPIRATIONAL`
 - `UNKNOWN`
 
-A package must not report an aspirational rule as implemented behavior.
-
-## 5. Definition status
-
-Definitions use:
+Definition statuses:
 
 - `ACCEPTED`
 - `PROVISIONAL`
 - `CANDIDATE`
 - `THEORY_MAP_OPEN`
 
-`THEORY_MAP_OPEN` is not a failure. It is the required honest state when the package does not yet contain enough evidence to define an object or operator precisely.
+A complete operational contract may coexist with an open higher-level interpretation. This is intentional.
 
 ## 6. Generic receipt envelope
 
-The browser can generate a package-bound receipt envelope template:
+Schema:
+
+```text
+parallax-receipt-envelope:v0.2
+```
+
+The envelope binds:
 
 ```json
 {
-  "receipt_schema_version": "parallax-receipt-envelope:v0.1",
+  "receipt_schema_version": "parallax-receipt-envelope:v0.2",
   "theory_package": {
     "id": "example-theory",
     "version": "0.1.0",
-    "schema_version": "theory-package:v0.1"
+    "schema_version": "theory-package:v0.2"
   },
   "operation_id": "evolve",
+  "operator_contract": {
+    "version": "operator-contract:v0.2",
+    "assumption_ids": [],
+    "invariant_ids": [],
+    "predicate_ids": ["output-valid"],
+    "first_falsifier": "An admissible run whose output violates the declared map."
+  },
   "implementation": {
     "id": null,
     "version": null
@@ -183,70 +229,48 @@ The browser can generate a package-bound receipt envelope template:
 }
 ```
 
-The envelope is theory-neutral, but it does not execute an operation by itself. A package-specific runtime must populate inputs, outputs, checks, implementation identity, parents, and status.
+The envelope does not execute anything. A package-specific runtime must populate observations, outputs, implementation identity, parents, and status.
 
-## 7. Bundled package: Langarian
+## 7. Bundled public packages
 
-The current finite-complex workbench is represented as a Level 4 package because it has:
+### Langarian Finite Complex Transformations — Level 4
 
-- a Python reference kernel;
-- a TypeScript mirror;
-- deterministic fixtures;
-- receipt hashing;
-- conformance tests;
-- a browser execution surface.
+The executable package has Python and TypeScript surfaces, deterministic fixtures, receipt hashing, conformance tests, and a browser workbench. Its operators now carry exact execution contracts.
 
-This does not make the two implementations fully independent. The TypeScript port intentionally mirrors the Python algorithm and therefore supplies conformance evidence rather than a wholly independent scientific confirmation.
+The `bridge` operation illustrates a crucial distinction: its operational behavior is contracted, while its ultimate theoretical object-kind interpretation remains open.
 
-## 8. Bundled package: SaaSy
+Specimen:
 
-SaaSy enters as a Level 2 documentary/formal package shell.
+```text
+examples/theory-packages/langarian-finite-complex.json
+```
 
-That is deliberate. It can register objects, assumptions, derivation steps, claim promotion rules, and invariant candidates now without falsely routing reduced-Hamiltonian derivations through the finite-complex Langarian kernel.
+### Generic Provenance Workflow — Level 2
 
-Open definitions remain visible as `THEORY_MAP_OPEN` until Hughes supplies implementation evidence, Ori audits the recovered model, and Emet proposes lawful formalization.
+A neutral formal package demonstrates exact contracts without an implementation. It defines source attachment and bounded claim review using generic records, claims, and review results.
 
-## 9. Theory Definition Wizard
+Specimen:
 
-The GitPage now opens on a Theory Packages module. The wizard asks for:
+```text
+examples/theory-packages/generic-provenance-workflow.json
+```
 
-- stable package identity;
-- name and version;
-- summary;
-- motivation — “what made you build it?”;
-- maturity level;
-- object names;
-- operator names;
-- assumptions;
-- invariants;
-- allowed claims;
-- prohibited claims.
+No private research package is bundled in the active public tree.
 
-The wizard creates a Level 1-compatible candidate manifest. Missing semantics are marked `THEORY MAP OPEN`; they are not silently invented.
+## 8. Theory Definition Wizard
 
-A user may export the manifest, edit it externally, and import it back into the local browser session for validation.
+The wizard creates a valid documentary candidate. Unknown contract content remains visibly marked `THEORY MAP OPEN`; scaffolds and manifests never invent executable semantics.
 
-## 10. Security and trust boundary
+A package may be exported, edited externally, and imported back into the local browser session for validation.
 
-Package import is local to the browser session and treats imported JSON as data.
+## 9. Security and trust boundary
 
-A valid manifest means only:
+Imported JSON is data only. The browser does not execute arbitrary package code.
 
-- the package has the required shape;
-- references and maturity requirements are internally consistent;
-- claim boundaries and Reality Gate status are explicit.
+A valid manifest means only that its structure, references, maturity rules, contracts, claim boundaries, and Reality Gate classification are internally coherent. It does not mean the theory is correct, proved, safe, or empirically true.
 
-It does not mean:
-
-- the theory is mathematically correct;
-- implementations are safe to execute;
-- claims are proved;
-- the theory describes reality.
-
-Future executable package loading must use an allowlisted plugin system or isolated runtime. Arbitrary code execution from imported manifests is explicitly out of scope for v0.1.
-
-## 11. Governing test
+## 10. Governing test
 
 > A definition is mature when two independent implementers can build compatible systems from it without asking the author what was meant.
 
-The package architecture makes that test inspectable. It does not weaken it.
+v0.2 turns that principle into inspectable per-operator obligations.

@@ -1,0 +1,92 @@
+{
+  "schema_version": "theory-package:v0.2",
+  "theory": {
+    "id": "generic-provenance-workflow",
+    "name": "Generic Provenance Workflow",
+    "version": "0.2.0",
+    "status": "candidate",
+    "summary": "A neutral formal example showing how non-executable theory packages declare exact operator contracts.",
+    "motivation": "Demonstrate portable provenance and review semantics without publishing or depending on any private research program."
+  },
+  "maturity_level": 2,
+  "objects": [
+    { "id": "record", "name": "Record", "definition": "A versioned item with a stable identifier, content hash, and addressable ancestry.", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" },
+    { "id": "claim", "name": "Claim", "definition": "A bounded proposition with status, evidence references, and an immutable version identity.", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" },
+    { "id": "review-result", "name": "Review result", "definition": "A decision record naming the reviewed claim, reviewer class, checks, and disposition.", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" }
+  ],
+  "operators": [
+    {
+      "id": "attach-source",
+      "name": "attach_source",
+      "input_types": ["claim", "record"],
+      "output_types": ["claim"],
+      "semantics": "Create a new claim version whose evidence set includes the supplied record while preserving prior ancestry.",
+      "evidence_class": "DOCUMENTED",
+      "status": "ACCEPTED",
+      "implementation": null,
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [],
+        "preconditions": ["The claim and record have stable identifiers and content hashes.", "The record is not already attached to the current claim version."],
+        "assumptions_used": ["a1", "a2"],
+        "invariants_checked": ["i1"],
+        "predicates": [
+          { "id": "ancestry-preserved", "statement": "Every prior ancestor of the input claim remains reachable from the output claim version.", "required": true },
+          { "id": "source-attached-once", "statement": "The supplied record appears exactly once in the output evidence set.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "missing-identity", "condition": "Either input lacks a stable identifier or content hash.", "outcome": "REJECT" },
+          { "id": "duplicate-source", "condition": "The source record is already attached.", "outcome": "WARN_RECEIPT" },
+          { "id": "ancestry-loss", "condition": "Any prior claim ancestry becomes unreachable.", "outcome": "FAIL_RECEIPT" }
+        ],
+        "reversibility": { "classification": "conditionally_reversible", "condition": "A later superseding claim version may remove the active attachment only while preserving a tombstone and the prior version." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "An admissible attachment that produces a new claim version from which a prior ancestor or the supplied record cannot be addressed."
+      }
+    },
+    {
+      "id": "review-claim",
+      "name": "review_claim",
+      "input_types": ["claim", "record"],
+      "output_types": ["review-result"],
+      "semantics": "Evaluate a claim against a declared evidence record and emit a bounded review disposition without mutating the claim.",
+      "evidence_class": "DOCUMENTED",
+      "status": "ACCEPTED",
+      "implementation": null,
+      "contract": {
+        "contract_version": "operator-contract:v0.2",
+        "parameters": [{ "id": "reviewer-class", "name": "Reviewer class", "type": "string enum", "required": true, "constraints": "Must be one of the package-authorized reviewer classes." }],
+        "preconditions": ["The claim and evidence record are addressable.", "The reviewer class is authorized for this review type."],
+        "assumptions_used": ["a1"],
+        "invariants_checked": ["i2"],
+        "predicates": [
+          { "id": "inputs-addressable", "statement": "The review result names exact claim and evidence identities.", "required": true },
+          { "id": "decision-bounded", "statement": "The disposition states what was checked and prohibits unsupported promotion.", "required": true }
+        ],
+        "failure_conditions": [
+          { "id": "unauthorized-reviewer", "condition": "The reviewer class is not authorized.", "outcome": "REJECT" },
+          { "id": "missing-evidence", "condition": "The evidence record cannot be resolved.", "outcome": "FAIL_RECEIPT" },
+          { "id": "unsupported-promotion", "condition": "The review attempts to promote beyond the declared checks.", "outcome": "FAIL_RECEIPT" }
+        ],
+        "reversibility": { "classification": "not_applicable", "condition": "A review result is append-only; later reviews may supersede but do not erase it." },
+        "receipt_fields": ["theory_package", "operation_id", "operator_contract", "implementation", "inputs", "parameters", "outputs", "assumptions_used", "checks", "claims_supported", "claims_prohibited", "parent_receipts", "status", "timestamp_utc"],
+        "first_falsifier": "A valid review result that cannot identify its claim, evidence, reviewer class, checks, or bounded disposition."
+      }
+    }
+  ],
+  "assumptions": [
+    { "id": "a1", "text": "Every object has a stable identifier and deterministic content hash.", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" },
+    { "id": "a2", "text": "Version history is append-only; supersession does not erase prior versions.", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" }
+  ],
+  "invariants": [
+    { "id": "i1", "text": "All prior claim ancestry remains addressable after a source attachment.", "scope": "provenance invariant", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" },
+    { "id": "i2", "text": "Every review result remains attached to the exact claim, evidence, checks, and disposition that produced it.", "scope": "review invariant", "evidence_class": "DOCUMENTED", "status": "ACCEPTED" }
+  ],
+  "claim_boundaries": {
+    "allowed": ["the package defines a portable formal provenance workflow", "an implementation may be built against the declared contracts"],
+    "prohibited": ["the example is an empirical theory", "a valid manifest proves an implementation correct", "a review result establishes truth beyond its declared checks"]
+  },
+  "evidence": { "reality_gate": "not_evaluated", "notes": "This neutral package is a formal governance example and has no empirical truth claim." },
+  "implementations": [{ "id": "documentary-package", "language": "JSON/Markdown", "version": "0.2.0", "status": "documentary" }],
+  "metadata": { "bundled": true, "execution_route": null, "example_kind": "neutral-public" }
+}
