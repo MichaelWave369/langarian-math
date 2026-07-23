@@ -1,0 +1,128 @@
+{
+  "error_cases": [
+    {
+      "expected_error_type": "ValueError",
+      "name": "dim_zero_rejected",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "LimitError",
+      "name": "dim_above_max_rejected",
+      "observed_error_type": "LimitError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "nan_vector_rejected",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "phase_shift_nan_angle",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "phase_shift_inf_angle",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "attenuation_nan",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "attenuation_negative",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "bridge_cost_inf",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "LimitError",
+      "name": "phi_scale_overflow_n",
+      "observed_error_type": "LimitError"
+    },
+    {
+      "expected_error_type": "TypeError",
+      "name": "phi_scale_non_integer_n",
+      "observed_error_type": "TypeError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "phi_scale_nan_n",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "negative_weights_rejected",
+      "observed_error_type": "ValueError"
+    },
+    {
+      "expected_error_type": "TypeError",
+      "name": "non_json_metadata_rejected",
+      "observed_error_type": "TypeError"
+    },
+    {
+      "expected_error_type": "ValueError",
+      "name": "non_finite_metadata_rejected",
+      "observed_error_type": "ValueError"
+    }
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "edge_cases",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "similarity_cases": [
+    {
+      "a": "zero_1",
+      "b": "zero_1",
+      "expected": 1.0,
+      "name": "zero_zero"
+    },
+    {
+      "a": "zero_1",
+      "b": "one_1",
+      "expected": 0.0,
+      "name": "zero_nonzero"
+    },
+    {
+      "a": "small_1e-200",
+      "b": "small_1e-200",
+      "expected": 1.0,
+      "name": "underflow_self_similarity"
+    },
+    {
+      "a": "small_1e-200",
+      "b": "zero_1",
+      "expected": 0.0,
+      "name": "underflow_zero_convention"
+    },
+    {
+      "a": "subnormal_5e-162",
+      "b": "subnormal_5e-162",
+      "expected": 1.0,
+      "name": "subnormal_self_similarity"
+    },
+    {
+      "a": "large_1e200",
+      "b": "large_1e200",
+      "expected": 1.0,
+      "name": "overflow_self_similarity"
+    },
+    {
+      "a": "basis_2_a",
+      "b": "v_3_6_9",
+      "expected": 0.07142857142857144,
+      "name": "cross_dim_padded"
+    },
+    {
+      "a": "large_1e200",
+      "b": "large_1e200",
+      "expected_resonance": 1e+200,
+      "name": "large_resonance_finite"
+    }
+  ]
+}

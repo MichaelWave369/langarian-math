@@ -1,0 +1,18 @@
+{
+  "files": [
+    "edge_cases.json",
+    "op_attenuated_phase_shift.json",
+    "op_bridge.json",
+    "op_harmonic_sum.json",
+    "op_phase_shift.json",
+    "op_phi_scale.json",
+    "states.json",
+    "tampered_receipt.json"
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "note": "Deterministic-clock conformance fixtures; receipt timestamps are fixed, so content_hash and receipt_id are reproducible.",
+  "receipt_schema_version": "receipt:v0.3",
+  "timestamp_utc": "1970-01-01T00:00:00+00:00"
+}

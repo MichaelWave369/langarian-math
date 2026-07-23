@@ -46,6 +46,13 @@ def coherence_bound(value: float) -> InvariantResult:
 
 
 def accounted_change(delta_resonance: float, delta_coherence: float, declared_cost: str | None = None) -> InvariantResult:
+    """Check that decreases are accompanied by a declared-cost label.
+
+    This is a label-presence gate only: it verifies that a decrease is
+    accompanied by a declared-cost string. It does NOT verify the adequacy,
+    magnitude, or kind of the declared cost, and increases are always free.
+    """
+
     if delta_resonance >= -1e-12 and delta_coherence >= -1e-12:
         return InvariantResult(
             "I3.accounted_change",
@@ -57,7 +64,7 @@ def accounted_change(delta_resonance: float, delta_coherence: float, declared_co
         return InvariantResult(
             "I3.accounted_change",
             ResultStatus.PASS,
-            "Decrease occurred with declared cost.",
+            "Decrease occurred with declared cost (label-presence gate only; adequacy of the cost is not verified).",
             value={"delta_resonance": delta_resonance, "delta_coherence": delta_coherence},
             metadata={"declared_cost": declared_cost},
         )
@@ -69,16 +76,51 @@ def accounted_change(delta_resonance: float, delta_coherence: float, declared_co
     )
 
 
+def trace_inputs_recorded(
+    input_hashes: list[str],
+    output_history: tuple[str, ...] | None = None,
+    recorded_source_hashes: list[str] | tuple[str, ...] | None = None,
+) -> InvariantResult:
+    """Check that receipt input hashes exist and match recorded source hashes.
+
+    Fails when no input hashes are recorded. When ``recorded_source_hashes``
+    is provided (e.g. the output state's metadata ``source_hashes``), every
+    receipt input hash must appear in it; otherwise the check FAILs instead of
+    passing on mere non-emptiness. Emitted as ``I4.trace_inputs_recorded``;
+    the legacy name ``I4.trace_preservation`` is kept as a compatibility
+    alias in metadata.
+    """
+
+    metadata: dict[str, Any] = {
+        "output_history_length": len(output_history or ()),
+        "legacy_name": "I4.trace_preservation",
+    }
+    if not input_hashes:
+        return InvariantResult("I4.trace_inputs_recorded", ResultStatus.FAIL, "No input hashes recorded.", metadata=metadata)
+    if recorded_source_hashes is not None:
+        recorded = set(recorded_source_hashes)
+        missing = [h for h in input_hashes if h not in recorded]
+        if missing:
+            return InvariantResult(
+                "I4.trace_inputs_recorded",
+                ResultStatus.FAIL,
+                "Receipt input hashes do not match the recorded source hashes.",
+                value=input_hashes,
+                metadata={**metadata, "mismatched_hashes": missing},
+            )
+    return InvariantResult(
+        "I4.trace_inputs_recorded",
+        ResultStatus.PASS,
+        "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+        value=input_hashes,
+        metadata=metadata,
+    )
+
+
 def trace_preservation(input_hashes: list[str], output_history: tuple[str, ...] | None = None) -> InvariantResult:
-    if input_hashes:
-        return InvariantResult(
-            "I4.trace_preservation",
-            ResultStatus.PASS,
-            "Input hashes are recorded in the operation receipt.",
-            value=input_hashes,
-            metadata={"output_history_length": len(output_history or ())},
-        )
-    return InvariantResult("I4.trace_preservation", ResultStatus.FAIL, "No input hashes recorded.")
+    """Compatibility alias for :func:`trace_inputs_recorded` (legacy name)."""
+
+    return trace_inputs_recorded(input_hashes, output_history)
 
 
 def phase_equivariance(before_resonance: float, after_resonance: float, tolerance: float = 1e-9) -> InvariantResult:
@@ -95,6 +137,18 @@ def phase_equivariance(before_resonance: float, after_resonance: float, toleranc
         "Pure phase rotation changed resonance.",
         value={"before": before_resonance, "after": after_resonance},
     )
+
+
+def phase_norm_preservation(before_resonance: float, after_resonance: float, tolerance: float = 1e-9) -> InvariantResult:
+    """v0.3 documentation name for the I5 check.
+
+    The check verifies |R_before - R_after| <= tolerance for one operation
+    instance; it is not a group-theoretic equivariance proof. The receipt
+    keeps the legacy emitted name ``I5.phase_equivariance`` as a
+    compatibility alias.
+    """
+
+    return phase_equivariance(before_resonance, after_resonance, tolerance)
 
 
 def interpretation_quarantine(claim_tags: list[str]) -> InvariantResult:

@@ -6,27 +6,22 @@ import argparse
 from pathlib import Path
 import json
 import math
+import re
 import sys
 from typing import Any
 
 import yaml
 
 from .operators import attenuated_phase_shift, bridge, harmonic_sum, phi_scale
+from .receipts import atomic_write_text
 from .state import ResonantState
-
-REQUIRED_RECEIPT_FIELDS = {
-    "receipt_id",
-    "kernel_version",
-    "metric_version",
-    "operator",
-    "input_hashes",
-    "output_hash",
-    "invariant_results",
-    "status",
-    "epistemic_tag",
-}
-VALID_STATUSES = {"PASS", "WARN", "FAIL"}
-VALID_TAGS = {"FORMAL", "COMPUTED", "MODEL", "INTERPRETIVE", "METAPHOR", "OBSERVED", "FAILED"}
+from .validation import (
+    REQUIRED_RECEIPT_FIELDS,
+    VALID_STATUSES,
+    VALID_TAGS,
+    ReceiptValidation,
+)
+from .validation import validate_receipt_data as _validate_receipt_levels
 
 
 def _state_from_config(config: dict) -> ResonantState:
@@ -38,11 +33,25 @@ def _state_from_config(config: dict) -> ResonantState:
     )
 
 
+_SAFE_FILENAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\.json")
+
+
+def _sanitize_receipt_filename(name: str) -> str:
+    """Defensive filename check for receipt writes (SPEC section 3.11).
+
+    CLI receipt names are fixed constants today, but a name containing path
+    separators, traversal segments, or unexpected characters is rejected
+    rather than resolved outside the receipts directory.
+    """
+
+    if not isinstance(name, str) or not _SAFE_FILENAME.fullmatch(name) or ".." in name:
+        raise ValueError(f"unsafe receipt filename: {name!r}")
+    return name
+
+
 def _write_receipt(receipts_dir: Path, name: str, json_text: str) -> Path:
     receipts_dir.mkdir(parents=True, exist_ok=True)
-    path = receipts_dir / name
-    path.write_text(json_text + "\n", encoding="utf-8")
-    return path
+    return atomic_write_text(receipts_dir / _sanitize_receipt_filename(name), json_text + "\n")
 
 
 def _load_receipt(path: Path) -> dict[str, Any]:
@@ -56,60 +65,45 @@ def _load_receipt(path: Path) -> dict[str, Any]:
 
 
 def validate_receipt_data(data: dict[str, Any]) -> tuple[bool, list[str]]:
-    """Validate the public receipt shape.
+    """Compatibility wrapper returning (ok, flat errors) across all levels.
 
-    This is schema validation, not recomputation of the underlying operation.
-    It checks that the receipt is shaped like a Langarian receipt and that its
-    collapsed status/tag values are known.
+    The full multi-level result is available from
+    :func:`langarian.validation.validate_receipt_data`. ``ok`` is True only
+    when schema, hash, status, AND version levels all pass; a shape-only pass
+    is never reported as verified.
     """
 
-    errors: list[str] = []
-    missing = sorted(REQUIRED_RECEIPT_FIELDS - set(data))
-    if missing:
-        errors.append(f"missing required field(s): {', '.join(missing)}")
-
-    if "receipt_id" in data and not str(data["receipt_id"]).startswith("sha256:"):
-        errors.append("receipt_id must start with sha256:")
-
-    if data.get("status") not in VALID_STATUSES:
-        errors.append(f"status must be one of {sorted(VALID_STATUSES)}")
-
-    if data.get("epistemic_tag") not in VALID_TAGS:
-        errors.append(f"epistemic_tag must be one of {sorted(VALID_TAGS)}")
-
-    input_hashes = data.get("input_hashes")
-    if "input_hashes" in data and not isinstance(input_hashes, list):
-        errors.append("input_hashes must be a list")
-
-    invariants = data.get("invariant_results")
-    if "invariant_results" in data:
-        if not isinstance(invariants, list):
-            errors.append("invariant_results must be a list")
-        else:
-            for index, invariant in enumerate(invariants):
-                if not isinstance(invariant, dict):
-                    errors.append(f"invariant_results[{index}] must be an object")
-                    continue
-                if invariant.get("status") not in VALID_STATUSES:
-                    errors.append(f"invariant_results[{index}].status must be PASS, WARN, or FAIL")
-                if not invariant.get("name"):
-                    errors.append(f"invariant_results[{index}].name is required")
-
-    return (not errors, errors)
+    result = _validate_receipt_levels(data)
+    return (result.ok, result.errors_flat())
 
 
 def validate_receipt_file(path: Path) -> int:
     data = _load_receipt(path)
-    ok, errors = validate_receipt_data(data)
-    if ok:
-        print(f"PASS receipt schema: {path}")
+    result = _validate_receipt_levels(data)
+    _print_validation_levels(path, result)
+    if result.ok:
         print(f"operator: {data.get('operator')}")
         print(f"status: {data.get('status')}")
+        print("verification level: schema + hash + status + version all pass (local consistency; not operation recomputation)")
         return 0
-    print(f"FAIL receipt schema: {path}", file=sys.stderr)
-    for error in errors:
-        print(f"- {error}", file=sys.stderr)
     return 1
+
+
+def _print_validation_levels(path: Path, result: ReceiptValidation) -> None:
+    labels = {
+        "schema": "receipt schema (shape only; never called verified)",
+        "hash": "receipt hash integrity (content_hash + receipt_id recomputed)",
+        "status": "receipt status consistency (collapsed from invariant_results)",
+        "version": "receipt version allowlist",
+    }
+    for level in result.levels:
+        label = labels.get(level.name, level.name)
+        if level.ok:
+            print(f"PASS {label}: {path}")
+        else:
+            print(f"FAIL {label}: {path}", file=sys.stderr)
+            for error in level.errors:
+                print(f"- {error}", file=sys.stderr)
 
 
 def explain_receipt_file(path: Path) -> int:
@@ -199,9 +193,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "run":
         return run_example(args.example, args.receipts_dir)
     if args.command == "validate":
-        return validate_receipt_file(args.receipt)
+        try:
+            return validate_receipt_file(args.receipt)
+        except FileNotFoundError:
+            print(f"error: receipt file not found: {args.receipt}", file=sys.stderr)
+            return 2
+        except (OSError, ValueError) as exc:
+            print(f"error: cannot validate receipt {args.receipt}: {exc}", file=sys.stderr)
+            return 2
     if args.command == "explain":
-        return explain_receipt_file(args.receipt)
+        try:
+            return explain_receipt_file(args.receipt)
+        except FileNotFoundError:
+            print(f"error: receipt file not found: {args.receipt}", file=sys.stderr)
+            return 2
+        except (OSError, ValueError) as exc:
+            print(f"error: cannot read receipt {args.receipt}: {exc}", file=sys.stderr)
+            return 2
     return 2
 
 

@@ -1,0 +1,136 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "coherence_after": 0.0,
+        "coherence_before": null,
+        "finalized_output_hash": "sha256:cc9c8ec2c09f076ef0d8cedd2ed9a82fe903092a58408ca44ccd08d0bacd9fe1",
+        "output_hash": "sha256:a438f51a44f2edd6799806196d06972442749c357b456278fc732095e35cd5b9",
+        "output_resonance": 1.7320508075688772,
+        "output_vector": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ]
+        ],
+        "receipt": {
+          "claims": [
+            {
+              "evidence": [],
+              "metadata": {},
+              "tag": "COMPUTED",
+              "text": "Bridge candidate recorded as a typed transition/path, not a category-theoretic proof."
+            }
+          ],
+          "coherence_after": 0.0,
+          "coherence_before": null,
+          "content_hash": "sha256:7f0fbd25030e1d2673ffcf553f84ebee56c338d8e69e8f11789f76aadf860157",
+          "epistemic_tag": "COMPUTED",
+          "input_hashes": [
+            "sha256:df8a4fb7366339e6df24121ee5a40999d5aff5c530a290485b749b63d531c579",
+            "sha256:a438f51a44f2edd6799806196d06972442749c357b456278fc732095e35cd5b9"
+          ],
+          "invariant_results": [
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 1
+            },
+            {
+              "message": "State is finite-dimensional and well typed.",
+              "metadata": {},
+              "name": "I1.well_typed_state",
+              "status": "PASS",
+              "value": 3
+            },
+            {
+              "message": "Coherence is within [0, 1].",
+              "metadata": {},
+              "name": "I2.coherence_bound",
+              "status": "PASS",
+              "value": 0.0
+            },
+            {
+              "message": "Input hashes are recorded in the operation receipt and match recorded source hashes.",
+              "metadata": {
+                "legacy_name": "I4.trace_preservation",
+                "output_history_length": 0
+              },
+              "name": "I4.trace_inputs_recorded",
+              "status": "PASS",
+              "value": [
+                "sha256:df8a4fb7366339e6df24121ee5a40999d5aff5c530a290485b749b63d531c579",
+                "sha256:a438f51a44f2edd6799806196d06972442749c357b456278fc732095e35cd5b9"
+              ]
+            },
+            {
+              "message": "No interpretive/metaphorical claims used as formal proof inputs.",
+              "metadata": {},
+              "name": "I8.interpretation_quarantine",
+              "status": "PASS",
+              "value": [
+                "COMPUTED"
+              ]
+            }
+          ],
+          "kernel_version": "langarian-python-ref-v0.3.0",
+          "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+          "operator": "bridge",
+          "output_hash": "sha256:a438f51a44f2edd6799806196d06972442749c357b456278fc732095e35cd5b9",
+          "parameters": {
+            "cost": 0.0,
+            "label": null
+          },
+          "receipt_id": "sha256:6252db0b1269d949f058eede1cc032f18d1067684ffaec8961641367994ed9da",
+          "receipt_schema_version": "receipt:v0.3",
+          "status": "PASS",
+          "timestamp_utc": "1970-01-01T00:00:00+00:00"
+        },
+        "receipt_content_hash": "sha256:7f0fbd25030e1d2673ffcf553f84ebee56c338d8e69e8f11789f76aadf860157",
+        "receipt_id": "sha256:6252db0b1269d949f058eede1cc032f18d1067684ffaec8961641367994ed9da",
+        "status": "PASS"
+      },
+      "inputs": {
+        "cost": 0.0,
+        "source": [
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "target": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0
+          ]
+        ]
+      },
+      "name": "cross_dim_bridge"
+    }
+  ],
+  "fixture_version": "fixtures:v0.3",
+  "kernel_version": "langarian-python-ref-v0.3.0",
+  "kind": "operation",
+  "metric_version": "metric:v0.3.scale_safe_normalized_complex_similarity",
+  "operator": "bridge",
+  "receipt_schema_version": "receipt:v0.3",
+  "timestamp_utc": "1970-01-01T00:00:00+00:00"
+}

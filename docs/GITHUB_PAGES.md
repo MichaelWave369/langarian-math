@@ -1,12 +1,13 @@
 # GitHub Pages Setup
 
-The repo includes a Vite + React landing page in `web/` and a Pages workflow at `.github/workflows/pages.yml`.
+The repo includes the Vite + React v0.3 workbench in `web/` (TypeScript kernel mirror, DSL runner, receipt ledger, eight UI modules) and a Pages workflow at `.github/workflows/pages.yml`.
 
 ## Local preview
 
 ```bash
 cd web
-npm install
+npm ci
+npm run sync:version
 npm run dev
 ```
 
