@@ -3,8 +3,8 @@
  *
  * Holds the WorkbenchSession (DSL executor + receipt ledger), the session
  * state table, the current Result Inspector payload, navigation, and the
- * technical/plain explanation toggle. The ledger mutates inside the session
- * object, so every mutation is paired with a tick bump to re-render.
+ * technical/plain explanation toggle. Theory Packages is the front door;
+ * executable package routes continue through the validated kernel session.
  */
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
@@ -13,6 +13,7 @@ import { MAX_STATES } from '../kernel/limits.js'
 import { stripIngest } from './util/sanitize.js'
 
 export const MODULES = [
+  { id: 'theories', label: 'Theory Packages', icon: '⌘' },
   { id: 'state', label: 'State Builder', icon: 'z' },
   { id: 'operators', label: 'Operator Lab', icon: 'ƒ' },
   { id: 'program', label: 'Program Builder', icon: 'λ' },
@@ -31,7 +32,7 @@ export function WorkbenchProvider({ children }) {
   const sessionRef = useRef(null)
   if (sessionRef.current === null) sessionRef.current = new WorkbenchSession()
 
-  const [module, setModule] = useState('state')
+  const [module, setModule] = useState('theories')
   const [states, setStates] = useState([])
   const [ledgerTick, setLedgerTick] = useState(0)
   const [inspection, setInspection] = useState(null)
@@ -130,7 +131,7 @@ export function WorkbenchProvider({ children }) {
     setStates([])
     setInspection(null)
     bumpLedger()
-    setNotice('Session reset: states, ledger, and inspector cleared.')
+    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages remain available.')
   }, [bumpLedger])
 
   const value = useMemo(
