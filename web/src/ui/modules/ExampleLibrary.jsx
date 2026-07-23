@@ -5,8 +5,9 @@
  * in the ledger) and is labeled with an epistemic classification:
  * mathematical / computational / model / interpretive / metaphorical.
  * Two examples are scripted actions: receipt tampering (imports an altered
- * receipt into quarantine) and Proof Gate rejection (imports a receipt with
- * an INTERPRETIVE claim and a claim promoted from MODEL without derivation).
+ * receipt into quarantine) and Formal Eligibility Gate rejection (imports a
+ * receipt with an INTERPRETIVE claim and a claim promoted from MODEL without
+ * derivation).
  */
 
 import { useState } from 'react'
@@ -28,7 +29,7 @@ const CLASS_STYLE = {
 const CLASS_HELP = {
   mathematical: 'exact finite mathematics',
   computational: 'a computation/demonstration of engine behavior',
-  model: 'model-level claim; blocked at the Proof Gate without formal derivation',
+  model: 'model-level claim; blocked at the Formal Eligibility Gate without formal derivation',
   interpretive: 'interpretation only; quarantined',
   metaphorical: 'metaphor only; quarantined',
 }
@@ -55,7 +56,7 @@ function ExampleCard({ example }) {
       setResultNote(
         `Executed ${run.execution.steps.length} step(s); ${run.ledgerSeqs.length} receipt(s) recorded` +
           (fails > 0 ? ` — ${fails} FAIL receipt(s), as this example intends` : '') +
-          '. See the Receipt Ledger and Proof Gate.',
+          '. See the Receipt Ledger and Formal Eligibility Gate.',
       )
       setError(null)
     } catch (exc) {
@@ -110,11 +111,11 @@ function ExampleCard({ example }) {
       bumpLedger()
       setResultNote(
         `Imported an honestly-hashed receipt (#${entry.seq}) carrying an INTERPRETIVE claim and a claim ` +
-          'promoted from MODEL without a formal_derivation_id. Open the Proof Gate: both land in the ' +
+          'promoted from MODEL without a formal_derivation_id. Open the Formal Eligibility Gate: both land in the ' +
           'quarantined column with explicit blocked reasons; the promoted claim is flagged distinctly.',
       )
       setError(null)
-      setNotice('MODEL/INTERPRETIVE claims imported — see the Proof Gate quarantined column.')
+      setNotice('MODEL/INTERPRETIVE claims imported — see the Formal Eligibility Gate quarantined column.')
     } catch (exc) {
       setError(`${exc.name}: ${exc.message}`)
     }
@@ -149,7 +150,7 @@ function ExampleCard({ example }) {
           <button type="button" className="btn btn-ghost btn-small" onClick={() => setModule('ledger')}>open ledger →</button>
         )}
         {(example.action === 'gate') && (
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => setModule('gate')}>open proof gate →</button>
+          <button type="button" className="btn btn-ghost btn-small" onClick={() => setModule('gate')}>open formal gate →</button>
         )}
       </div>
       {showSource && <pre className="json" style={{ marginTop: 8 }} aria-label={`${example.title} DSL source`}>{example.source}</pre>}
