@@ -11,69 +11,71 @@ import {
 import { BUNDLED_THEORY_PACKAGES } from '../../src/theory/packages.js'
 
 const langarian = BUNDLED_THEORY_PACKAGES.find((item) => item.theory.id === 'langarian-finite-complex')!
-const saasy = BUNDLED_THEORY_PACKAGES.find((item) => item.theory.id === 'saasy-reduced-hamiltonian')!
+const generic = BUNDLED_THEORY_PACKAGES.find((item) => item.theory.id === 'generic-provenance-workflow')!
 
 describe('readiness profile', () => {
-  it('keeps maturity multidimensional instead of hiding semantic gaps behind executable code', () => {
+  it('keeps operational contracts separate from unresolved interpretation semantics', () => {
     const profile = buildReadinessProfile(langarian)
     const execution = profile.axes.find((axis) => axis.id === 'execution')!
     const formalization = profile.axes.find((axis) => axis.id === 'formalization')!
-    expect(execution.percent).toBeGreaterThan(0)
+    expect(execution.percent).toBe(100)
+    expect(formalization.criteria.find((item) => item.id === 'contracts-resolved')?.passed).toBe(true)
     expect(formalization.criteria.find((item) => item.id === 'operators-resolved')?.passed).toBe(false)
-    expect(profile.warnings.some((warning) => warning.includes('Code exists'))).toBe(true)
+    expect(profile.warnings.some((warning) => warning.includes('interpretation semantics'))).toBe(true)
   })
 
-  it('shows why a formal documentary package cannot execute yet', () => {
-    const profile = buildReadinessProfile(saasy)
+  it('shows why a formal package cannot execute yet even with complete contracts', () => {
+    const profile = buildReadinessProfile(generic)
+    const formalization = profile.axes.find((axis) => axis.id === 'formalization')!
     const execution = profile.axes.find((axis) => axis.id === 'execution')!
+    expect(formalization.criteria.find((item) => item.id === 'contracts-resolved')?.passed).toBe(true)
     expect(execution.criteria.find((item) => item.id === 'package-executable')?.passed).toBe(false)
     expect(execution.criteria.find((item) => item.id === 'reference-present')?.passed).toBe(false)
-    expect(profile.blockers.length).toBeGreaterThan(0)
   })
 })
 
 describe('dependency recovery', () => {
-  it('builds only manifest-supported object/operator edges and reports missing semantic links', () => {
-    const graph = buildDependencyGraph(saasy)
-    expect(graph.edges).toContainEqual({ from: 'object:parent-system', to: 'operator:reduce', relation: 'input-to' })
-    expect(graph.edges).toContainEqual({ from: 'operator:reduce', to: 'object:reduced-system', relation: 'outputs' })
-    expect(graph.open_linkages.some((item) => item.includes('assumption usage'))).toBe(true)
-    expect(graph.open_linkages.some((item) => item.includes('invariant'))).toBe(true)
+  it('builds assumption, invariant, predicate, and failure edges from contracts', () => {
+    const graph = buildDependencyGraph(generic)
+    expect(graph.edges).toContainEqual({ from: 'object:claim', to: 'operator:attach-source', relation: 'input-to' })
+    expect(graph.edges).toContainEqual({ from: 'assumption:a1', to: 'operator:attach-source', relation: 'uses-assumption' })
+    expect(graph.edges).toContainEqual({ from: 'operator:attach-source', to: 'invariant:i1', relation: 'checks-invariant' })
+    expect(graph.edges).toContainEqual({ from: 'operator:attach-source', to: 'predicate:attach-source:ancestry-preserved', relation: 'checks-predicate' })
+    expect(graph.edges).toContainEqual({ from: 'operator:attach-source', to: 'failure:attach-source:ancestry-loss', relation: 'fails-on' })
+    expect(graph.open_linkages).toEqual([])
   })
 })
 
 describe('portable audit artifacts', () => {
-  it('exports the complete H0-H6 packet without promoting candidates', () => {
-    const packet = buildAuditPacketMarkdown(saasy)
-    for (const heading of ['H0 — Scope and Evidence Freeze', 'H1 — Observable Object Inventory', 'H2 — Operation Catalog', 'H3 — Current Receipt Schema Specimen', 'H4 — Authority Map', 'H5 — Ambiguity Register', 'H6 — App-to-Concept Map']) {
+  it('exports H0-H6 plus exact execution contracts and first falsifiers', () => {
+    const packet = buildAuditPacketMarkdown(generic)
+    for (const heading of ['H0 — Scope and Evidence Freeze', 'H1 — Observable Object Inventory', 'H2 — Operation Catalog', 'Per-operator execution contracts', 'H3 — Current Receipt Schema Specimen', 'H4 — Authority Map', 'H5 — Ambiguity Register', 'H6 — App-to-Concept Map']) {
       expect(packet).toContain(heading)
     }
-    expect(packet).toContain('THEORY MAP OPEN')
-    expect(packet).toContain('Generated from the package manifest')
+    expect(packet).toContain('First Falsifiers')
+    expect(packet).toContain('ancestry-preserved')
   })
 
-  it('generates non-executing Python and TypeScript scaffolds', () => {
-    const python = buildPythonScaffold(saasy)
-    const typescript = buildTypeScriptScaffold(saasy)
+  it('generates non-executing scaffolds carrying contract obligations', () => {
+    const python = buildPythonScaffold(generic)
+    const typescript = buildTypeScriptScaffold(generic)
     expect(python).toContain('raise NotImplementedError')
-    expect(python).toContain('must not emit PASS')
+    expect(python).toContain('First falsifier')
+    expect(python).toContain('operator-contract:v0.2')
     expect(typescript).toContain("throw new Error('THEORY_MAP_OPEN")
-    expect(typescript).toContain('Planning scaffold only')
+    expect(typescript).toContain('Predicates: ancestry-preserved')
   })
 })
 
 describe('planning receipts', () => {
-  it('records intended work as NOT_RUN rather than simulated execution', () => {
-    const receipt = buildPlanningReceipt(saasy, 'reduce', '1970-01-01T00:00:00Z')
+  it('records intended work and every contract predicate as NOT_RUN', () => {
+    const receipt = buildPlanningReceipt(generic, 'attach-source', '1970-01-01T00:00:00Z')
     expect(receipt.status).toBe('NOT_RUN')
     expect(receipt.outputs).toEqual([])
     expect(receipt.claims_supported).toEqual([])
-    expect(receipt.checks).toEqual([
-      {
-        predicate_id: 'execution-not-performed',
-        status: 'NOT_RUN',
-        expected: 'A package-specific implementation and reviewed execution contract.',
-      },
-    ])
+    expect(receipt.operator_contract.assumption_ids).toEqual(['a1', 'a2'])
+    expect(receipt.operator_contract.predicate_ids).toEqual(['ancestry-preserved', 'source-attached-once'])
+    expect(receipt.checks.map((item) => item.predicate_id)).toEqual(['execution-not-performed', 'ancestry-preserved', 'source-attached-once'])
+    expect(receipt.checks.every((item) => item.status === 'NOT_RUN')).toBe(true)
   })
 })
