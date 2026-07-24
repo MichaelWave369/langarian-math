@@ -1,0 +1,60 @@
+.promotion-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.13), rgba(8, 145, 178, 0.07));
+}
+
+.promotion-hero h2 { margin: 10px 0 8px; font-size: clamp(24px, 3vw, 40px); }
+.promotion-hero p { line-height: 1.65; }
+.promotion-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+.promotion-gates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.promotion-gate {
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 6px 10px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.22);
+}
+
+.promotion-gate > span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-family: var(--mono);
+  border: 1px solid currentColor;
+}
+
+.promotion-gate > strong { align-self: center; }
+.promotion-gate > b { grid-column: 1 / -1; align-self: end; font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; }
+.promotion-gate-pass { border-color: rgba(52, 211, 153, 0.7); }
+.promotion-gate-warn { border-color: rgba(251, 191, 36, 0.7); }
+.promotion-blockers { margin: 0; padding-left: 22px; }
+.promotion-blockers li { margin: 8px 0; line-height: 1.45; }
+.promotion-break { overflow-wrap: anywhere; }
+.promotion-table-wrap { overflow-x: auto; }
+.promotion-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.promotion-table th, .promotion-table td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.promotion-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.promotion-json { max-height: 440px; overflow: auto; }
+
+@media (max-width: 900px) {
+  .promotion-hero, .promotion-grid, .promotion-gates { grid-template-columns: 1fr; }
+}
