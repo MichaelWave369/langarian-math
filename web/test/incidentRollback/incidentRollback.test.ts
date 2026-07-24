@@ -1,7 +1,7 @@
-import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   emptyAuthorityBundle,
@@ -199,6 +199,22 @@ function writeJson(path: string, value: unknown) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8')
 }
 
+async function runMaterializer(args: string[]): Promise<void> {
+  const originalArgv = process.argv
+  const originalExitCode = process.exitCode
+  const script = resolve('web/scripts/materialize-governed-rollback.mjs')
+  process.argv = [originalArgv[0] ?? 'node', script, ...args]
+  process.exitCode = undefined
+  try {
+    const moduleUrl = `${pathToFileURL(script).href}?test=${Date.now()}-${Math.random()}`
+    await import(/* @vite-ignore */ moduleUrl)
+    if (process.exitCode !== undefined && process.exitCode !== 0) throw new Error(`Materializer set exit code ${process.exitCode}.`)
+  } finally {
+    process.argv = originalArgv
+    process.exitCode = originalExitCode
+  }
+}
+
 describe('governed rollback incident response', () => {
   it('earns a controlled-writer handoff with independent incident, containment, quorum, and release custody', async () => {
     const value = await fixture()
@@ -213,13 +229,12 @@ describe('governed rollback incident response', () => {
     writeJson(join(directory, 'request.json'), value.request)
     writeJson(join(directory, 'live.json'), value.current)
     writeJson(join(directory, 'restore.json'), value.restore)
-    execFileSync(process.execPath, [
-      resolve('scripts/materialize-governed-rollback.mjs'),
+    await runMaterializer([
       '--request', join(directory, 'request.json'),
       '--live-manifest', join(directory, 'live.json'),
       '--restore-manifest', join(directory, 'restore.json'),
       '--out-dir', join(directory, 'out'),
-    ], { cwd: resolve('web'), stdio: 'pipe' })
+    ])
     const handoff = JSON.parse(readFileSync(join(directory, 'out', 'rollback-handoff.json'), 'utf8'))
     expect(handoff.status).toBe('READY_FOR_CONTROLLED_WRITER_VALIDATION')
     expect(handoff.release_receipt_id).toBe(value.request.release_archive.release_bundle.receipt.receipt_id)
