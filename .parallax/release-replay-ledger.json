@@ -1,0 +1,8 @@
+{
+  "schema_version": "repository-replay-ledger:v0.1",
+  "entries": [],
+  "metadata": {
+    "append_only": true,
+    "purpose": "Prevent one signed package-release transition from being applied more than once through the controlled repository writer."
+  }
+}
