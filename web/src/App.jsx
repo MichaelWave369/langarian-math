@@ -3,9 +3,9 @@
  *
  * Layout: theory-package intake, independent theory audit, contract
  * conformance, signed evidence custody, custody-aware promotion admission,
- * promotion authority and mandate governance, executable workbench modules,
- * and a persistent epistemic strip. Documentary packages cannot silently use
- * the wrong kernel.
+ * promotion authority and mandate governance, controlled release governance,
+ * executable workbench modules, and a persistent epistemic strip. Documentary
+ * packages cannot silently use the wrong kernel.
  */
 
 import EpistemicStrip from './ui/EpistemicStrip.jsx'
@@ -16,6 +16,7 @@ import ContractConformance from './ui/modules/ContractConformance.jsx'
 import EvidenceCustody from './ui/modules/EvidenceCustody.jsx'
 import PromotionGovernance from './ui/modules/PromotionGovernance.jsx'
 import PromotionAuthority from './ui/modules/PromotionAuthority.jsx'
+import ReleaseGovernance from './ui/modules/ReleaseGovernance.jsx'
 import StateBuilder from './ui/modules/StateBuilder.jsx'
 import OperatorLab from './ui/modules/OperatorLab.jsx'
 import ProgramBuilder from './ui/modules/ProgramBuilder.jsx'
@@ -33,6 +34,7 @@ const MODULE_COMPONENTS = {
   custody: EvidenceCustody,
   promotion: PromotionGovernance,
   authority: PromotionAuthority,
+  release: ReleaseGovernance,
   state: StateBuilder,
   operators: OperatorLab,
   program: ProgramBuilder,
@@ -101,6 +103,7 @@ const PLAIN_BY_MODULE = {
   custody: 'Bind evidence to canonical hashes, signer identities, signatures, revocation records, supersession links, and CI provenance. Integrity and origin are not mathematical or empirical truth.',
   promotion: 'Admit only active, correctly scoped, lifecycle-clean evidence for one exact package and assessment. Eligibility permits a later governance review; it does not change package maturity.',
   authority: 'Define who may decide, under which signed mandate, role, scope, time window, quorum, and independence requirements. Decisions, appeals, renewals, and rollbacks remain append-only and never silently edit a package.',
+  release: 'Materialize one exact, restricted before-to-after manifest patch from an operative signed decision. Release custody authorizes an artifact for a separate write; it never claims the repository was already changed.',
   state: 'Build a finite list of complex numbers for the executable Langarian package. You get its dimension, norm, representative phase, and deterministic fingerprint.',
   operators: 'Apply one of the checked Langarian transformations. Every run writes a package-specific receipt describing what was checked.',
   program: 'Write a short program in the Langarian package language and run it step by step with receipts.',
