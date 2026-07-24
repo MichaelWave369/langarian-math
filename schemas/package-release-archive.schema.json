@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/package-release-archive.schema.json",
+  "title": "Parallax Controlled Package Release Archive v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "archive_schema_version",
+    "signed_authority_decision",
+    "authority_bundle",
+    "release_bundle",
+    "metadata"
+  ],
+  "properties": {
+    "archive_schema_version": { "const": "package-release-archive:v0.1" },
+    "signed_authority_decision": { "type": "object" },
+    "authority_bundle": { "type": "object" },
+    "release_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_schema_version", "before_manifest", "after_manifest", "proposal", "receipt", "metadata"],
+      "properties": {
+        "bundle_schema_version": { "const": "package-release-bundle:v0.1" },
+        "before_manifest": { "type": "object" },
+        "after_manifest": { "type": "object" },
+        "proposal": { "$ref": "#/$defs/proposal" },
+        "receipt": { "$ref": "#/$defs/receipt" },
+        "metadata": { "type": "object" }
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "authorityId": {
+      "type": "string",
+      "pattern": "^authority:[0-9a-f]{64}$"
+    },
+    "patchOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "path", "value"],
+      "properties": {
+        "op": { "enum": ["add", "replace"] },
+        "path": {
+          "enum": [
+            "/theory/version",
+            "/maturity_level",
+            "/metadata/release_governance"
+          ]
+        },
+        "value": true
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "patch_schema_version",
+        "proposal_id",
+        "action",
+        "authority_decision_id",
+        "package_id",
+        "before_version",
+        "target_version",
+        "before_manifest_hash",
+        "after_manifest_hash",
+        "patch_digest",
+        "patch",
+        "release_authority_id",
+        "issued_at_utc",
+        "expires_at_utc",
+        "metadata",
+        "signature"
+      ],
+      "properties": {
+        "schema_version": { "const": "package-release-proposal:v0.1" },
+        "patch_schema_version": { "const": "package-manifest-patch:v0.1" },
+        "proposal_id": { "type": "string", "pattern": "^release-proposal:[0-9a-f]{64}$" },
+        "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+        "authority_decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+        "package_id": { "type": "string", "minLength": 1 },
+        "before_version": { "type": "string", "minLength": 1 },
+        "target_version": { "type": "string", "minLength": 1 },
+        "before_manifest_hash": { "$ref": "#/$defs/digest" },
+        "after_manifest_hash": { "$ref": "#/$defs/digest" },
+        "patch_digest": { "$ref": "#/$defs/digest" },
+        "patch": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/patchOperation" }
+        },
+        "release_authority_id": { "$ref": "#/$defs/authorityId" },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "expires_at_utc": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" },
+        "signature": { "type": "string", "minLength": 1 }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "receipt_id",
+        "receipt_type",
+        "action",
+        "proposal_id",
+        "authority_decision_id",
+        "package",
+        "integrity",
+        "release_authority_id",
+        "status",
+        "blockers",
+        "warnings",
+        "repository_commit_status",
+        "issued_at_utc",
+        "claims_supported",
+        "prohibited_inferences",
+        "signature"
+      ],
+      "properties": {
+        "schema_version": { "const": "package-release-receipt:v0.1" },
+        "receipt_id": { "type": "string", "pattern": "^release-receipt:[0-9a-f]{64}$" },
+        "receipt_type": { "const": "controlled-release-authorization-not-repository-commit" },
+        "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+        "proposal_id": { "type": "string", "pattern": "^release-proposal:[0-9a-f]{64}$" },
+        "authority_decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+        "package": {
+          "type": "object",
+          "required": ["id", "before_version", "target_version", "before_maturity_level", "target_maturity_level"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "before_version": { "type": "string", "minLength": 1 },
+            "target_version": { "type": "string", "minLength": 1 },
+            "before_maturity_level": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "target_maturity_level": { "type": "integer", "minimum": 1, "maximum": 5 }
+          }
+        },
+        "integrity": {
+          "type": "object",
+          "required": ["before_manifest_hash", "after_manifest_hash", "patch_digest", "replay_key"],
+          "properties": {
+            "before_manifest_hash": { "$ref": "#/$defs/digest" },
+            "after_manifest_hash": { "$ref": "#/$defs/digest" },
+            "patch_digest": { "$ref": "#/$defs/digest" },
+            "replay_key": { "$ref": "#/$defs/digest" }
+          }
+        },
+        "release_authority_id": { "$ref": "#/$defs/authorityId" },
+        "status": { "enum": ["AUTHORIZED_NOT_COMMITTED", "BLOCKED"] },
+        "blockers": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "repository_commit_status": { "const": "NOT_COMMITTED" },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "claims_supported": { "type": "array", "items": { "type": "string" } },
+        "prohibited_inferences": { "type": "array", "items": { "type": "string" } },
+        "signature": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
