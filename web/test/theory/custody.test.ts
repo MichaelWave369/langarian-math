@@ -11,9 +11,9 @@ import {
   sha256EvidenceDigest,
   signEvidenceSubject,
   validateCustodyBundle,
-  verifyCustodyBundle,
   type EvidenceCustodyBundle,
 } from '../../src/theory/custody.js'
+import { verifyGovernedCustodyBundle } from '../../src/theory/custodyPolicy.js'
 import { BUNDLED_THEORY_PACKAGES } from '../../src/theory/packages.js'
 
 const langarian = BUNDLED_THEORY_PACKAGES.find((item) => item.theory.id === 'langarian-finite-complex')!
@@ -53,9 +53,10 @@ describe('Ed25519 evidence custody', () => {
     const bundle = bundleWithSigner(signer.identity)
     bundle.envelopes.push(envelope)
 
-    const profile = await verifyCustodyBundle(bundle, subjects)
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
     expect(profile.bundle_valid).toBe(true)
     expect(profile.custody_ready).toBe(true)
+    expect(profile.signer_results[0]?.fingerprint_valid).toBe(true)
     expect(profile.active_envelopes).toHaveLength(1)
     expect(profile.active_envelopes[0]).toMatchObject({
       evidence_id: envelope.evidence_id,
@@ -74,7 +75,7 @@ describe('Ed25519 evidence custody', () => {
     const alteredSuite = structuredClone(suite)
     alteredSuite.metadata.tampered = true
 
-    const profile = await verifyCustodyBundle(bundle, { [locator]: alteredSuite })
+    const profile = await verifyGovernedCustodyBundle(bundle, { [locator]: alteredSuite })
     expect(profile.custody_ready).toBe(false)
     expect(profile.envelope_results[0]?.digest_valid).toBe(false)
     expect(profile.envelope_results[0]?.issues.some((item) => item.code === 'SUBJECT_DIGEST_MISMATCH')).toBe(true)
@@ -90,13 +91,13 @@ describe('Ed25519 evidence custody', () => {
     const bundle = bundleWithSigner(signer.identity)
     bundle.envelopes.push(first, second)
 
-    const profile = await verifyCustodyBundle(bundle, subjects)
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
     expect(profile.active_envelopes.map((item) => item.evidence_id)).toEqual([second.evidence_id])
     expect(profile.envelope_results.find((item) => item.evidence_id === first.evidence_id)?.superseded).toBe(true)
     expect(profile.envelope_results.find((item) => item.evidence_id === second.evidence_id)?.accepted).toBe(true)
   })
 
-  it('honors a valid signed revocation', async () => {
+  it('honors a valid signed self-revocation', async () => {
     const signer = await generateLocalSigner('Revocation test', [], '2026-07-23T00:00:00Z')
     const envelope = await signEvidenceSubject(suite, 'contract-conformance-suite', locator, signer, { signed_at_utc: '2026-07-23T00:01:00Z' })
     const revocation = await revokeEvidence(envelope.evidence_id, signer, 'Fixture withdrawn.', { issued_at_utc: '2026-07-23T00:02:00Z' })
@@ -104,10 +105,26 @@ describe('Ed25519 evidence custody', () => {
     bundle.envelopes.push(envelope)
     bundle.revocations.push(revocation)
 
-    const profile = await verifyCustodyBundle(bundle, subjects)
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
     expect(profile.custody_ready).toBe(false)
     expect(profile.revocation_results[0]?.accepted).toBe(true)
     expect(profile.envelope_results[0]).toMatchObject({ revoked: true, accepted: false })
+  })
+
+  it('rejects a revocation signed by an unrelated authority without scope', async () => {
+    const issuer = await generateLocalSigner('Issuer', [], '2026-07-23T00:00:00Z')
+    const outsider = await generateLocalSigner('Outsider', [], '2026-07-23T00:00:00Z')
+    const envelope = await signEvidenceSubject(suite, 'contract-conformance-suite', locator, issuer, { signed_at_utc: '2026-07-23T00:01:00Z' })
+    const revocation = await revokeEvidence(envelope.evidence_id, outsider, 'Unauthorized withdrawal.', { issued_at_utc: '2026-07-23T00:02:00Z' })
+    const bundle = bundleWithSigner(issuer.identity)
+    bundle.signers.push(outsider.identity)
+    bundle.envelopes.push(envelope)
+    bundle.revocations.push(revocation)
+
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
+    expect(profile.revocation_results[0]?.accepted).toBe(false)
+    expect(profile.revocation_results[0]?.issues.some((item) => item.code === 'REVOCATION_NOT_AUTHORIZED')).toBe(true)
+    expect(profile.envelope_results[0]?.accepted).toBe(true)
   })
 
   it('rejects evidence from a signer marked revoked', async () => {
@@ -117,10 +134,24 @@ describe('Ed25519 evidence custody', () => {
     const bundle = bundleWithSigner(inactiveIdentity)
     bundle.envelopes.push(envelope)
 
-    const profile = await verifyCustodyBundle(bundle, subjects)
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
     expect(profile.custody_ready).toBe(false)
     expect(profile.envelope_results[0]?.signer_active).toBe(false)
-    expect(profile.envelope_results[0]?.issues.some((item) => item.code === 'INACTIVE_SIGNER')).toBe(true)
+    expect(profile.envelope_results[0]?.issues.some((item) => item.code === 'SIGNER_IDENTITY_REJECTED')).toBe(true)
+  })
+
+  it('rejects a signer id detached from its public-key fingerprint', async () => {
+    const signer = await generateLocalSigner('Fingerprint test', [], '2026-07-23T00:00:00Z')
+    const envelope = await signEvidenceSubject(suite, 'contract-conformance-suite', locator, signer, { signed_at_utc: '2026-07-23T00:01:00Z' })
+    const detachedIdentity = { ...signer.identity, id: `signer:${'0'.repeat(64)}` }
+    const detachedEnvelope = { ...envelope, signer_id: detachedIdentity.id }
+    const bundle = bundleWithSigner(detachedIdentity)
+    bundle.envelopes.push(detachedEnvelope)
+
+    const profile = await verifyGovernedCustodyBundle(bundle, subjects)
+    expect(profile.custody_ready).toBe(false)
+    expect(profile.signer_results[0]?.fingerprint_valid).toBe(false)
+    expect(profile.signer_results[0]?.issues.some((item) => item.code === 'SIGNER_FINGERPRINT_MISMATCH')).toBe(true)
   })
 })
 
