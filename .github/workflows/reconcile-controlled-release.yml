@@ -1,0 +1,266 @@
+name: reconcile-controlled-release
+
+on:
+  pull_request_target:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Merged controlled-release pull request number
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release-reconciliation-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'controlled-release/'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out trusted reconciliation code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Resolve merged application pull request
+        id: resolve
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_PR: ${{ github.event.pull_request.number || inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/reconcile/input /tmp/reconcile/output
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$REQUESTED_PR" > /tmp/reconcile/input/pr-api.json
+          jq -e '.merged == true' /tmp/reconcile/input/pr-api.json >/dev/null
+          BASE_REF="$(jq -r '.base.ref' /tmp/reconcile/input/pr-api.json)"
+          HEAD_REF="$(jq -r '.head.ref' /tmp/reconcile/input/pr-api.json)"
+          HEAD_SHA="$(jq -r '.head.sha' /tmp/reconcile/input/pr-api.json)"
+          MERGE_SHA="$(jq -r '.merge_commit_sha' /tmp/reconcile/input/pr-api.json)"
+          test "$BASE_REF" = "main"
+          [[ "$HEAD_REF" == controlled-release/* ]]
+          git fetch --no-tags origin "pull/$REQUESTED_PR/head:refs/remotes/origin/application-$REQUESTED_PR"
+          git fetch --no-tags origin main
+          test "$(git rev-parse refs/remotes/origin/application-$REQUESTED_PR)" = "$HEAD_SHA"
+          git cat-file -e "$MERGE_SHA^{commit}"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$REQUESTED_PR/files?per_page=100" --jq '.[].filename' | jq -R -s 'split("\n") | map(select(length > 0))' > /tmp/reconcile/input/changed-paths.json
+          RECEIPT_PATH="$(jq -r '.[] | select(startswith("artifacts/repository-applications/") and endswith(".json"))' /tmp/reconcile/input/changed-paths.json)"
+          test -n "$RECEIPT_PATH"
+          test "$(jq '[.[] | select(startswith("artifacts/repository-applications/") and endswith(".json"))] | length' /tmp/reconcile/input/changed-paths.json)" = "1"
+          git show "$HEAD_SHA:$RECEIPT_PATH" > /tmp/reconcile/input/application-receipt.json
+          TARGET_PATH="$(jq -r '.target_path' /tmp/reconcile/input/application-receipt.json)"
+          BASE_COMMIT="$(jq -r '.base_commit' /tmp/reconcile/input/application-receipt.json)"
+          MUTATION_COMMIT="$(jq -r '.mutation_commit' /tmp/reconcile/input/application-receipt.json)"
+          git fetch --no-tags origin "$BASE_COMMIT" || true
+          git cat-file -e "$BASE_COMMIT^{commit}"
+          git cat-file -e "$MUTATION_COMMIT^{commit}"
+          git show "$BASE_COMMIT:$TARGET_PATH" > /tmp/reconcile/input/base-manifest.json
+          git show "$HEAD_SHA:$TARGET_PATH" > /tmp/reconcile/input/head-manifest.json
+          git show "$MERGE_SHA:$TARGET_PATH" > /tmp/reconcile/input/merged-manifest.json
+          git show "$HEAD_SHA:.parallax/release-replay-ledger.json" > /tmp/reconcile/input/head-replay-ledger.json
+          git show "$MERGE_SHA:.parallax/release-replay-ledger.json" > /tmp/reconcile/input/merged-replay-ledger.json
+          git show "$BASE_COMMIT:.parallax/release-replay-ledger.json" > /tmp/reconcile/input/pre-application-replay-ledger.json
+          git show "$BASE_COMMIT:.parallax/repository-writer-policy.json" > /tmp/reconcile/input/writer-policy.json
+          cp .parallax/repository-reconciliation-policy.json /tmp/reconcile/input/reconciliation-policy.json
+          cp .parallax/release-merge-ledger.json /tmp/reconcile/input/merge-ledger.json
+          jq -n \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --argjson pr_number "$REQUESTED_PR" \
+            --arg pr_url "$(jq -r '.html_url' /tmp/reconcile/input/pr-api.json)" \
+            --arg base_ref "$BASE_REF" \
+            --arg head_ref "$HEAD_REF" \
+            --arg head_commit "$HEAD_SHA" \
+            --arg merge_commit "$MERGE_SHA" \
+            --arg merged_at_utc "$(jq -r '.merged_at' /tmp/reconcile/input/pr-api.json)" \
+            --arg merged_by "$(jq -r '.merged_by.login' /tmp/reconcile/input/pr-api.json)" \
+            '{repository:$repository,pr_number:$pr_number,pr_url:$pr_url,base_ref:$base_ref,head_ref:$head_ref,head_commit:$head_commit,merge_commit:$merge_commit,merged_at_utc:$merged_at_utc,merged_by:$merged_by}' \
+            > /tmp/reconcile/input/pr-metadata-base.json
+          echo "pr_number=$REQUESTED_PR" >> "$GITHUB_OUTPUT"
+          echo "receipt_path=$RECEIPT_PATH" >> "$GITHUB_OUTPUT"
+          echo "target_path=$TARGET_PATH" >> "$GITHUB_OUTPUT"
+          echo "base_commit=$BASE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "mutation_commit=$MUTATION_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "merge_sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Download and verify application provenance
+        id: provenance
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="$(jq -r '.workflow_identity.workflow_run_id' /tmp/reconcile/input/application-receipt.json)"
+          ARTIFACT_NAME="controlled-release-application-$RUN_ID"
+          ARTIFACT_ID="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" --jq ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .id")"
+          test -n "$ARTIFACT_ID"
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > /tmp/reconcile/application-artifact.zip
+          mkdir -p /tmp/reconcile/artifact-download /tmp/reconcile/artifact
+          unzip -q /tmp/reconcile/application-artifact.zip -d /tmp/reconcile/artifact-download
+          APPLICATION_TAR="$(find /tmp/reconcile/artifact-download -type f -name 'controlled-release-application-*.tar.gz' -print -quit)"
+          test -n "$APPLICATION_TAR"
+          gh attestation verify "$APPLICATION_TAR" --repo "$GITHUB_REPOSITORY" > /tmp/reconcile/input/application-attestation-verification.txt
+          tar -xzf "$APPLICATION_TAR" -C /tmp/reconcile/artifact
+          test -f /tmp/reconcile/artifact/application-attestation/application-bundle.json
+          cp /tmp/reconcile/artifact/application-attestation/application-bundle.json /tmp/reconcile/input/application-bundle.json
+          cp /tmp/reconcile/artifact/application-attestation/release-archive.json /tmp/reconcile/input/release-archive.json
+          cp /tmp/reconcile/artifact/application-attestation/writer-plan.json /tmp/reconcile/input/attested-writer-plan.json
+          cmp /tmp/reconcile/input/application-receipt.json /tmp/reconcile/artifact/application-attestation/application-receipt.json
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Re-verify original signed release chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVALUATED_AT="$(jq -r '.evaluated_at_utc' /tmp/reconcile/input/attested-writer-plan.json)"
+          EXPECTED_RECEIPT="$(jq -r '.release_receipt_id' /tmp/reconcile/input/application-receipt.json)"
+          node web/scripts/controlled-repository-writer.mjs plan \
+            --archive /tmp/reconcile/input/release-archive.json \
+            --live-manifest /tmp/reconcile/input/base-manifest.json \
+            --policy /tmp/reconcile/input/writer-policy.json \
+            --ledger /tmp/reconcile/input/pre-application-replay-ledger.json \
+            --target-path "${{ steps.resolve.outputs.target_path }}" \
+            --expected-receipt-id "$EXPECTED_RECEIPT" \
+            --now "$EVALUATED_AT" \
+            --out-dir /tmp/reconcile/reverified
+          jq -S -c . /tmp/reconcile/reverified/writer-plan.json > /tmp/reconcile/reverified-plan.canonical
+          jq -S -c . /tmp/reconcile/input/attested-writer-plan.json > /tmp/reconcile/attested-plan.canonical
+          cmp /tmp/reconcile/reverified-plan.canonical /tmp/reconcile/attested-plan.canonical
+
+      - name: Verify ancestry and governed merge tree
+        id: topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          HEAD_SHA="${{ steps.resolve.outputs.head_sha }}"
+          MERGE_SHA="${{ steps.resolve.outputs.merge_sha }}"
+          BASE_COMMIT="${{ steps.resolve.outputs.base_commit }}"
+          MUTATION_COMMIT="${{ steps.resolve.outputs.mutation_commit }}"
+          git merge-base --is-ancestor "$MUTATION_COMMIT" "$HEAD_SHA"
+          git merge-base --is-ancestor "$BASE_COMMIT" "$HEAD_SHA"
+          cmp /tmp/reconcile/input/head-manifest.json /tmp/reconcile/input/merged-manifest.json
+          cmp /tmp/reconcile/input/head-replay-ledger.json /tmp/reconcile/input/merged-replay-ledger.json
+          git show "$MERGE_SHA:${{ steps.resolve.outputs.receipt_path }}" > /tmp/reconcile/input/merged-application-receipt.json
+          cmp /tmp/reconcile/input/application-receipt.json /tmp/reconcile/input/merged-application-receipt.json
+          if git merge-base --is-ancestor "$HEAD_SHA" "$MERGE_SHA"; then
+            TOPOLOGY="HEAD_ANCESTOR_OF_MERGE"
+          else
+            TOPOLOGY="TREE_EQUIVALENT_SQUASH_OR_REBASE"
+          fi
+          jq \
+            --arg merge_topology "$TOPOLOGY" \
+            '. + {mutation_commit_reachable:true,base_commit_reachable:true,merge_tree_matches_head:true,release_chain_reverified:true,application_attestation_verified:true,merge_topology:$merge_topology}' \
+            /tmp/reconcile/input/pr-metadata-base.json > /tmp/reconcile/input/pr-metadata.json
+          echo "merge_topology=$TOPOLOGY" >> "$GITHUB_OUTPUT"
+
+      - name: Emit merge observation and rollback anchor
+        id: observe
+        shell: bash
+        run: |
+          set -euo pipefail
+          node web/scripts/reconcile-controlled-release.mjs \
+            --policy /tmp/reconcile/input/reconciliation-policy.json \
+            --pr-metadata /tmp/reconcile/input/pr-metadata.json \
+            --application-receipt /tmp/reconcile/input/application-receipt.json \
+            --application-receipt-path "${{ steps.resolve.outputs.receipt_path }}" \
+            --application-bundle /tmp/reconcile/input/application-bundle.json \
+            --base-manifest /tmp/reconcile/input/base-manifest.json \
+            --head-manifest /tmp/reconcile/input/head-manifest.json \
+            --merged-manifest /tmp/reconcile/input/merged-manifest.json \
+            --head-replay-ledger /tmp/reconcile/input/head-replay-ledger.json \
+            --merged-replay-ledger /tmp/reconcile/input/merged-replay-ledger.json \
+            --merge-ledger /tmp/reconcile/input/merge-ledger.json \
+            --changed-paths /tmp/reconcile/input/changed-paths.json \
+            --out-dir /tmp/reconcile/output
+          OBSERVATION_ID="$(jq -r '.observation_id' /tmp/reconcile/output/merge-observation.json)"
+          OBSERVATION_PREFIX="${OBSERVATION_ID#merge-observation:}"
+          OBSERVATION_PREFIX="${OBSERVATION_PREFIX:0:16}"
+          ANCHOR_ID="$(jq -r '.rollback_anchor_id' /tmp/reconcile/output/rollback-anchor.json)"
+          ANCHOR_PREFIX="${ANCHOR_ID#rollback-anchor:}"
+          ANCHOR_PREFIX="${ANCHOR_PREFIX:0:16}"
+          echo "observation_id=$OBSERVATION_ID" >> "$GITHUB_OUTPUT"
+          echo "observation_prefix=$OBSERVATION_PREFIX" >> "$GITHUB_OUTPUT"
+          echo "anchor_id=$ANCHOR_ID" >> "$GITHUB_OUTPUT"
+          echo "anchor_prefix=$ANCHOR_PREFIX" >> "$GITHUB_OUTPUT"
+
+      - name: Create append-only reconciliation branch
+        id: record
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          BRANCH="release-reconciliation/pr-${{ steps.resolve.outputs.pr_number }}-${{ steps.observe.outputs.observation_prefix }}"
+          if git ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null 2>&1; then
+            echo "Reconciliation branch already exists: $BRANCH" >&2
+            exit 1
+          fi
+          git switch -c "$BRANCH" origin/main
+          OBSERVATION_PATH="artifacts/repository-merges/${{ steps.observe.outputs.observation_prefix }}.json"
+          ANCHOR_PATH="artifacts/rollback-anchors/${{ steps.observe.outputs.anchor_prefix }}.json"
+          mkdir -p "$(dirname "$OBSERVATION_PATH")" "$(dirname "$ANCHOR_PATH")"
+          cp /tmp/reconcile/output/merge-observation.json "$OBSERVATION_PATH"
+          cp /tmp/reconcile/output/rollback-anchor.json "$ANCHOR_PATH"
+          cp /tmp/reconcile/output/merge-ledger.json .parallax/release-merge-ledger.json
+          git config user.name "parallax-reconciliation[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$OBSERVATION_PATH" "$ANCHOR_PATH" .parallax/release-merge-ledger.json
+          git commit -m "Record controlled release merge ${{ steps.observe.outputs.observation_prefix }}"
+          git push --set-upstream origin "$BRANCH"
+          PR_URL="$(gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Record controlled release merge for PR #${{ steps.resolve.outputs.pr_number }}" \
+            --body "## Append-only merge reconciliation\n\n- Application PR: #${{ steps.resolve.outputs.pr_number }}\n- Merge observation: \`${{ steps.observe.outputs.observation_id }}\`\n- Rollback anchor: \`${{ steps.observe.outputs.anchor_id }}\`\n- Merge commit: \`${{ steps.resolve.outputs.merge_sha }}\`\n- Application provenance attestation verified.\n- Original signed release chain re-verified.\n- Original application receipt remains unchanged.\n\nThis pull request records the already-observed application merge. It does not authorize rollback or make any mathematical or empirical claim.")"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "record_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and attest post-merge provenance bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/reconciliation-attestation
+          cp /tmp/reconcile/output/merge-observation.json /tmp/reconciliation-attestation/
+          cp /tmp/reconcile/output/rollback-anchor.json /tmp/reconciliation-attestation/
+          cp /tmp/reconcile/output/reconciliation-bundle.json /tmp/reconciliation-attestation/
+          cp /tmp/reconcile/input/application-receipt.json /tmp/reconciliation-attestation/
+          cp /tmp/reconcile/input/pr-metadata.json /tmp/reconciliation-attestation/
+          cp /tmp/reconcile/input/application-attestation-verification.txt /tmp/reconciliation-attestation/
+          jq -n \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg application_pr "${{ steps.resolve.outputs.pr_number }}" \
+            --arg application_merge_commit "${{ steps.resolve.outputs.merge_sha }}" \
+            --arg reconciliation_branch "${{ steps.record.outputs.branch }}" \
+            --arg reconciliation_pr "${{ steps.record.outputs.pr_url }}" \
+            --arg reconciliation_record_commit "${{ steps.record.outputs.record_commit }}" \
+            --arg workflow_run_id "$GITHUB_RUN_ID" \
+            '{repository:$repository,application_pr:$application_pr,application_merge_commit:$application_merge_commit,reconciliation_branch:$reconciliation_branch,reconciliation_pr:$reconciliation_pr,reconciliation_record_commit:$reconciliation_record_commit,workflow_run_id:$workflow_run_id}' \
+            > /tmp/reconciliation-attestation/workflow-reconciliation.json
+          tar -C /tmp -czf "/tmp/release-reconciliation-${GITHUB_RUN_ID}.tar.gz" reconciliation-attestation
+
+      - name: Upload post-merge provenance bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-reconciliation-${{ github.run_id }}
+          path: /tmp/release-reconciliation-${{ github.run_id }}.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attest post-merge provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: /tmp/release-reconciliation-${{ github.run_id }}.tar.gz
