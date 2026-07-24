@@ -213,7 +213,7 @@ describe('governed rollback incident response', () => {
     writeJson(join(directory, 'request.json'), value.request)
     writeJson(join(directory, 'live.json'), value.current)
     writeJson(join(directory, 'restore.json'), value.restore)
-    execFileSync('node', [
+    execFileSync(process.execPath, [
       resolve('scripts/materialize-governed-rollback.mjs'),
       '--request', join(directory, 'request.json'),
       '--live-manifest', join(directory, 'live.json'),
@@ -239,4 +239,4 @@ describe('governed rollback incident response', () => {
     expect(tamperedProfile.status).toBe('BLOCKED')
     expect(tamperedProfile.restore_hash_valid).toBe(false)
   })
-})
+}
