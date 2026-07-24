@@ -1,0 +1,127 @@
+.reconcile-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.8fr);
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(31, 211, 170, 0.08), rgba(114, 151, 255, 0.06));
+}
+
+.reconcile-hero h2 {
+  margin: 10px 0 8px;
+}
+
+.reconcile-hero p {
+  max-width: 76ch;
+}
+
+.reconcile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.reconcile-gates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.reconcile-gates > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.reconcile-gates span {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+}
+
+.reconcile-gates b {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.reconcile-chain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.reconcile-chain > div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.reconcile-chain span,
+.reconcile-chain strong,
+.reconcile-chain small {
+  display: block;
+}
+
+.reconcile-chain span {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.reconcile-chain strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}
+
+.reconcile-chain small {
+  margin-top: 7px;
+  color: var(--muted);
+}
+
+.reconcile-break,
+.reconcile-json {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reconcile-json {
+  max-height: 560px;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .reconcile-hero,
+  .reconcile-grid,
+  .reconcile-gates {
+    grid-template-columns: 1fr;
+  }
+
+  .reconcile-chain {
+    grid-template-columns: 1fr;
+  }
+
+  .reconcile-chain > b {
+    transform: rotate(90deg);
+    justify-self: center;
+  }
+}

@@ -9,8 +9,9 @@
  * room; Promotion Governance is the custody-aware admission room; Promotion
  * Authority is the mandate, quorum, appeal, and rollback room; Release
  * Governance is the controlled manifest-artifact room; Repository Writer is
- * the review-branch application and commit-attestation room; executable
- * package routes continue through the validated kernel.
+ * the review-branch application and commit-attestation room; Merge
+ * Reconciliation is the post-merge observation and rollback-anchor room;
+ * executable package routes continue through the validated kernel.
  */
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
@@ -27,6 +28,7 @@ export const MODULES = [
   { id: 'authority', label: 'Promotion Authority', icon: '♜' },
   { id: 'release', label: 'Release Governance', icon: '⇆' },
   { id: 'writer', label: 'Repository Writer', icon: 'Git' },
+  { id: 'reconciliation', label: 'Merge Reconciliation', icon: '✓' },
   { id: 'state', label: 'State Builder', icon: 'z' },
   { id: 'operators', label: 'Operator Lab', icon: 'ƒ' },
   { id: 'program', label: 'Program Builder', icon: 'λ' },
@@ -144,7 +146,7 @@ export function WorkbenchProvider({ children }) {
     setStates([])
     setInspection(null)
     bumpLedger()
-    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, authority, release, and repository-writer tools remain available.')
+    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, authority, release, repository-writer, and merge-reconciliation tools remain available.')
   }, [bumpLedger])
 
   const value = useMemo(

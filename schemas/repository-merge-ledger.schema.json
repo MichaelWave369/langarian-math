@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/repository-merge-ledger.schema.json",
+  "title": "Repository Merge Ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "entries", "metadata"],
+  "properties": {
+    "schema_version": { "const": "repository-merge-ledger:v0.1" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observation_id",
+          "application_receipt_id",
+          "release_receipt_id",
+          "replay_key",
+          "package_id",
+          "action",
+          "target_path",
+          "application_pr_number",
+          "application_head_commit",
+          "mutation_commit",
+          "merge_commit",
+          "merged_at_utc",
+          "rollback_anchor_id",
+          "reconciliation_record_status"
+        ],
+        "properties": {
+          "observation_id": { "$ref": "#/$defs/id" },
+          "application_receipt_id": { "$ref": "#/$defs/id" },
+          "release_receipt_id": { "$ref": "#/$defs/id" },
+          "replay_key": { "$ref": "#/$defs/hash" },
+          "package_id": { "type": "string", "minLength": 1 },
+          "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+          "target_path": { "type": "string", "minLength": 1 },
+          "application_pr_number": { "type": "integer", "minimum": 1 },
+          "application_head_commit": { "$ref": "#/$defs/commit" },
+          "mutation_commit": { "$ref": "#/$defs/commit" },
+          "merge_commit": { "$ref": "#/$defs/commit" },
+          "merged_at_utc": { "type": "string", "format": "date-time" },
+          "rollback_anchor_id": { "$ref": "#/$defs/id" },
+          "reconciliation_record_status": { "const": "PENDING_RECONCILIATION_PR" }
+        }
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$" },
+    "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[0-9a-f]{64}$" }
+  }
+}
