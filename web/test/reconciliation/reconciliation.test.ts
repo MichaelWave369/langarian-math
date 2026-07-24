@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -21,7 +21,6 @@ async function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'langarian-reconcile-'))
   const input = join(root, 'input')
   const output = join(root, 'output')
-  const { mkdirSync } = await import('node:fs')
   mkdirSync(input, { recursive: true })
   mkdirSync(output, { recursive: true })
 
@@ -98,6 +97,7 @@ async function fixture() {
     repository: receipt.repository,
     pr_number: 88,
     pr_url: 'https://github.com/MichaelWave369/langarian-math/pull/88',
+    merged: true,
     base_ref: 'main',
     head_ref: receipt.application_branch,
     head_commit: 'c'.repeat(40),
