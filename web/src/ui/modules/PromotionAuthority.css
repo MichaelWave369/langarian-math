@@ -1,0 +1,131 @@
+.authority-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.authority-hero > div {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  background: linear-gradient(145deg, rgba(37, 99, 235, 0.10), rgba(15, 23, 42, 0.38));
+}
+
+.authority-hero h2 {
+  margin: 10px 0 8px;
+}
+
+.authority-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+}
+
+.authority-gates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.authority-gates > div {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.authority-gates span {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+}
+
+.authority-gates b {
+  font-family: var(--mono);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.authority-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+
+.authority-summary > div {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 3px;
+}
+
+.authority-summary strong {
+  font-size: 22px;
+}
+
+.authority-summary span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.authority-table-wrap {
+  overflow-x: auto;
+}
+
+.authority-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.authority-table th,
+.authority-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 9px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.authority-blockers {
+  margin: 0;
+  padding-left: 21px;
+}
+
+.authority-blockers li {
+  margin: 7px 0;
+}
+
+.authority-break,
+.authority-json {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.authority-json {
+  max-height: 480px;
+  overflow: auto;
+}
+
+@media (max-width: 920px) {
+  .authority-hero,
+  .authority-grid,
+  .authority-gates {
+    grid-template-columns: 1fr;
+  }
+
+  .authority-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
