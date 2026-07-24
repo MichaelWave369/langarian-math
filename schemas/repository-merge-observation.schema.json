@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/repository-merge-observation.schema.json",
+  "title": "Repository Merge Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "observation_type",
+    "status",
+    "repository",
+    "pull_request",
+    "application",
+    "integrity",
+    "rollback_anchor_id",
+    "reconciliation_record_status",
+    "observed_at_utc",
+    "claims_supported",
+    "prohibited_inferences",
+    "observation_id"
+  ],
+  "properties": {
+    "schema_version": { "const": "repository-merge-observation:v0.1" },
+    "observation_type": { "const": "append-only-merged-application-observation" },
+    "status": { "const": "MERGED" },
+    "repository": { "type": "string", "minLength": 3 },
+    "pull_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "url", "base_ref", "head_ref", "base_commit_at_application", "head_commit", "mutation_commit", "merge_commit", "merged_at_utc", "merged_by", "merge_topology"],
+      "properties": {
+        "number": { "type": "integer", "minimum": 1 },
+        "url": { "type": "string", "minLength": 1 },
+        "base_ref": { "type": "string", "minLength": 1 },
+        "head_ref": { "type": "string", "minLength": 1 },
+        "base_commit_at_application": { "$ref": "#/$defs/commit" },
+        "head_commit": { "$ref": "#/$defs/commit" },
+        "mutation_commit": { "$ref": "#/$defs/commit" },
+        "merge_commit": { "$ref": "#/$defs/commit" },
+        "merged_at_utc": { "type": "string", "format": "date-time" },
+        "merged_by": { "type": "string", "minLength": 1 },
+        "merge_topology": { "enum": ["HEAD_ANCESTOR_OF_MERGE", "TREE_EQUIVALENT_SQUASH_OR_REBASE"] }
+      }
+    },
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["application_receipt_id", "application_receipt_path", "release_receipt_id", "authority_decision_id", "package", "action", "target_path", "replay_key"],
+      "properties": {
+        "application_receipt_id": { "$ref": "#/$defs/id" },
+        "application_receipt_path": { "type": "string", "minLength": 1 },
+        "release_receipt_id": { "$ref": "#/$defs/id" },
+        "authority_decision_id": { "$ref": "#/$defs/id" },
+        "package": { "type": "object" },
+        "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+        "target_path": { "type": "string", "minLength": 1 },
+        "replay_key": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["application_receipt_digest", "changed_paths_digest", "base_manifest_hash", "reviewed_manifest_hash", "merged_manifest_hash", "replay_entry_digest", "application_bundle_digest", "application_attestation_verified", "release_chain_reverified", "reviewed_tree_matches_merge"],
+      "properties": {
+        "application_receipt_digest": { "$ref": "#/$defs/hash" },
+        "changed_paths_digest": { "$ref": "#/$defs/hash" },
+        "base_manifest_hash": { "$ref": "#/$defs/hash" },
+        "reviewed_manifest_hash": { "$ref": "#/$defs/hash" },
+        "merged_manifest_hash": { "$ref": "#/$defs/hash" },
+        "replay_entry_digest": { "$ref": "#/$defs/hash" },
+        "application_bundle_digest": { "$ref": "#/$defs/hash" },
+        "application_attestation_verified": { "const": true },
+        "release_chain_reverified": { "const": true },
+        "reviewed_tree_matches_merge": { "const": true }
+      }
+    },
+    "rollback_anchor_id": { "$ref": "#/$defs/id" },
+    "reconciliation_record_status": { "const": "PENDING_RECONCILIATION_PR" },
+    "observed_at_utc": { "type": "string", "format": "date-time" },
+    "claims_supported": { "type": "array", "items": { "type": "string" } },
+    "prohibited_inferences": { "type": "array", "items": { "type": "string" } },
+    "observation_id": { "$ref": "#/$defs/id" }
+  },
+  "$defs": {
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$" },
+    "hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[0-9a-f]{64}$" }
+  }
+}
