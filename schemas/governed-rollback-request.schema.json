@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/governed-rollback-request.schema.json",
+  "title": "Governed Rollback Request v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_schema_version", "incident", "containment_plan", "merge_observation", "rollback_anchor", "current_manifest", "restore_manifest", "release_archive", "metadata"],
+  "properties": {
+    "request_schema_version": { "const": "governed-rollback-request:v0.1" },
+    "incident": { "$ref": "./incident-response-record.schema.json" },
+    "containment_plan": { "$ref": "./rollback-containment-plan.schema.json" },
+    "merge_observation": { "$ref": "./repository-merge-observation.schema.json" },
+    "rollback_anchor": { "$ref": "./repository-rollback-anchor.schema.json" },
+    "current_manifest": { "$ref": "./theory-package.schema.json" },
+    "restore_manifest": { "$ref": "./theory-package.schema.json" },
+    "release_archive": { "$ref": "./package-release-archive.schema.json" },
+    "metadata": { "type": "object" }
+  }
+}
