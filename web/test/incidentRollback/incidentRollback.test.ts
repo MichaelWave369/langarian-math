@@ -202,7 +202,7 @@ function writeJson(path: string, value: unknown) {
 async function runMaterializer(args: string[]): Promise<void> {
   const originalArgv = process.argv
   const originalExitCode = process.exitCode
-  const script = resolve('web/scripts/materialize-governed-rollback.mjs')
+  const script = resolve('scripts/materialize-governed-rollback.mjs')
   process.argv = [originalArgv[0] ?? 'node', script, ...args]
   process.exitCode = undefined
   try {
