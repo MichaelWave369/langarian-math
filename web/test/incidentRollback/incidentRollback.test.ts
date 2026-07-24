@@ -239,4 +239,4 @@ describe('governed rollback incident response', () => {
     expect(tamperedProfile.status).toBe('BLOCKED')
     expect(tamperedProfile.restore_hash_valid).toBe(false)
   })
-}
+})
