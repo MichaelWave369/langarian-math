@@ -98,7 +98,6 @@ jobs:
         working-directory: web
         run: npm audit --audit-level=high --registry=https://registry.npmjs.org
       - name: Build evidence custody directory
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: web
         run: npm run build:custody -- /tmp/evidence-custody
       - name: Archive evidence custody directory
