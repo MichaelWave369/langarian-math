@@ -9,8 +9,8 @@ import {
   revokeEvidence,
   sha256EvidenceDigest,
   signEvidenceSubject,
-  verifyCustodyBundle,
 } from '../../theory/custody.js'
+import { verifyGovernedCustodyBundle } from '../../theory/custodyPolicy.js'
 import { BUNDLED_THEORY_PACKAGES } from '../../theory/packages.js'
 import { downloadText } from '../util/format.js'
 import { stripIngest } from '../util/sanitize.js'
@@ -50,7 +50,7 @@ export default function EvidenceCustody() {
   useEffect(() => {
     let live = true
     if (!suite) return undefined
-    verifyCustodyBundle(bundle, subjects).then((next) => { if (live) setProfile(next) })
+    verifyGovernedCustodyBundle(bundle, subjects).then((next) => { if (live) setProfile(next) })
     return () => { live = false }
   }, [bundle, subjects, suite])
 
@@ -208,7 +208,7 @@ export default function EvidenceCustody() {
         <div className="package-title-row">
           <div>
             <h2 id="custody-status-heading">Verification and lifecycle</h2>
-            <p className="panel-sub">Verification recomputes the subject digest, signed body, evidence id, signer key, revocation signatures, and supersession graph.</p>
+            <p className="panel-sub">Verification recomputes the subject digest, signed body, evidence id, signer-key fingerprint, authority scope, revocation signatures, and supersession graph.</p>
           </div>
           <Badge tone={profile?.custody_ready ? 'pass' : 'warn'}>{profile?.custody_ready ? 'ACTIVE SIGNED EVIDENCE' : 'CUSTODY OPEN'}</Badge>
         </div>
