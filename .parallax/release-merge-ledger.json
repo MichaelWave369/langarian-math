@@ -1,0 +1,9 @@
+{
+  "schema_version": "repository-merge-ledger:v0.1",
+  "entries": [],
+  "metadata": {
+    "append_only": true,
+    "purpose": "Records verified merges of controlled package application pull requests without rewriting application receipts.",
+    "last_updated_at_utc": null
+  }
+}
