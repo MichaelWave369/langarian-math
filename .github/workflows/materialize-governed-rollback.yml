@@ -1,0 +1,197 @@
+name: materialize-governed-rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_ref:
+        description: Branch, tag, or commit containing the governed rollback request
+        required: true
+        type: string
+      request_path:
+        description: Repository path to governed-rollback-request:v0.1
+        required: true
+        type: string
+      target_manifest_path:
+        description: Registered package manifest path on the trusted base
+        required: true
+        default: examples/theory-packages/langarian-finite-complex.json
+        type: string
+      base_ref:
+        description: Trusted repository base for incident records and writer validation
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: governed-rollback-materialization
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    environment: rollback-incident-response
+    steps:
+      - name: Check out trusted rollback materializer
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.base_ref }}
+          fetch-depth: 0
+
+      - name: Extract request and exact repository manifests
+        id: extract
+        shell: bash
+        env:
+          REQUEST_REF: ${{ inputs.request_ref }}
+          REQUEST_PATH: ${{ inputs.request_path }}
+          TARGET_PATH: ${{ inputs.target_manifest_path }}
+          BASE_REF: ${{ inputs.base_ref }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/rollback/input /tmp/rollback/output /tmp/rollback/writer
+          git fetch --no-tags origin "$REQUEST_REF"
+          REQUEST_COMMIT="$(git rev-parse FETCH_HEAD)"
+          git fetch --no-tags origin "$BASE_REF"
+          BASE_COMMIT="$(git rev-parse FETCH_HEAD)"
+          git show "$REQUEST_COMMIT:$REQUEST_PATH" > /tmp/rollback/input/governed-rollback-request.json
+          ANCHOR_BASE_COMMIT="$(jq -r '.rollback_anchor.application_base_commit' /tmp/rollback/input/governed-rollback-request.json)"
+          ANCHOR_TARGET_PATH="$(jq -r '.rollback_anchor.target_path' /tmp/rollback/input/governed-rollback-request.json)"
+          test "$ANCHOR_TARGET_PATH" = "$TARGET_PATH"
+          git fetch --no-tags origin "$ANCHOR_BASE_COMMIT" || true
+          git cat-file -e "$ANCHOR_BASE_COMMIT^{commit}"
+          git show "$BASE_COMMIT:$TARGET_PATH" > /tmp/rollback/input/live-manifest.json
+          git show "$ANCHOR_BASE_COMMIT:$TARGET_PATH" > /tmp/rollback/input/restore-manifest.json
+          git show "$BASE_COMMIT:.parallax/repository-writer-policy.json" > /tmp/rollback/input/writer-policy.json
+          git show "$BASE_COMMIT:.parallax/release-replay-ledger.json" > /tmp/rollback/input/replay-ledger.json
+          printf '%s' "$BASE_COMMIT" > /tmp/rollback/input/base-commit.txt
+          echo "base_commit=$BASE_COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Verify incident, containment, anchor, and rollback release binding
+        id: materialize
+        shell: bash
+        run: |
+          set -euo pipefail
+          node web/scripts/materialize-governed-rollback.mjs \
+            --request /tmp/rollback/input/governed-rollback-request.json \
+            --live-manifest /tmp/rollback/input/live-manifest.json \
+            --restore-manifest /tmp/rollback/input/restore-manifest.json \
+            --out-dir /tmp/rollback/output
+          INCIDENT_ID="$(jq -r '.incident_id' /tmp/rollback/output/rollback-handoff.json)"
+          RECEIPT_ID="$(jq -r '.release_receipt_id' /tmp/rollback/output/rollback-handoff.json)"
+          INCIDENT_PREFIX="$(printf '%s' "$INCIDENT_ID" | cut -d: -f2 | cut -c1-16)"
+          RECEIPT_PREFIX="$(printf '%s' "$RECEIPT_ID" | cut -d: -f2 | cut -c1-16)"
+          echo "incident_id=$INCIDENT_ID" >> "$GITHUB_OUTPUT"
+          echo "release_receipt_id=$RECEIPT_ID" >> "$GITHUB_OUTPUT"
+          echo "incident_prefix=$INCIDENT_PREFIX" >> "$GITHUB_OUTPUT"
+          echo "receipt_prefix=$RECEIPT_PREFIX" >> "$GITHUB_OUTPUT"
+
+      - name: Re-run controlled repository writer validation
+        shell: bash
+        env:
+          TARGET_PATH: ${{ inputs.target_manifest_path }}
+          EXPECTED_RECEIPT: ${{ steps.materialize.outputs.release_receipt_id }}
+        run: |
+          set -euo pipefail
+          node web/scripts/controlled-repository-writer.mjs plan \
+            --archive /tmp/rollback/output/package-release-archive.json \
+            --live-manifest /tmp/rollback/input/live-manifest.json \
+            --policy /tmp/rollback/input/writer-policy.json \
+            --ledger /tmp/rollback/input/replay-ledger.json \
+            --target-path "$TARGET_PATH" \
+            --expected-receipt-id "$EXPECTED_RECEIPT" \
+            --out-dir /tmp/rollback/writer
+
+      - name: Create incident-record review branch
+        id: branch
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ steps.extract.outputs.base_commit }}
+          INCIDENT_PREFIX: ${{ steps.materialize.outputs.incident_prefix }}
+          RECEIPT_PREFIX: ${{ steps.materialize.outputs.receipt_prefix }}
+        run: |
+          set -euo pipefail
+          BRANCH="governed-rollback/${GITHUB_RUN_ID}-${INCIDENT_PREFIX}"
+          git switch -c "$BRANCH" "$BASE_COMMIT"
+          INCIDENT_PATH="artifacts/rollback-incidents/${INCIDENT_PREFIX}.json"
+          CONTAINMENT_PATH="artifacts/rollback-containment/${INCIDENT_PREFIX}.json"
+          RELEASE_PATH="artifacts/package-releases/${RECEIPT_PREFIX}.json"
+          HANDOFF_PATH="artifacts/rollback-handoffs/${INCIDENT_PREFIX}.json"
+          mkdir -p "$(dirname "$INCIDENT_PATH")" "$(dirname "$CONTAINMENT_PATH")" "$(dirname "$RELEASE_PATH")" "$(dirname "$HANDOFF_PATH")"
+          cp /tmp/rollback/output/incident-record.json "$INCIDENT_PATH"
+          cp /tmp/rollback/output/containment-plan.json "$CONTAINMENT_PATH"
+          cp /tmp/rollback/output/package-release-archive.json "$RELEASE_PATH"
+          jq \
+            --arg request_ref "main" \
+            --arg archive_path "$RELEASE_PATH" \
+            --arg target_manifest_path "${{ inputs.target_manifest_path }}" \
+            --arg expected_release_receipt_id "${{ steps.materialize.outputs.release_receipt_id }}" \
+            '. + {controlled_writer_inputs:{request_ref:$request_ref,archive_path:$archive_path,target_manifest_path:$target_manifest_path,base_ref:"main",mode:"apply",expected_release_receipt_id:$expected_release_receipt_id}}' \
+            /tmp/rollback/output/rollback-handoff.json > "$HANDOFF_PATH"
+          git config user.name "parallax-rollback-materializer[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$INCIDENT_PATH" "$CONTAINMENT_PATH" "$RELEASE_PATH" "$HANDOFF_PATH"
+          git commit -m "Record governed rollback incident ${INCIDENT_PREFIX}"
+          git push --set-upstream origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "incident_path=$INCIDENT_PATH" >> "$GITHUB_OUTPUT"
+          echo "containment_path=$CONTAINMENT_PATH" >> "$GITHUB_OUTPUT"
+          echo "release_path=$RELEASE_PATH" >> "$GITHUB_OUTPUT"
+          echo "handoff_path=$HANDOFF_PATH" >> "$GITHUB_OUTPUT"
+          echo "record_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Open governed rollback record pull request
+        id: pull_request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.branch }}
+          INCIDENT_ID: ${{ steps.materialize.outputs.incident_id }}
+          RELEASE_RECEIPT_ID: ${{ steps.materialize.outputs.release_receipt_id }}
+          RELEASE_PATH: ${{ steps.branch.outputs.release_path }}
+          HANDOFF_PATH: ${{ steps.branch.outputs.handoff_path }}
+        run: |
+          set -euo pipefail
+          PR_URL="$(gh pr create \
+            --base "${{ inputs.base_ref }}" \
+            --head "$BRANCH" \
+            --title "Record governed rollback incident ${INCIDENT_ID#incident:}" \
+            --body "## Governed rollback incident record\n\n- Incident: \`$INCIDENT_ID\`\n- Authorized rollback release receipt: \`$RELEASE_RECEIPT_ID\`\n- Release archive: \`$RELEASE_PATH\`\n- Controlled-writer handoff: \`$HANDOFF_PATH\`\n- The package manifest is unchanged in this pull request.\n- After this record PR is merged, the standard controlled-release-writer workflow must apply the archive through a separate review branch and pull request.\n- The original promotion, merge observation, incident, and rollback anchor remain append-only.")"
+          echo "url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Build rollback materialization provenance bundle
+        shell: bash
+        env:
+          PR_URL: ${{ steps.pull_request.outputs.url }}
+          RECORD_COMMIT: ${{ steps.branch.outputs.record_commit }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/rollback-attestation
+          cp /tmp/rollback/input/governed-rollback-request.json /tmp/rollback-attestation/
+          cp /tmp/rollback/output/*.json /tmp/rollback-attestation/
+          cp /tmp/rollback/writer/*.json /tmp/rollback-attestation/
+          jq -n \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg workflow_run_id "$GITHUB_RUN_ID" \
+            --arg record_commit "$RECORD_COMMIT" \
+            --arg pull_request "$PR_URL" \
+            '{repository:$repository,workflow_run_id:$workflow_run_id,record_commit:$record_commit,pull_request:$pull_request,status:"ROLLBACK_RECORD_PR_OPEN"}' \
+            > /tmp/rollback-attestation/workflow-materialization.json
+          tar -C /tmp -czf "/tmp/governed-rollback-materialization-${GITHUB_RUN_ID}.tar.gz" rollback-attestation
+
+      - name: Upload rollback materialization bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: governed-rollback-materialization-${{ github.run_id }}
+          path: /tmp/governed-rollback-materialization-${{ github.run_id }}.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attest rollback materialization provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: /tmp/governed-rollback-materialization-${{ github.run_id }}.tar.gz
