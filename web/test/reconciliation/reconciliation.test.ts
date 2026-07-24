@@ -1,13 +1,16 @@
-import { execFileSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { sha256EvidenceDigest } from '../../src/theory/custody.js'
 import {
   validateMergeObservation,
   validateRollbackAnchor,
 } from '../../src/theory/reconciliation.js'
+
+const reconciliationScript = fileURLToPath(new URL('../../scripts/reconcile-controlled-release.mjs', import.meta.url))
 
 function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8')
@@ -150,8 +153,8 @@ async function fixture() {
 }
 
 function run(value: Awaited<ReturnType<typeof fixture>>): void {
-  execFileSync(process.execPath, [
-    resolve('scripts/reconcile-controlled-release.mjs'),
+  const result = spawnSync(process.execPath, [
+    reconciliationScript,
     '--policy', value.paths.policy,
     '--pr-metadata', value.paths.prMetadata,
     '--application-receipt', value.paths.receipt,
@@ -166,7 +169,8 @@ function run(value: Awaited<ReturnType<typeof fixture>>): void {
     '--changed-paths', value.paths.changedPaths,
     '--out-dir', value.output,
     '--observed-at', '2026-07-24T03:05:00.000Z',
-  ], { cwd: resolve('web'), stdio: 'pipe' })
+  ], { encoding: 'utf8' })
+  if (result.status !== 0) throw new Error(result.stderr || result.error?.message || 'Reconciliation process failed.')
 }
 
 describe('merge observation and release reconciliation', () => {
