@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/evidence-custody-bundle.schema.json",
+  "title": "Parallax Evidence Custody Bundle v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bundle_schema_version", "signers", "envelopes", "revocations", "metadata"],
+  "properties": {
+    "bundle_schema_version": { "const": "evidence-custody-bundle:v0.1" },
+    "signers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/signer" }
+    },
+    "envelopes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/envelope" }
+    },
+    "revocations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/revocation" }
+    },
+    "metadata": { "type": "object" }
+  },
+  "$defs": {
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "id", "display_name", "algorithm", "public_key_jwk", "authority_scope", "status", "created_at_utc", "metadata"],
+      "properties": {
+        "schema_version": { "const": "evidence-signer:v0.1" },
+        "id": { "type": "string", "pattern": "^signer:[0-9a-f]{64}$" },
+        "display_name": { "type": "string", "minLength": 1 },
+        "algorithm": { "const": "Ed25519" },
+        "public_key_jwk": {
+          "type": "object",
+          "required": ["kty", "crv", "x"],
+          "properties": {
+            "kty": { "const": "OKP" },
+            "crv": { "const": "Ed25519" },
+            "x": { "type": "string", "minLength": 1 }
+          }
+        },
+        "authority_scope": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "status": { "enum": ["active", "revoked"] },
+        "created_at_utc": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" }
+      }
+    },
+    "envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "evidence_id", "subject_kind", "subject_digest", "subject_locator", "signer_id", "signature", "signed_at_utc", "supersedes", "metadata"],
+      "properties": {
+        "schema_version": { "const": "evidence-custody-envelope:v0.1" },
+        "evidence_id": { "type": "string", "pattern": "^evidence:[0-9a-f]{64}$" },
+        "subject_kind": { "enum": ["contract-conformance-suite", "contract-conformance-observation", "ci-evidence-bundle"] },
+        "subject_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "subject_locator": { "type": "string", "minLength": 1 },
+        "signer_id": { "type": "string", "pattern": "^signer:[0-9a-f]{64}$" },
+        "signature": { "type": "string", "minLength": 1 },
+        "signed_at_utc": { "type": "string", "format": "date-time" },
+        "supersedes": { "type": "array", "items": { "type": "string", "pattern": "^evidence:[0-9a-f]{64}$" } },
+        "metadata": { "type": "object" }
+      }
+    },
+    "revocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "revocation_id", "target_evidence_id", "authority_id", "reason", "issued_at_utc", "signature", "metadata"],
+      "properties": {
+        "schema_version": { "const": "evidence-revocation:v0.1" },
+        "revocation_id": { "type": "string", "pattern": "^revocation:[0-9a-f]{64}$" },
+        "target_evidence_id": { "type": "string", "pattern": "^evidence:[0-9a-f]{64}$" },
+        "authority_id": { "type": "string", "pattern": "^signer:[0-9a-f]{64}$" },
+        "reason": { "type": "string", "minLength": 1 },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      }
+    }
+  }
+}
