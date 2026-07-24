@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/rollback-containment-plan.schema.json",
+  "title": "Rollback Containment Plan v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "containment_plan_id", "incident_id", "rollback_anchor_id", "release_archive_digest", "release_receipt_id", "expected_current_manifest_hash", "expected_restore_manifest_hash", "action", "steps", "success_conditions", "stop_conditions", "monitoring_window_minutes", "approved_by", "approved_at_utc", "metadata", "signature"],
+  "properties": {
+    "schema_version": { "const": "rollback-containment-plan:v0.1" },
+    "containment_plan_id": { "pattern": "^containment-plan:[0-9a-f]{64}$" },
+    "incident_id": { "pattern": "^incident:[0-9a-f]{64}$" },
+    "rollback_anchor_id": { "pattern": "^rollback-anchor:[0-9a-f]{64}$" },
+    "release_archive_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+    "release_receipt_id": { "pattern": "^release-receipt:[0-9a-f]{64}$" },
+    "expected_current_manifest_hash": { "pattern": "^sha256:[0-9a-f]{64}$" },
+    "expected_restore_manifest_hash": { "pattern": "^sha256:[0-9a-f]{64}$" },
+    "action": { "const": "MATERIALIZE_GOVERNED_ROLLBACK" },
+    "steps": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "success_conditions": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "stop_conditions": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "monitoring_window_minutes": { "type": "integer", "minimum": 1 },
+    "approved_by": { "pattern": "^authority:[0-9a-f]{64}$" },
+    "approved_at_utc": { "type": "string", "format": "date-time" },
+    "metadata": { "type": "object" },
+    "signature": { "type": "string", "minLength": 1 }
+  }
+}

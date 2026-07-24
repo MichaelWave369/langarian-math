@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/incident-response-record.schema.json",
+  "title": "Incident Response Record v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "incident_id", "incident_type", "status", "repository", "package_id", "target_path", "merge_observation_id", "rollback_anchor_id", "current_manifest_hash", "restore_manifest_hash", "severity", "summary", "observed_effects", "evidence_references", "containment_rationale", "rollback_objective", "declared_by", "declared_at_utc", "metadata", "signature"],
+  "properties": {
+    "schema_version": { "const": "incident-response-record:v0.1" },
+    "incident_id": { "pattern": "^incident:[0-9a-f]{64}$" },
+    "incident_type": { "const": "governed-release-incident" },
+    "status": { "const": "OPEN_CONTAINMENT" },
+    "repository": { "type": "string", "minLength": 1 },
+    "package_id": { "type": "string", "minLength": 1 },
+    "target_path": { "type": "string", "minLength": 1 },
+    "merge_observation_id": { "pattern": "^merge-observation:[0-9a-f]{64}$" },
+    "rollback_anchor_id": { "pattern": "^rollback-anchor:[0-9a-f]{64}$" },
+    "current_manifest_hash": { "pattern": "^sha256:[0-9a-f]{64}$" },
+    "restore_manifest_hash": { "pattern": "^sha256:[0-9a-f]{64}$" },
+    "severity": { "enum": ["SEV1", "SEV2", "SEV3", "SEV4"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "observed_effects": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "evidence_references": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 },
+    "containment_rationale": { "type": "string", "minLength": 1 },
+    "rollback_objective": { "type": "string", "minLength": 1 },
+    "declared_by": { "pattern": "^authority:[0-9a-f]{64}$" },
+    "declared_at_utc": { "type": "string", "format": "date-time" },
+    "metadata": { "type": "object" },
+    "signature": { "type": "string", "minLength": 1 }
+  }
+}

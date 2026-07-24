@@ -11,6 +11,7 @@
  * Governance is the controlled manifest-artifact room; Repository Writer is
  * the review-branch application and commit-attestation room; Merge
  * Reconciliation is the post-merge observation and rollback-anchor room;
+ * Incident Rollback is the governed incident, containment, and reversal room;
  * executable package routes continue through the validated kernel.
  */
 
@@ -29,6 +30,7 @@ export const MODULES = [
   { id: 'release', label: 'Release Governance', icon: '⇆' },
   { id: 'writer', label: 'Repository Writer', icon: 'Git' },
   { id: 'reconciliation', label: 'Merge Reconciliation', icon: '✓' },
+  { id: 'incident', label: 'Incident Rollback', icon: '↶' },
   { id: 'state', label: 'State Builder', icon: 'z' },
   { id: 'operators', label: 'Operator Lab', icon: 'ƒ' },
   { id: 'program', label: 'Program Builder', icon: 'λ' },
@@ -79,7 +81,6 @@ export function WorkbenchProvider({ children }) {
     setStates((current) => current.filter((entry) => entry.key !== key))
   }, [])
 
-  /** Record a kernel operation result into the ledger, states, and inspector. */
   const recordOperation = useCallback(
     (payload) => {
       const producedHash = payload.output ? payload.output.stateHash() : undefined
@@ -87,16 +88,13 @@ export function WorkbenchProvider({ children }) {
         payload.receipt,
         producedHash !== undefined ? { producedStateHash: producedHash } : {},
       )
-      if (payload.output) {
-        addStates([{ state: payload.output, origin: 'operator', note: payload.op }])
-      }
+      if (payload.output) addStates([{ state: payload.output, origin: 'operator', note: payload.op }])
       bumpLedger()
       setInspection({ kind: 'operation', ...payload })
     },
     [addStates, bumpLedger],
   )
 
-  /** Run DSL text through the session and register produced states. */
   const runProgramText = useCallback(
     (source, options = {}) => {
       const run = sessionRef.current.runText(stripIngest(source), options)
@@ -121,7 +119,6 @@ export function WorkbenchProvider({ children }) {
     [addStates, bumpLedger],
   )
 
-  /** Run a JSON program document through the session and register produced states. */
   const runProgramJson = useCallback(
     (json, options = {}) => {
       const run = sessionRef.current.runJson(stripIngest(json), options)
@@ -135,7 +132,6 @@ export function WorkbenchProvider({ children }) {
     [addStates, bumpLedger],
   )
 
-  /** Show a payload in the Result Inspector and navigate to it. */
   const inspect = useCallback((payload, navigate = true) => {
     setInspection(payload)
     if (navigate) setModule('result')
@@ -146,7 +142,7 @@ export function WorkbenchProvider({ children }) {
     setStates([])
     setInspection(null)
     bumpLedger()
-    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, authority, release, repository-writer, and merge-reconciliation tools remain available.')
+    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, authority, release, repository-writer, merge-reconciliation, and incident-rollback tools remain available.')
   }, [bumpLedger])
 
   const value = useMemo(

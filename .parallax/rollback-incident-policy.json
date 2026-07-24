@@ -1,0 +1,20 @@
+{
+  "schema_version": "rollback-incident-policy:v0.1",
+  "id": "governed-rollback-incident-response",
+  "version": "1.0.0",
+  "incident_role": "incident-commander",
+  "incident_scope": "declare:release-incident",
+  "containment_role": "containment-authority",
+  "containment_scope": "approve:rollback-containment",
+  "require_incident_and_containment_separation": true,
+  "require_containment_separate_from_release_authority": true,
+  "require_evidence_references": true,
+  "allowed_severities": ["SEV1", "SEV2", "SEV3", "SEV4"],
+  "materialization_branch_prefix": "governed-rollback/",
+  "incident_artifact_prefix": "artifacts/rollback-incidents/",
+  "containment_artifact_prefix": "artifacts/rollback-containment/",
+  "release_archive_prefix": "artifacts/package-releases/",
+  "handoff_artifact_prefix": "artifacts/rollback-handoffs/",
+  "direct_main_write": false,
+  "next_gate": "controlled-release-writer"
+}
