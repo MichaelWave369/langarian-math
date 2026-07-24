@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/promotion-authority-bundle.schema.json",
+  "title": "Parallax Promotion Authority Bundle",
+  "type": "object",
+  "required": ["bundle_schema_version", "authorities", "mandates", "ballots", "appeals", "rollback_ballots", "metadata"],
+  "properties": {
+    "bundle_schema_version": { "const": "promotion-authority-bundle:v0.1" },
+    "authorities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/authority" }
+    },
+    "mandates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/mandate" }
+    },
+    "ballots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ballot" }
+    },
+    "appeals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/appeal" }
+    },
+    "rollback_ballots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rollbackBallot" }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "publicJwk": {
+      "type": "object",
+      "required": ["kty", "crv", "x"],
+      "properties": {
+        "kty": { "const": "OKP" },
+        "crv": { "const": "Ed25519" },
+        "x": { "type": "string", "minLength": 1 },
+        "key_ops": { "type": "array", "items": { "type": "string" } },
+        "ext": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "authority": {
+      "type": "object",
+      "required": ["schema_version", "id", "display_name", "algorithm", "public_key_jwk", "roles", "independence_domains", "authority_scope", "status", "created_at_utc", "metadata"],
+      "properties": {
+        "schema_version": { "const": "promotion-authority:v0.1" },
+        "id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "display_name": { "type": "string", "minLength": 1 },
+        "algorithm": { "const": "Ed25519" },
+        "public_key_jwk": { "$ref": "#/$defs/publicJwk" },
+        "roles": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "independence_domains": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "authority_scope": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "status": { "enum": ["active", "revoked"] },
+        "created_at_utc": { "type": "string", "format": "date-time" },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "mandate": {
+      "type": "object",
+      "required": ["schema_version", "mandate_id", "issuer_id", "subject_authority_id", "role", "package_id", "package_version", "target_level", "scopes", "valid_from_utc", "expires_at_utc", "max_decisions", "supersedes", "issued_at_utc", "signature", "metadata"],
+      "properties": {
+        "schema_version": { "const": "promotion-mandate:v0.1" },
+        "mandate_id": { "type": "string", "pattern": "^mandate:[0-9a-f]{64}$" },
+        "issuer_id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "subject_authority_id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "role": { "type": "string", "minLength": 1 },
+        "package_id": { "type": "string", "minLength": 1 },
+        "package_version": { "type": "string", "minLength": 1 },
+        "target_level": { "const": 4 },
+        "scopes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "valid_from_utc": { "type": "string", "format": "date-time" },
+        "expires_at_utc": { "type": "string", "format": "date-time" },
+        "max_decisions": { "type": "integer", "minimum": 1 },
+        "supersedes": { "type": "array", "items": { "type": "string", "pattern": "^mandate:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "ballot": {
+      "type": "object",
+      "required": ["schema_version", "ballot_id", "assessment_id", "package_id", "package_version", "target_level", "authority_id", "mandate_id", "disposition", "reason", "issued_at_utc", "signature", "metadata"],
+      "properties": {
+        "schema_version": { "const": "promotion-ballot:v0.1" },
+        "ballot_id": { "type": "string", "pattern": "^ballot:[0-9a-f]{64}$" },
+        "assessment_id": { "type": "string", "minLength": 1 },
+        "package_id": { "type": "string", "minLength": 1 },
+        "package_version": { "type": "string", "minLength": 1 },
+        "target_level": { "const": 4 },
+        "authority_id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "mandate_id": { "type": "string", "pattern": "^mandate:[0-9a-f]{64}$" },
+        "disposition": { "enum": ["APPROVE", "REJECT", "ABSTAIN"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "appeal": {
+      "type": "object",
+      "required": ["schema_version", "appeal_id", "decision_id", "authority_id", "grounds", "issued_at_utc", "signature", "metadata"],
+      "properties": {
+        "schema_version": { "const": "promotion-appeal:v0.1" },
+        "appeal_id": { "type": "string", "pattern": "^appeal:[0-9a-f]{64}$" },
+        "decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+        "authority_id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "grounds": { "type": "string", "minLength": 1 },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "rollbackBallot": {
+      "type": "object",
+      "required": ["schema_version", "rollback_ballot_id", "decision_id", "package_id", "package_version", "target_level", "authority_id", "mandate_id", "reason", "issued_at_utc", "signature", "metadata"],
+      "properties": {
+        "schema_version": { "const": "promotion-rollback-ballot:v0.1" },
+        "rollback_ballot_id": { "type": "string", "pattern": "^rollback-ballot:[0-9a-f]{64}$" },
+        "decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+        "package_id": { "type": "string", "minLength": 1 },
+        "package_version": { "type": "string", "minLength": 1 },
+        "target_level": { "const": 4 },
+        "authority_id": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+        "mandate_id": { "type": "string", "pattern": "^mandate:[0-9a-f]{64}$" },
+        "reason": { "type": "string", "minLength": 1 },
+        "issued_at_utc": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "minLength": 1 },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

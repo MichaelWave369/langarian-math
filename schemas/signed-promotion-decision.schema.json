@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/signed-promotion-decision.schema.json",
+  "title": "Parallax Signed Promotion Authority Decision",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "signed_schema_version",
+    "decision_id",
+    "decision_type",
+    "assessment_id",
+    "package",
+    "policy",
+    "quorum",
+    "mandate_ids",
+    "status",
+    "blockers",
+    "warnings",
+    "issued_at_utc",
+    "expires_at_utc",
+    "recorded_by",
+    "signature",
+    "claims_supported",
+    "prohibited_inferences"
+  ],
+  "properties": {
+    "schema_version": { "const": "promotion-authority-decision:v0.1" },
+    "signed_schema_version": { "const": "signed-promotion-decision:v0.1" },
+    "decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+    "decision_type": { "const": "authority-authorization-not-package-mutation" },
+    "assessment_id": { "type": "string", "minLength": 1 },
+    "package": {
+      "type": "object",
+      "required": ["id", "version", "current_maturity_level", "target_level"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "current_maturity_level": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "target_level": { "const": 4 }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["id", "version", "schema_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "schema_version": { "const": "promotion-authority-policy:v0.1" }
+      },
+      "additionalProperties": false
+    },
+    "quorum": {
+      "type": "object",
+      "required": ["minimum_approvals", "accepted_approval_ballot_ids", "accepted_rejection_ballot_ids", "distinct_authority_ids", "independence_domains", "covered_roles"],
+      "properties": {
+        "minimum_approvals": { "type": "integer", "minimum": 1 },
+        "accepted_approval_ballot_ids": { "type": "array", "items": { "type": "string", "pattern": "^ballot:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "accepted_rejection_ballot_ids": { "type": "array", "items": { "type": "string", "pattern": "^ballot:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "distinct_authority_ids": { "type": "array", "items": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" }, "uniqueItems": true },
+        "independence_domains": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "covered_roles": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    },
+    "mandate_ids": { "type": "array", "items": { "type": "string", "pattern": "^mandate:[0-9a-f]{64}$" }, "uniqueItems": true },
+    "status": { "enum": ["APPROVED_PENDING_PACKAGE_UPDATE", "REJECTED", "BLOCKED"] },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "issued_at_utc": { "type": "string", "format": "date-time" },
+    "expires_at_utc": { "type": "string", "format": "date-time" },
+    "recorded_by": { "type": "string", "pattern": "^authority:[0-9a-f]{64}$" },
+    "signature": { "type": "string", "minLength": 1 },
+    "claims_supported": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "prohibited_inferences": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "additionalProperties": false
+}
