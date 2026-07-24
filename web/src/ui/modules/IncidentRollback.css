@@ -1,0 +1,122 @@
+.incident-rollback {
+  display: grid;
+  gap: 1rem;
+}
+
+.incident-callout,
+.incident-panel {
+  border: 1px solid var(--line, #d7dbe2);
+  border-radius: 0.75rem;
+  background: var(--surface, #fff);
+  padding: 1rem;
+}
+
+.incident-callout p,
+.incident-panel p {
+  margin-bottom: 0;
+}
+
+.incident-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.incident-panel h2,
+.incident-panel h3 {
+  margin-top: 0;
+}
+
+.incident-panel textarea {
+  width: 100%;
+  margin-top: 0.75rem;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.incident-actions,
+.incident-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.incident-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.incident-status-ok {
+  background: color-mix(in srgb, #16824b 15%, transparent);
+  color: #11603a;
+}
+
+.incident-status-blocked {
+  background: color-mix(in srgb, #b83b31 14%, transparent);
+  color: #8d2c24;
+}
+
+.incident-blockers,
+.incident-warnings {
+  margin-top: 1rem;
+  border-left: 3px solid #b83b31;
+  padding-left: 0.85rem;
+}
+
+.incident-warnings {
+  border-left-color: #8a6b18;
+}
+
+.incident-blockers ul,
+.incident-warnings ul {
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+}
+
+.incident-chain {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.incident-chain-row {
+  display: grid;
+  grid-template-columns: 2rem 10rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line, #d7dbe2);
+}
+
+.incident-chain-row span {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  font-weight: 700;
+}
+
+.incident-chain-row code {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .incident-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incident-chain-row {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .incident-chain-row code {
+    grid-column: 2;
+  }
+}
