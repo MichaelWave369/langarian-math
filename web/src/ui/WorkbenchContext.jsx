@@ -7,8 +7,9 @@
  * Theory Audit is the recovery room; Contract Conformance is the evidence
  * comparison room; Evidence Custody is the integrity and signer-lifecycle
  * room; Promotion Governance is the custody-aware admission room; Promotion
- * Authority is the mandate, quorum, appeal, and rollback room; executable
- * package routes continue through the validated kernel.
+ * Authority is the mandate, quorum, appeal, and rollback room; Release
+ * Governance is the controlled manifest-artifact room; executable package
+ * routes continue through the validated kernel.
  */
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
@@ -23,6 +24,7 @@ export const MODULES = [
   { id: 'custody', label: 'Evidence Custody', icon: '⛓' },
   { id: 'promotion', label: 'Promotion Governance', icon: '⇧' },
   { id: 'authority', label: 'Promotion Authority', icon: '♜' },
+  { id: 'release', label: 'Release Governance', icon: '⇆' },
   { id: 'state', label: 'State Builder', icon: 'z' },
   { id: 'operators', label: 'Operator Lab', icon: 'ƒ' },
   { id: 'program', label: 'Program Builder', icon: 'λ' },
@@ -140,7 +142,7 @@ export function WorkbenchProvider({ children }) {
     setStates([])
     setInspection(null)
     bumpLedger()
-    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, and authority tools remain available.')
+    setNotice('Session reset: states, ledger, and inspector cleared. Theory packages, audit, conformance, custody, promotion, authority, and release tools remain available.')
   }, [bumpLedger])
 
   const value = useMemo(
