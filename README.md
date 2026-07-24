@@ -9,9 +9,10 @@
 **Theory Package Architecture:** **v0.2**  
 **Operator Contract Schema:** **v0.2**  
 **Contract Conformance Suite:** **v0.1**  
+**Evidence Custody:** **v0.4**  
 **Live site:** https://michaelwave369.github.io/langarian-math/
 
-The project has four deliberately separated layers:
+The project has five deliberately separated layers:
 
 ```text
 Parallax governance shell
@@ -19,6 +20,8 @@ Parallax governance shell
 portable theory packages + exact operator contracts
         ↓
 portable contract-conformance evidence
+        ↓
+signed evidence custody + CI provenance
         ↓
 package-specific executable kernels, when earned
 ```
@@ -49,9 +52,11 @@ Normative documents:
 - [`docs/THEORY_PACKAGE_SPEC.md`](docs/THEORY_PACKAGE_SPEC.md)
 - [`docs/THEORY_AUDIT_PHASE.md`](docs/THEORY_AUDIT_PHASE.md)
 - [`docs/CONTRACT_CONFORMANCE_PHASE.md`](docs/CONTRACT_CONFORMANCE_PHASE.md)
+- [`docs/EVIDENCE_CUSTODY_PHASE.md`](docs/EVIDENCE_CUSTODY_PHASE.md)
 - [`schemas/theory-package.schema.json`](schemas/theory-package.schema.json)
 - [`schemas/receipt-envelope.schema.json`](schemas/receipt-envelope.schema.json)
 - [`schemas/contract-conformance-suite.schema.json`](schemas/contract-conformance-suite.schema.json)
+- [`schemas/evidence-custody-bundle.schema.json`](schemas/evidence-custody-bundle.schema.json)
 
 ## Can any theory enter?
 
@@ -67,7 +72,7 @@ Any sufficiently explicit theory may enter at **Level 1** as a documentary packa
 
 The governance architecture is general. Execution is package-specific and must be earned.
 
-Imported manifests and conformance suites are treated as data. The browser does **not** execute arbitrary package code.
+Imported manifests, conformance suites, and custody bundles are treated as data. The browser does **not** execute arbitrary package code.
 
 ## Public bundled packages
 
@@ -176,7 +181,7 @@ The audit preserves asymmetric maturity. Working software may coexist with an un
 
 ## Contract Conformance room
 
-The GitPage also includes a dedicated **Contract Conformance** workspace.
+The GitPage includes a dedicated **Contract Conformance** workspace.
 
 It validates portable evidence suites and checks, per operator:
 
@@ -191,7 +196,55 @@ It validates portable evidence suites and checks, per operator:
 
 A package cannot earn the stricter Level-4 gate by running only happy-path fixtures. The browser can export a blank five-class scaffold for any package and import evidence locally as data.
 
-The current browser does not cryptographically authenticate evidence sources. Signed evidence custody is the next research obligation.
+## Evidence Custody room
+
+The GitPage now includes an **Evidence Custody** workspace.
+
+It provides:
+
+- canonical JSON hashing with SHA-256;
+- locally generated Ed25519 signer identities;
+- signed evidence envelopes;
+- content-addressed evidence ids;
+- signed revocation records;
+- non-destructive supersession chains;
+- lifecycle-aware verification;
+- public custody-bundle import and export;
+- explicit separation between browser key possession and CI workflow identity.
+
+The browser never exports the generated private key. Local signer keys are ephemeral and remain in memory only.
+
+Custody versions:
+
+```text
+evidence-custody-bundle:v0.1
+evidence-custody-envelope:v0.1
+evidence-signer:v0.1
+evidence-revocation:v0.1
+```
+
+A valid signature proves that a particular key signed a particular canonical artifact. It does not prove that the artifact’s claims are correct.
+
+## CI-produced evidence attestation
+
+The GitHub Actions test workflow builds an evidence-custody directory on every run so the bundle builder is tested in pull requests.
+
+On pushes to `main`, it additionally:
+
+1. archives the public evidence-custody directory;
+2. uploads the archive as a workflow artifact;
+3. generates a GitHub build-provenance attestation using `actions/attest-build-provenance@v3`;
+4. binds the archive digest to the repository, commit, workflow, and GitHub Actions OIDC identity.
+
+A downloaded archive can be checked with GitHub CLI:
+
+```bash
+gh attestation verify \
+  --owner MichaelWave369 \
+  langarian-evidence-custody-<commit>.tar.gz
+```
+
+The attestation establishes artifact origin and byte integrity. It is not mathematical proof, empirical replication, or a substitute for reviewing the evidence inside.
 
 ## Foundation obligations
 
@@ -261,6 +314,8 @@ Formal Eligibility Gate
 Reality Gate
 ```
 
+Evidence custody strengthens the first gate. It does not collapse the three gates into one.
+
 A formal or computational pass never silently becomes empirical truth.
 
 ## Install and test
@@ -281,6 +336,7 @@ npm run sync:version
 npm run test
 npm run test:conformance
 npm run build
+npm run build:custody -- /tmp/evidence-custody
 ```
 
 ## Version map
