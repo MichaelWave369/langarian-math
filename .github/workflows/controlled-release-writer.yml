@@ -1,0 +1,270 @@
+name: controlled-release-writer
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_ref:
+        description: Branch, tag, or commit containing the public package-release archive
+        required: true
+        type: string
+      archive_path:
+        description: Repository path to the package-release archive on request_ref
+        required: true
+        type: string
+      target_manifest_path:
+        description: Registered package manifest path on base_ref
+        required: true
+        default: examples/theory-packages/langarian-finite-complex.json
+        type: string
+      base_ref:
+        description: Base branch for the controlled application pull request
+        required: true
+        default: main
+        type: string
+      mode:
+        description: Validate only, or create a controlled review branch and pull request
+        required: true
+        default: dry-run
+        type: choice
+        options:
+          - dry-run
+          - apply
+      expected_release_receipt_id:
+        description: Exact release-receipt id required for apply mode; use DRY_RUN otherwise
+        required: true
+        default: DRY_RUN
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: controlled-release-writer
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      base_commit: ${{ steps.preflight.outputs.base_commit }}
+      replay_prefix: ${{ steps.preflight.outputs.replay_prefix }}
+      release_receipt_id: ${{ steps.preflight.outputs.release_receipt_id }}
+    steps:
+      - name: Check out trusted writer from base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.base_ref }}
+          fetch-depth: 0
+
+      - name: Extract request archive and exact base inputs
+        id: extract
+        shell: bash
+        env:
+          REQUEST_REF: ${{ inputs.request_ref }}
+          ARCHIVE_PATH: ${{ inputs.archive_path }}
+          TARGET_PATH: ${{ inputs.target_manifest_path }}
+          BASE_REF: ${{ inputs.base_ref }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/writer
+          git fetch --no-tags origin "$REQUEST_REF"
+          REQUEST_COMMIT="$(git rev-parse FETCH_HEAD)"
+          git fetch --no-tags origin "$BASE_REF"
+          BASE_COMMIT="$(git rev-parse FETCH_HEAD)"
+          git show "$REQUEST_COMMIT:$ARCHIVE_PATH" > /tmp/writer/release-archive.json
+          git show "$BASE_COMMIT:$TARGET_PATH" > /tmp/writer/live-manifest.json
+          git show "$BASE_COMMIT:.parallax/repository-writer-policy.json" > /tmp/writer/writer-policy.json
+          git show "$BASE_COMMIT:.parallax/release-replay-ledger.json" > /tmp/writer/replay-ledger.json
+          printf '%s' "$BASE_COMMIT" > /tmp/writer/base-commit.txt
+
+      - name: Verify archive, live hash, target registry, and replay state
+        id: preflight
+        shell: bash
+        env:
+          TARGET_PATH: ${{ inputs.target_manifest_path }}
+          MODE: ${{ inputs.mode }}
+          EXPECTED_RECEIPT: ${{ inputs.expected_release_receipt_id }}
+        run: |
+          set -euo pipefail
+          EXTRA_ARGS=()
+          if [[ "$MODE" == "apply" ]]; then
+            if [[ -z "$EXPECTED_RECEIPT" || "$EXPECTED_RECEIPT" == "DRY_RUN" ]]; then
+              echo "Apply mode requires the exact release receipt id." >&2
+              exit 1
+            fi
+            EXTRA_ARGS+=(--expected-receipt-id "$EXPECTED_RECEIPT")
+          fi
+          node web/scripts/controlled-repository-writer.mjs plan \
+            --archive /tmp/writer/release-archive.json \
+            --live-manifest /tmp/writer/live-manifest.json \
+            --policy /tmp/writer/writer-policy.json \
+            --ledger /tmp/writer/replay-ledger.json \
+            --target-path "$TARGET_PATH" \
+            --out-dir /tmp/writer/output \
+            "${EXTRA_ARGS[@]}"
+          BASE_COMMIT="$(cat /tmp/writer/base-commit.txt)"
+          REPLAY_PREFIX="$(jq -r '.replay_key' /tmp/writer/output/writer-plan.json | cut -d: -f2 | cut -c1-12)"
+          RELEASE_RECEIPT_ID="$(jq -r '.release_receipt_id' /tmp/writer/output/writer-plan.json)"
+          echo "base_commit=$BASE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "replay_prefix=$REPLAY_PREFIX" >> "$GITHUB_OUTPUT"
+          echo "release_receipt_id=$RELEASE_RECEIPT_ID" >> "$GITHUB_OUTPUT"
+          echo "Validated release receipt: $RELEASE_RECEIPT_ID"
+          echo "Replay prefix: $REPLAY_PREFIX"
+
+      - name: Upload validated writer plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: controlled-release-plan-${{ github.run_id }}
+          path: /tmp/writer
+          if-no-files-found: error
+          retention-days: 14
+
+  apply:
+    if: inputs.mode == 'apply'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: controlled-release
+    steps:
+      - name: Check out exact validated base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.base_commit }}
+          fetch-depth: 0
+
+      - name: Download validated plan
+        uses: actions/download-artifact@v4
+        with:
+          name: controlled-release-plan-${{ github.run_id }}
+          path: /tmp/writer
+
+      - name: Reconfirm requested release receipt
+        shell: bash
+        env:
+          EXPECTED_RECEIPT: ${{ inputs.expected_release_receipt_id }}
+          VALIDATED_RECEIPT: ${{ needs.validate.outputs.release_receipt_id }}
+        run: |
+          set -euo pipefail
+          test "$EXPECTED_RECEIPT" = "$VALIDATED_RECEIPT"
+
+      - name: Create review branch and commit exact target manifest
+        id: mutation
+        shell: bash
+        env:
+          BASE_REF: ${{ inputs.base_ref }}
+          BASE_COMMIT: ${{ needs.validate.outputs.base_commit }}
+          TARGET_PATH: ${{ inputs.target_manifest_path }}
+          REPLAY_PREFIX: ${{ needs.validate.outputs.replay_prefix }}
+        run: |
+          set -euo pipefail
+          BRANCH="controlled-release/${GITHUB_RUN_ID}-${REPLAY_PREFIX}"
+          git switch -c "$BRANCH" "$BASE_COMMIT"
+          mkdir -p "$(dirname "$TARGET_PATH")"
+          cp /tmp/writer/output/after-manifest.json "$TARGET_PATH"
+          git config user.name "parallax-controlled-writer[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$TARGET_PATH"
+          git commit -m "Apply controlled package release ${REPLAY_PREFIX}"
+          MUTATION_COMMIT="$(git rev-parse HEAD)"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "mutation_commit=$MUTATION_COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Emit commit-bound receipt and consume replay key
+        id: finalize
+        shell: bash
+        env:
+          BRANCH: ${{ steps.mutation.outputs.branch }}
+          MUTATION_COMMIT: ${{ steps.mutation.outputs.mutation_commit }}
+          BASE_REF: ${{ inputs.base_ref }}
+          BASE_COMMIT: ${{ needs.validate.outputs.base_commit }}
+        run: |
+          set -euo pipefail
+          node web/scripts/controlled-repository-writer.mjs finalize \
+            --plan /tmp/writer/output/writer-plan.json \
+            --ledger /tmp/writer/replay-ledger.json \
+            --mutation-commit "$MUTATION_COMMIT" \
+            --application-branch "$BRANCH" \
+            --base-ref "$BASE_REF" \
+            --base-commit "$BASE_COMMIT" \
+            --repository "$GITHUB_REPOSITORY" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --out-dir /tmp/writer/application
+          RECEIPT_ID="$(jq -r '.application_receipt_id' /tmp/writer/application/application-receipt.json)"
+          RECEIPT_PREFIX="$(printf '%s' "$RECEIPT_ID" | cut -d: -f2 | cut -c1-16)"
+          RECEIPT_PATH="artifacts/repository-applications/${RECEIPT_PREFIX}.json"
+          mkdir -p "$(dirname "$RECEIPT_PATH")" .parallax
+          cp /tmp/writer/application/application-receipt.json "$RECEIPT_PATH"
+          cp /tmp/writer/application/replay-ledger.json .parallax/release-replay-ledger.json
+          git add -- "$RECEIPT_PATH" .parallax/release-replay-ledger.json
+          git commit -m "Record controlled release application ${RECEIPT_PREFIX}"
+          echo "receipt_id=$RECEIPT_ID" >> "$GITHUB_OUTPUT"
+          echo "receipt_path=$RECEIPT_PATH" >> "$GITHUB_OUTPUT"
+          echo "record_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Push controlled review branch
+        shell: bash
+        env:
+          BRANCH: ${{ steps.mutation.outputs.branch }}
+        run: git push --set-upstream origin "$BRANCH"
+
+      - name: Open controlled release pull request
+        id: pull_request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.mutation.outputs.branch }}
+          BASE_REF: ${{ inputs.base_ref }}
+          RELEASE_RECEIPT_ID: ${{ needs.validate.outputs.release_receipt_id }}
+          APPLICATION_RECEIPT_ID: ${{ steps.finalize.outputs.receipt_id }}
+          MUTATION_COMMIT: ${{ steps.mutation.outputs.mutation_commit }}
+        run: |
+          set -euo pipefail
+          PR_URL="$(gh pr create \
+            --base "$BASE_REF" \
+            --head "$BRANCH" \
+            --title "Apply controlled package release ${RELEASE_RECEIPT_ID#release-receipt:}" \
+            --body "## Controlled repository application\n\n- Release receipt: \`$RELEASE_RECEIPT_ID\`\n- Application receipt: \`$APPLICATION_RECEIPT_ID\`\n- Mutation commit: \`$MUTATION_COMMIT\`\n- Replay key consumed on this review branch.\n- Direct mutation of \`$BASE_REF\` was not performed.\n\nMerging this pull request is the atomic repository application step. All prior manifests and governance artifacts remain in history.")"
+          echo "url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Build application attestation bundle
+        shell: bash
+        env:
+          BRANCH: ${{ steps.mutation.outputs.branch }}
+          MUTATION_COMMIT: ${{ steps.mutation.outputs.mutation_commit }}
+          RECORD_COMMIT: ${{ steps.finalize.outputs.record_commit }}
+          PR_URL: ${{ steps.pull_request.outputs.url }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/application-attestation
+          cp /tmp/writer/release-archive.json /tmp/application-attestation/
+          cp /tmp/writer/output/writer-plan.json /tmp/application-attestation/
+          cp /tmp/writer/output/after-manifest.json /tmp/application-attestation/
+          cp /tmp/writer/application/application-receipt.json /tmp/application-attestation/
+          cp /tmp/writer/application/application-bundle.json /tmp/application-attestation/
+          cp /tmp/writer/application/replay-ledger.json /tmp/application-attestation/
+          jq -n \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg branch "$BRANCH" \
+            --arg mutation_commit "$MUTATION_COMMIT" \
+            --arg record_commit "$RECORD_COMMIT" \
+            --arg pull_request "$PR_URL" \
+            --arg workflow_run_id "$GITHUB_RUN_ID" \
+            '{repository:$repository,application_branch:$branch,mutation_commit:$mutation_commit,record_commit:$record_commit,pull_request:$pull_request,workflow_run_id:$workflow_run_id}' \
+            > /tmp/application-attestation/workflow-application.json
+          tar -C /tmp -czf "/tmp/controlled-release-application-${GITHUB_RUN_ID}.tar.gz" application-attestation
+
+      - name: Upload application bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: controlled-release-application-${{ github.run_id }}
+          path: /tmp/controlled-release-application-${{ github.run_id }}.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attest application bundle provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: /tmp/controlled-release-application-${{ github.run_id }}.tar.gz

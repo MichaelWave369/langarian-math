@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/repository-application-receipt.schema.json",
+  "title": "Repository Application Receipt v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "application_receipt_id",
+    "application_type",
+    "status",
+    "merge_status",
+    "repository",
+    "base_ref",
+    "base_commit",
+    "application_branch",
+    "mutation_commit",
+    "target_path",
+    "package",
+    "action",
+    "archive_digest",
+    "authority_decision_id",
+    "release_proposal_id",
+    "release_receipt_id",
+    "before_manifest_hash",
+    "after_manifest_hash",
+    "patch_digest",
+    "replay_key",
+    "workflow_identity",
+    "issued_at_utc",
+    "claims_supported",
+    "prohibited_inferences"
+  ],
+  "properties": {
+    "schema_version": { "const": "repository-application-receipt:v0.1" },
+    "application_receipt_id": { "type": "string", "pattern": "^repository-application:[0-9a-f]{64}$" },
+    "application_type": { "const": "commit-bound-controlled-package-release" },
+    "status": { "const": "APPLIED_ON_REVIEW_BRANCH" },
+    "merge_status": { "const": "NOT_MERGED" },
+    "repository": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+    "base_ref": { "type": "string", "minLength": 1 },
+    "base_commit": { "$ref": "#/$defs/commit" },
+    "application_branch": { "type": "string", "pattern": "^controlled-release/" },
+    "mutation_commit": { "$ref": "#/$defs/commit" },
+    "target_path": { "type": "string", "minLength": 1 },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "before_version", "target_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "before_version": { "type": "string", "minLength": 1 },
+        "target_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+    "archive_digest": { "$ref": "#/$defs/digest" },
+    "authority_decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+    "release_proposal_id": { "type": "string", "pattern": "^release-proposal:[0-9a-f]{64}$" },
+    "release_receipt_id": { "type": "string", "pattern": "^release-receipt:[0-9a-f]{64}$" },
+    "before_manifest_hash": { "$ref": "#/$defs/digest" },
+    "after_manifest_hash": { "$ref": "#/$defs/digest" },
+    "patch_digest": { "$ref": "#/$defs/digest" },
+    "replay_key": { "$ref": "#/$defs/digest" },
+    "workflow_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "workflow_run_id", "workflow_run_attempt", "attestation_status"],
+      "properties": {
+        "provider": { "const": "github-actions-oidc" },
+        "workflow_run_id": { "type": "string", "minLength": 1 },
+        "workflow_run_attempt": { "type": "string", "minLength": 1 },
+        "attestation_status": { "const": "PENDING_WORKFLOW_ATTESTATION" }
+      }
+    },
+    "issued_at_utc": { "type": "string", "format": "date-time" },
+    "claims_supported": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "prohibited_inferences": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "commit": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "repository-writer-policy:v0.1",
+  "allowed_targets": [
+    {
+      "package_id": "langarian-finite-complex",
+      "path": "examples/theory-packages/langarian-finite-complex.json",
+      "allowed_actions": ["PROMOTION", "ROLLBACK"]
+    },
+    {
+      "package_id": "generic-provenance-workflow",
+      "path": "examples/theory-packages/generic-provenance-workflow.json",
+      "allowed_actions": ["PROMOTION", "ROLLBACK"]
+    }
+  ],
+  "replay_ledger_path": ".parallax/release-replay-ledger.json",
+  "application_receipt_directory": "artifacts/repository-applications",
+  "release_branch_prefix": "controlled-release/",
+  "require_pull_request": true,
+  "prohibit_direct_main_write": true,
+  "metadata": {
+    "boundary": "The controlled writer may create a review branch and pull request only. It may not push an application directly to main.",
+    "environment_recommendation": "Configure required reviewers on the GitHub environment named controlled-release."
+  }
+}

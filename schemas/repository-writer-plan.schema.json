@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://michaelwave369.github.io/langarian-math/schemas/repository-writer-plan.schema.json",
+  "title": "Repository Writer Plan v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "status",
+    "package",
+    "action",
+    "target_path",
+    "archive_digest",
+    "authority_decision_id",
+    "release_proposal_id",
+    "release_receipt_id",
+    "before_manifest_hash",
+    "after_manifest_hash",
+    "patch_digest",
+    "replay_key",
+    "evaluated_at_utc",
+    "repository_write_boundary"
+  ],
+  "properties": {
+    "schema_version": { "const": "repository-writer-plan:v0.1" },
+    "plan_id": { "type": "string", "pattern": "^writer-plan:[0-9a-f]{64}$" },
+    "status": { "const": "READY_FOR_REVIEW_BRANCH" },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "before_version", "target_version"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "before_version": { "type": "string", "minLength": 1 },
+        "target_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "action": { "enum": ["PROMOTION", "ROLLBACK"] },
+    "target_path": { "type": "string", "minLength": 1 },
+    "archive_digest": { "$ref": "#/$defs/digest" },
+    "authority_decision_id": { "type": "string", "pattern": "^authority-decision:[0-9a-f]{64}$" },
+    "release_proposal_id": { "type": "string", "pattern": "^release-proposal:[0-9a-f]{64}$" },
+    "release_receipt_id": { "type": "string", "pattern": "^release-receipt:[0-9a-f]{64}$" },
+    "before_manifest_hash": { "$ref": "#/$defs/digest" },
+    "after_manifest_hash": { "$ref": "#/$defs/digest" },
+    "patch_digest": { "$ref": "#/$defs/digest" },
+    "replay_key": { "$ref": "#/$defs/digest" },
+    "evaluated_at_utc": { "type": "string", "format": "date-time" },
+    "repository_write_boundary": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}
