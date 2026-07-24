@@ -1,0 +1,20 @@
+{
+  "schema_version": "repository-reconciliation-policy:v0.1",
+  "base_ref": "main",
+  "application_branch_prefix": "controlled-release/",
+  "reconciliation_branch_prefix": "release-reconciliation/",
+  "allowed_receipt_path_prefixes": [
+    "artifacts/repository-applications/"
+  ],
+  "merge_observation_path_prefix": "artifacts/repository-merges/",
+  "rollback_anchor_path_prefix": "artifacts/rollback-anchors/",
+  "replay_ledger_path": ".parallax/release-replay-ledger.json",
+  "merge_ledger_path": ".parallax/release-merge-ledger.json",
+  "require_exact_application_file_set": true,
+  "require_application_attestation": true,
+  "require_release_chain_reverification": true,
+  "record_via_pull_request": true,
+  "metadata": {
+    "boundary": "A merge observation records a verified repository event. It does not rewrite the original application receipt, authorize rollback, or prove package claims."
+  }
+}
