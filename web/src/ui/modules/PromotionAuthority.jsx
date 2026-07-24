@@ -6,16 +6,14 @@ import { buildPromotionGovernanceProfile, createPromotionAssessmentReceipt } fro
 import {
   DEFAULT_PROMOTION_AUTHORITY_POLICY,
   buildPromotionAuthorityProfile,
-  createPromotionAuthorityDecisionReceipt,
   emptyAuthorityBundle,
-  evaluateAppeals,
-  evaluateRollback,
   filePromotionAppeal,
   generateLocalAuthority,
   issuePromotionMandate,
   parseAuthorityBundleJson,
   signPromotionBallot,
 } from '../../theory/authority.js'
+import { createSignedPromotionDecision, evaluateSignedDecisionLifecycle } from '../../theory/signedDecision.js'
 import { downloadText } from '../util/format.js'
 import { stripIngest } from '../util/sanitize.js'
 import './PromotionAuthority.css'
@@ -38,8 +36,8 @@ export default function PromotionAuthority() {
   const [sessions, setSessions] = useState(null)
   const [profile, setProfile] = useState(null)
   const [decision, setDecision] = useState(null)
-  const [appealProfile, setAppealProfile] = useState(null)
-  const [rollbackProfile, setRollbackProfile] = useState(null)
+  const [lifecycle, setLifecycle] = useState(null)
+  const [evaluationTime, setEvaluationTime] = useState('2026-07-24T00:02:00.000Z')
   const [importText, setImportText] = useState('')
   const [importIssues, setImportIssues] = useState([])
   const [message, setMessage] = useState(null)
@@ -59,16 +57,20 @@ export default function PromotionAuthority() {
   useEffect(() => {
     let live = true
     if (!assessment || !theoryPackage) return undefined
-    buildPromotionAuthorityProfile(assessment, authorityBundle, authorityPolicy).then(async (next) => {
+    buildPromotionAuthorityProfile(assessment, authorityBundle, authorityPolicy, evaluationTime).then(async (next) => {
       if (!live) return
       setProfile(next)
-      const nextDecision = await createPromotionAuthorityDecisionReceipt(next, theoryPackage.maturity_level, '2026-07-24T00:05:00.000Z')
+      if (!sessions?.issuer) {
+        setDecision(null)
+        setLifecycle(null)
+        return
+      }
+      const nextDecision = await createSignedPromotionDecision(next, theoryPackage.maturity_level, sessions.issuer, evaluationTime)
       setDecision(nextDecision)
-      setAppealProfile(await evaluateAppeals(nextDecision, authorityBundle, authorityPolicy))
-      setRollbackProfile(await evaluateRollback(nextDecision, authorityBundle, authorityPolicy))
+      setLifecycle(await evaluateSignedDecisionLifecycle(nextDecision, authorityBundle, authorityPolicy, evaluationTime))
     })
     return () => { live = false }
-  }, [assessment, authorityBundle, authorityPolicy, theoryPackage])
+  }, [assessment, authorityBundle, authorityPolicy, evaluationTime, sessions, theoryPackage])
 
   if (!theoryPackage || !suite) return <div className="notice">No public executable package and conformance suite are available.</div>
 
@@ -110,10 +112,10 @@ export default function PromotionAuthority() {
     setBusy(true)
     try {
       const issuer = await generateLocalAuthority(
-        'Mandate issuer',
-        ['mandate-issuer'],
+        'Mandate issuer and decision recorder',
+        ['mandate-issuer', 'decision-recorder'],
         ['governance-office'],
-        ['issue:promotion-mandate', 'appeal:promotion-decision'],
+        ['issue:promotion-mandate', 'record:promotion-decision', 'appeal:promotion-decision'],
         '2026-07-24T00:00:00.000Z',
       )
       const mathematical = await generateLocalAuthority(
@@ -168,6 +170,7 @@ export default function PromotionAuthority() {
         'The implementation role approves only the exact assessment and package binding.',
         { issued_at_utc: '2026-07-24T00:01:00.000Z' },
       )
+      setEvaluationTime('2026-07-24T00:02:00.000Z')
       setSessions({ issuer, mathematical, implementation })
       setAuthorityBundle({
         bundle_schema_version: 'promotion-authority-bundle:v0.1',
@@ -178,7 +181,7 @@ export default function PromotionAuthority() {
         rollback_ballots: [],
         metadata: { planning_artifact: false, generated_in: 'promotion-authority:v0.6' },
       })
-      setMessage('Created a two-role, two-domain signed council. Quorum still cannot override a blocked prerequisite assessment.')
+      setMessage('Created a signed two-role, two-domain council and accountable decision recorder. Quorum still cannot override a blocked prerequisite assessment.')
     } catch (error) {
       setMessage(`Could not form council: ${error.message ?? String(error)}`)
     } finally {
@@ -190,9 +193,9 @@ export default function PromotionAuthority() {
     if (!assessment || !sessions || authorityBundle.mandates.length < 2) return
     setBusy(true)
     try {
-      const oldMath = authorityBundle.mandates.find((item) => item.role === 'mathematical-review')
-      const oldImplementation = authorityBundle.mandates.find((item) => item.role === 'implementation-audit')
-      if (!oldMath || !oldImplementation) return
+      const activeMath = [...authorityBundle.mandates].reverse().find((item) => item.role === 'mathematical-review')
+      const activeImplementation = [...authorityBundle.mandates].reverse().find((item) => item.role === 'implementation-audit')
+      if (!activeMath || !activeImplementation) return
       const options = {
         valid_from_utc: '2026-08-23T00:00:00.000Z',
         expires_at_utc: '2026-09-22T00:00:00.000Z',
@@ -205,7 +208,7 @@ export default function PromotionAuthority() {
         'mathematical-review',
         assessment,
         ['vote:promotion-level4', 'rollback:promotion-decision'],
-        { ...options, supersedes: [oldMath.mandate_id] },
+        { ...options, supersedes: [activeMath.mandate_id] },
       )
       const implementationMandate = await issuePromotionMandate(
         sessions.issuer,
@@ -213,10 +216,11 @@ export default function PromotionAuthority() {
         'implementation-audit',
         assessment,
         ['vote:promotion-level4', 'rollback:promotion-decision'],
-        { ...options, supersedes: [oldImplementation.mandate_id] },
+        { ...options, supersedes: [activeImplementation.mandate_id] },
       )
       const mathBallot = await signPromotionBallot(sessions.mathematical, assessment, mathMandate, 'APPROVE', 'Renewed mandate approval.', { issued_at_utc: '2026-08-23T00:01:00.000Z' })
       const implementationBallot = await signPromotionBallot(sessions.implementation, assessment, implementationMandate, 'APPROVE', 'Renewed mandate approval.', { issued_at_utc: '2026-08-23T00:01:00.000Z' })
+      setEvaluationTime('2026-08-23T00:02:00.000Z')
       setAuthorityBundle((current) => ({
         ...current,
         mandates: [...current.mandates, mathMandate, implementationMandate],
@@ -237,10 +241,10 @@ export default function PromotionAuthority() {
       sessions.mathematical,
       decision,
       'Request independent re-review of the recorded authority decision and its blockers.',
-      { issued_at_utc: '2026-07-24T00:06:00.000Z' },
+      { issued_at_utc: evaluationTime },
     )
     setAuthorityBundle((current) => ({ ...current, appeals: [...current.appeals, appeal] }))
-    setMessage('Filed a signed appeal. An appeal opens review; it does not silently reverse the decision.')
+    setMessage('Filed a signed appeal. An appeal opens review; it does not silently reverse the signed decision.')
   }
 
   const importBundle = () => {
@@ -249,11 +253,13 @@ export default function PromotionAuthority() {
     if (!parsed.bundle) return
     setAuthorityBundle(parsed.bundle)
     setSessions(null)
-    setMessage('Imported public authority identities and signed governance records. No private key was imported.')
+    setDecision(null)
+    setLifecycle(null)
+    setMessage('Imported public authority identities and signed governance records. No private key or recorder session was imported.')
   }
 
   const exportBundle = () => downloadText('langarian-promotion-authority-bundle.json', `${JSON.stringify(authorityBundle, null, 2)}\n`)
-  const exportDecision = () => decision && downloadText('langarian-promotion-authority-decision.json', `${JSON.stringify(decision, null, 2)}\n`)
+  const exportDecision = () => decision && downloadText('langarian-signed-promotion-decision.json', `${JSON.stringify(decision, null, 2)}\n`)
 
   return (
     <div>
@@ -270,22 +276,24 @@ export default function PromotionAuthority() {
           <strong>Authority is bounded</strong>
           <p><b>Mandate:</b> who may decide, for which package, role, scope, and time window?</p>
           <p><b>Quorum:</b> are enough distinct authorities, roles, and independence domains represented?</p>
-          <p><b>Lifecycle:</b> is the decision unexpired, unappealed, and not rollback-authorized?</p>
+          <p><b>Lifecycle:</b> is the signed decision unexpired, unappealed, and not rollback-authorized?</p>
         </div>
       </section>
 
       <section className="panel panel-formal">
         <div className="package-title-row">
-          <div><h2>Authority decision</h2><p className="mono dim-text">{theoryPackage.theory.id}@{theoryPackage.theory.version} → Level 4</p></div>
-          <Badge tone={decision?.status === 'APPROVED_PENDING_PACKAGE_UPDATE' ? 'pass' : 'warn'}>{decision?.status ?? 'EVALUATING'}</Badge>
+          <div><h2>Signed authority decision</h2><p className="mono dim-text">{theoryPackage.theory.id}@{theoryPackage.theory.version} → Level 4</p></div>
+          <Badge tone={lifecycle?.operative ? 'pass' : 'warn'}>{decision?.status ?? 'NO SIGNED DECISION'}</Badge>
         </div>
         <div className="authority-gates">
           <div><span>1</span><strong>Eligibility assessment</strong><b>{assessment?.status ?? 'OPEN'}</b></div>
           <div><span>2</span><strong>Mandate quorum</strong><b>{profile?.quorum_satisfied ? 'SATISFIED' : 'BLOCKED'}</b></div>
-          <div><span>3</span><strong>Decision lifecycle</strong><b>{appealProfile?.appeal_open ? 'APPEAL OPEN' : rollbackProfile?.status ?? 'CURRENT'}</b></div>
+          <div><span>3</span><strong>Decision lifecycle</strong><b>{lifecycle?.operative ? 'OPERATIVE' : lifecycle?.appeal.appeal_open ? 'APPEAL OPEN' : lifecycle?.rollback.status ?? 'NOT RECORDED'}</b></div>
         </div>
         <dl className="kv" style={{ marginTop: 14 }}>
           <dt>assessment</dt><dd className="authority-break">{assessment?.assessment_id ?? '—'}</dd>
+          <dt>decision recorder</dt><dd className="authority-break">{decision?.recorded_by ?? '—'}</dd>
+          <dt>recorder signature</dt><dd>{lifecycle?.verification.signature_valid ? 'valid' : decision ? 'invalid' : '—'}</dd>
           <dt>approvals</dt><dd>{profile?.accepted_approvals.length ?? 0} / {authorityPolicy.minimum_approvals}</dd>
           <dt>independence domains</dt><dd>{profile?.distinct_independence_domains.join(', ') || '—'}</dd>
           <dt>covered roles</dt><dd>{profile?.covered_roles.join(', ') || '—'}</dd>
@@ -318,6 +326,7 @@ export default function PromotionAuthority() {
             <dt>required roles</dt><dd>{authorityPolicy.required_roles.join(', ')}</dd>
             <dt>reject blocks</dt><dd>{String(authorityPolicy.require_no_reject_ballots)}</dd>
             <dt>decision validity</dt><dd>{authorityPolicy.decision_validity_days} days</dd>
+            <dt>evaluation time</dt><dd>{evaluationTime}</dd>
           </dl>
         </section>
       </div>
@@ -343,17 +352,20 @@ export default function PromotionAuthority() {
         <section className="panel panel-formal">
           <h2>Current blockers</h2>
           {profile?.blockers.length ? <ol className="authority-blockers">{profile.blockers.map((item, index) => <li key={`${item}:${index}`}>{item}</li>)}</ol> : <div className="package-validation-pass">Quorum is satisfied for a later controlled package-update step.</div>}
+          {lifecycle?.blockers.map((item, index) => <p className="warn-text" key={`${item}:${index}`}>⚠ {item}</p>)}
           {profile?.warnings.map((item, index) => <p className="warn-text" key={`${item}:${index}`}>⚠ {item}</p>)}
         </section>
         <section className="panel panel-formal">
           <h2>Decision lifecycle</h2>
           <dl className="kv">
-            <dt>appeal open</dt><dd>{String(appealProfile?.appeal_open ?? false)}</dd>
-            <dt>valid appeals</dt><dd>{appealProfile?.valid_appeal_ids.length ?? 0}</dd>
-            <dt>rollback status</dt><dd>{rollbackProfile?.status ?? '—'}</dd>
-            <dt>rollback ballots</dt><dd>{rollbackProfile?.valid_ballot_ids.length ?? 0}</dd>
+            <dt>signature accepted</dt><dd>{String(lifecycle?.verification.accepted ?? false)}</dd>
+            <dt>expired</dt><dd>{String(lifecycle?.expired ?? false)}</dd>
+            <dt>appeal open</dt><dd>{String(lifecycle?.appeal.appeal_open ?? false)}</dd>
+            <dt>valid appeals</dt><dd>{lifecycle?.appeal.valid_appeal_ids.length ?? 0}</dd>
+            <dt>rollback status</dt><dd>{lifecycle?.rollback.status ?? '—'}</dd>
+            <dt>operative</dt><dd>{String(lifecycle?.operative ?? false)}</dd>
           </dl>
-          <p className="panel-sub">Appeal and rollback records are append-only. Neither rewrites the original decision receipt.</p>
+          <p className="panel-sub">Appeal, renewal, and rollback records are append-only. None rewrites the original signed decision.</p>
         </section>
       </div>
 
@@ -365,14 +377,14 @@ export default function PromotionAuthority() {
           <div className="btn-row" style={{ marginTop: 10 }}>
             <button type="button" className="btn btn-primary" onClick={importBundle} disabled={!importText.trim()}>Validate &amp; evaluate</button>
             <button type="button" className="btn" onClick={exportBundle}>Export bundle</button>
-            <button type="button" className="btn" onClick={exportDecision} disabled={!decision}>Export decision</button>
+            <button type="button" className="btn" onClick={exportDecision} disabled={!decision}>Export signed decision</button>
           </div>
           {importIssues.length > 0 && <div className="error-box"><ul>{importIssues.map((item, index) => <li key={`${item.code}:${index}`}><code>{item.path}</code> [{item.code}] {item.message}</li>)}</ul></div>}
         </section>
         <section className="panel panel-formal">
-          <h2>Append-only decision receipt</h2>
-          <p className="panel-sub">The receipt authorizes or blocks a later package-update step. It is not itself the package update.</p>
-          {decision && <pre className="json authority-json">{JSON.stringify(decision, null, 2)}</pre>}
+          <h2>Append-only signed decision</h2>
+          <p className="panel-sub">The recorder signature binds the aggregate quorum result. The receipt authorizes or blocks a later package-update step; it is not itself that update.</p>
+          {decision ? <pre className="json authority-json">{JSON.stringify(decision, null, 2)}</pre> : <p className="dim-text">Form a local council to create an in-memory recorder signature. Imported bundles contain no private recorder key.</p>}
         </section>
       </div>
     </div>
